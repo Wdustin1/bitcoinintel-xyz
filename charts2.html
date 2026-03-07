@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bitcoin Intel XYZ — Charts II</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:     #080808;
+      --card:   #0f0f0f;
+      --border: #1c1c1c;
+      --orange: #F7931A;
+      --sub:    #444;
+    }
+
+    html, body {
+      background: var(--bg);
+      color: #fff;
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100vh;
+    }
+
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 40px; border-bottom: 1px solid var(--border);
+      background: rgba(8,8,8,0.95); position: sticky; top: 0; z-index: 100;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo svg { width: 28px; height: 28px; }
+    .logo-text { font-size: 14px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--orange); }
+    .live { display: flex; align-items: center; gap: 7px; }
+    .dot  { width: 7px; height: 7px; background: #22c55e; border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.3} }
+    .live-txt { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #22c55e; }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 36px 24px 72px; display: flex; flex-direction: column; gap: 22px; }
+
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 28px 32px; position: relative;
+    }
+
+    .card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 22px; }
+    .card-label { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--sub); margin-bottom: 4px; }
+    .card-title { font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
+    .card-value { font-size: 40px; font-weight: 900; letter-spacing: -.03em; line-height: 1; color: var(--orange); }
+    .card-sub   { font-size: 12px; color: var(--sub); font-weight: 500; margin-top: 4px; }
+
+    .watermark { position: absolute; bottom: 14px; right: 18px; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #2a2a2a; user-select: none; }
+
+    .tabs { display: flex; gap: 3px; background: #161616; border-radius: 9px; padding: 3px; }
+    .tab  { font-size: 11px; font-weight: 700; color: var(--sub); padding: 5px 13px; border-radius: 6px; cursor: pointer; border: none; background: none; font-family: 'Inter', sans-serif; letter-spacing: .04em; transition: all .15s; }
+    .tab:hover { color: #aaa; }
+    .tab.active { background: var(--orange); color: #000; }
+
+    .chart-wrap { position: relative; }
+
+    .stats-row { display: flex; gap: 0; margin-top: 18px; border-top: 1px solid var(--border); padding-top: 18px; }
+    .stat { flex: 1; padding: 0 18px; border-right: 1px solid var(--border); }
+    .stat:first-child { padding-left: 0; }
+    .stat:last-child  { border-right: none; }
+    .stat-label { font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--sub); margin-bottom: 4px; }
+    .stat-value { font-size: 15px; font-weight: 700; color: #ccc; }
+
+    /* ── HALVING ── */
+    .halving-body {
+      display: grid; grid-template-columns: auto 1fr; gap: 48px; align-items: center;
+    }
+
+    /* Countdown boxes */
+    .countdown-wrap { display: flex; flex-direction: column; gap: 16px; }
+    .countdown-boxes { display: flex; gap: 10px; align-items: flex-end; }
+    .cbox {
+      display: flex; flex-direction: column; align-items: center;
+      background: #141414; border: 1px solid #1f1f1f; border-radius: 12px;
+      padding: 16px 12px 12px; min-width: 72px;
+    }
+    .cbox-num {
+      font-size: 36px; font-weight: 900; letter-spacing: -.03em; color: #fff; line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .cbox-label {
+      font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--sub); margin-top: 7px;
+    }
+    .cbox-sep {
+      font-size: 28px; font-weight: 900; color: #2a2a2a; padding-bottom: 18px; line-height: 1;
+    }
+
+    /* Right side: arc + stats */
+    .halving-right { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+    .halving-arc-wrap { position: relative; width: 160px; height: 160px; flex-shrink: 0; }
+    .halving-arc-wrap canvas { display: block; }
+    .halving-arc-center {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      text-align: center;
+    }
+    .halving-pct { font-size: 24px; font-weight: 900; letter-spacing: -.03em; color: #fff; }
+    .halving-pct-label { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--sub); margin-top: 2px; }
+
+    .halving-blocks-wrap { text-align: center; }
+    .halving-blocks { font-size: 32px; font-weight: 900; letter-spacing: -.03em; color: var(--orange); line-height: 1; }
+    .halving-blocks-label { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--sub); margin-bottom: 5px; }
+
+    .halving-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; }
+    .hg-item-label { font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--sub); margin-bottom: 3px; }
+    .hg-item-value { font-size: 14px; font-weight: 700; color: #ddd; }
+
+    .progress-wrap { width: 100%; }
+    .progress-bar-label { display: flex; justify-content: space-between; font-size: 9px; color: var(--sub); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 7px; }
+    .progress-track { height: 5px; background: #1a1a1a; border-radius: 99px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #F7931A, #ffb84d); border-radius: 99px; transition: width 1.5s ease; }
+
+    /* ── RAINBOW ── */
+    .rainbow-legend { display: flex; flex-wrap: wrap; gap: 10px 20px; margin-bottom: 16px; }
+    .rb-item { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 600; color: #666; letter-spacing: .04em; text-transform: uppercase; }
+    .rb-dot  { width: 10px; height: 10px; border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="#">
+    <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#F7931A"/><path d="M22.2 13.8c.3-2-1.2-3.1-3.3-3.8l.7-2.7-1.6-.4-.7 2.7-1.3-.3.7-2.7-1.6-.4-.7 2.7-2.6-.6-.4 1.7s1.2.3 1.2.3c.6.2.7.6.7.9L12 18.2c-.1.2-.3.5-.7.4l-1.2-.3-.8 1.8 2.5.6-.7 2.8 1.6.4.7-2.8 1.3.3-.7 2.8 1.6.4.7-2.8c2.8.5 4.9.3 5.8-2.2.7-2-.03-3.2-1.5-3.9.9-.2 1.6-.8 1.8-2.1zm-3.2 4.5c-.5 2-3.9.9-5 .6l.9-3.5c1.1.3 4.6.8 4.1 2.9zm.5-4.5c-.5 1.8-3.3.9-4.2.6l.8-3.2c.9.2 3.9.7 3.4 2.6z" fill="#fff"/></svg>
+    <span class="logo-text">Bitcoin Intel XYZ</span>
+  </a>
+  <div class="live"><div class="dot"></div><span class="live-txt">Live</span></div>
+</header>
+
+<div class="container">
+
+  <!-- ══════════════════════════════════════════════
+       CHART 1: HASH RATE
+  ══════════════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-label">Network Security</div>
+        <div class="card-value" id="hrCurrent">—</div>
+        <div style="font-size:11px;font-weight:600;color:#555;margin-top:4px;">EH/s — Exahashes per second</div>
+        <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#2e2e2e;margin-top:6px;">bitcoinintel.xyz</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
+        <div class="card-label" style="text-align:right;">Bitcoin Hash Rate</div>
+        <div class="tabs" id="hrTabs">
+          <button class="tab" onclick="loadHashRate('6months')">6M</button>
+          <button class="tab active" onclick="loadHashRate('1year')">1Y</button>
+          <button class="tab" onclick="loadHashRate('2years')">2Y</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-wrap" style="height:260px;">
+      <canvas id="hrChart"></canvas>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat"><div class="stat-label">All-Time High</div><div class="stat-value" id="hrATH">—</div></div>
+      <div class="stat"><div class="stat-label">Period Low</div><div class="stat-value" id="hrLow">—</div></div>
+      <div class="stat"><div class="stat-label">Period Change</div><div class="stat-value" id="hrChange">—</div></div>
+      <div class="stat"><div class="stat-label">Source</div><div class="stat-value" style="color:#555;">Blockchain.com</div></div>
+    </div>
+
+    <div class="watermark">bitcoinintel.xyz</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       CHART 2: HALVING COUNTDOWN
+  ══════════════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-header" style="margin-bottom:28px;">
+      <div>
+        <div class="card-label">Next Event</div>
+        <div class="card-title">Bitcoin Halving Countdown</div>
+        <div class="card-sub">Block reward halves from 3.125 → 1.5625 BTC</div>
+      </div>
+      <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#2e2e2e;">bitcoinintel.xyz</div>
+    </div>
+
+    <div class="halving-body">
+
+      <!-- LEFT: Arc -->
+      <div class="halving-right">
+        <div class="halving-arc-wrap">
+          <canvas id="halvingArc" width="160" height="160"></canvas>
+          <div class="halving-arc-center">
+            <div class="halving-pct" id="halvingPct">—</div>
+            <div class="halving-pct-label">complete</div>
+          </div>
+        </div>
+        <div class="halving-blocks-wrap">
+          <div class="halving-blocks-label">Blocks Remaining</div>
+          <div class="halving-blocks" id="halvingBlocks">—</div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Live Countdown + Stats -->
+      <div class="countdown-wrap">
+        <div class="countdown-boxes">
+          <div class="cbox"><div class="cbox-num" id="cdYears">0</div><div class="cbox-label">Years</div></div>
+          <div class="cbox-sep">:</div>
+          <div class="cbox"><div class="cbox-num" id="cdDays">000</div><div class="cbox-label">Days</div></div>
+          <div class="cbox-sep">:</div>
+          <div class="cbox"><div class="cbox-num" id="cdHours">00</div><div class="cbox-label">Hours</div></div>
+          <div class="cbox-sep">:</div>
+          <div class="cbox"><div class="cbox-num" id="cdMins">00</div><div class="cbox-label">Minutes</div></div>
+          <div class="cbox-sep">:</div>
+          <div class="cbox"><div class="cbox-num" id="cdSecs">00</div><div class="cbox-label">Seconds</div></div>
+        </div>
+
+        <div class="halving-grid" style="margin-top:8px;">
+          <div>
+            <div class="hg-item-label">Est. Halving Date</div>
+            <div class="hg-item-value" id="halvingDate">—</div>
+          </div>
+          <div>
+            <div class="hg-item-label">Current Block</div>
+            <div class="hg-item-value" id="halvingCurrentBlock">—</div>
+          </div>
+          <div>
+            <div class="hg-item-label">Current Reward</div>
+            <div class="hg-item-value">3.125 BTC</div>
+          </div>
+          <div>
+            <div class="hg-item-label">Next Reward</div>
+            <div class="hg-item-value">1.5625 BTC</div>
+          </div>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-bar-label">
+            <span>Last Halving (Apr 2024)</span>
+            <span>Next Halving (~Apr 2028)</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="halvingBar" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="watermark">bitcoinintel.xyz</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       CHART 3: RAINBOW CHART
+  ══════════════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-label">Log Regression Model</div>
+        <div class="card-title">Bitcoin Rainbow Chart</div>
+        <div class="card-sub">Price plotted against long-term logarithmic regression bands</div>
+        <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#2e2e2e;margin-top:8px;">bitcoinintel.xyz</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
+        <div class="card-label" style="text-align:right;padding-top:4px;" id="rbZone">—</div>
+      </div>
+    </div>
+
+    <div class="rainbow-legend" id="rbLegend"></div>
+
+    <div class="chart-wrap" style="height:360px;">
+      <canvas id="rainbowChart"></canvas>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat"><div class="stat-label">Current Price</div><div class="stat-value" id="rbPrice">—</div></div>
+      <div class="stat"><div class="stat-label">Regression Base</div><div class="stat-value" id="rbBase">—</div></div>
+      <div class="stat"><div class="stat-label">Current Zone</div><div class="stat-value" id="rbZoneStat">—</div></div>
+      <div class="stat"><div class="stat-label">Model</div><div class="stat-value" style="color:#555;">Log Regression</div></div>
+    </div>
+
+    <div class="watermark">bitcoinintel.xyz</div>
+  </div>
+
+</div>
+
+<script>
+  // ── Helpers ──
+  const fmtK = v => '$' + Number(v).toLocaleString('en-US', { maximumFractionDigits: 0 });
+  const fmtPct = v => (v >= 0 ? '+' : '') + v.toFixed(1) + '%';
+
+  let hrChart = null, rbChart = null;
+
+  // ══════════════════════════════════════════════
+  // CHART 1: HASH RATE
+  // ══════════════════════════════════════════════
+  async function loadHashRate(timespan) {
+    document.querySelectorAll('#hrTabs .tab').forEach(t => {
+      const map = { '6months': '6M', '1year': '1Y', '2years': '2Y' };
+      t.classList.toggle('active', t.textContent === map[timespan]);
+    });
+
+    try {
+      const url = `https://api.blockchain.info/charts/hash-rate?timespan=${timespan}&format=json&cors=true`;
+      const res  = await fetch(url);
+      const data = await res.json();
+
+      // blockchain.info returns in GH/s; convert to EH/s (/1e9)
+      const pts  = data.values;
+      const times = pts.map(p => new Date(p.x * 1000));
+      const vals  = pts.map(p => p.y / 1e9); // EH/s
+
+      const current = vals[vals.length - 1];
+      const ath     = Math.max(...vals);
+      const low     = Math.min(...vals);
+      const change  = ((current - vals[0]) / vals[0]) * 100;
+
+      document.getElementById('hrCurrent').textContent = current.toFixed(0) + ' EH/s';
+      document.getElementById('hrATH').textContent     = ath.toFixed(0) + ' EH/s';
+      document.getElementById('hrLow').textContent     = low.toFixed(0) + ' EH/s';
+      const chEl = document.getElementById('hrChange');
+      chEl.textContent = fmtPct(change);
+      chEl.style.color = change >= 0 ? '#22c55e' : '#ef4444';
+
+      drawHashRate(times, vals);
+
+    } catch(e) { console.error('HR failed', e); }
+  }
+
+  function drawHashRate(times, vals) {
+    const ctx  = document.getElementById('hrChart').getContext('2d');
+    const grad = ctx.createLinearGradient(0, 0, 0, 260);
+    grad.addColorStop(0, 'rgba(247,147,26,0.25)');
+    grad.addColorStop(1, 'rgba(247,147,26,0)');
+
+    if (hrChart) hrChart.destroy();
+
+    hrChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: times,
+        datasets: [{
+          data: vals,
+          borderColor: '#F7931A',
+          borderWidth: 2.5,
+          backgroundColor: grad,
+          fill: true,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: '#F7931A',
+          pointHoverBorderColor: '#fff',
+          pointHoverBorderWidth: 2,
+          tension: 0.3,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        animation: { duration: 600 },
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1a1a1a', titleColor: '#555', bodyColor: '#fff',
+            borderColor: '#2a2a2a', borderWidth: 1, padding: 12, displayColors: false,
+            callbacks: {
+              title: items => new Date(items[0].label).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }),
+              label: item => `Hash Rate: ${item.raw.toFixed(1)} EH/s`,
+            }
+          }
+        },
+        scales: {
+          x: {
+            type: 'time',
+            time: { displayFormats: { month:'MMM yy', week:'MMM d' } },
+            grid: { color: '#131313' }, border: { color: '#1c1c1c' },
+            ticks: { color: '#444', font: { family:'Inter', size:11, weight:'600' }, maxTicksLimit: 8 }
+          },
+          y: {
+            position: 'right',
+            grid: { color: '#131313' }, border: { color: '#1c1c1c' },
+            ticks: {
+              color: '#444', font: { family:'Inter', size:11, weight:'600' },
+              callback: v => v.toFixed(0) + ' EH',
+              maxTicksLimit: 5,
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // ══════════════════════════════════════════════
+  // CHART 2: HALVING COUNTDOWN
+  // ══════════════════════════════════════════════
+  const LAST_HALVING_BLOCK = 840000;
+  const NEXT_HALVING_BLOCK = 1050000;
+  const EPOCH_BLOCKS       = 210000;
+  const AVG_BLOCK_TIME     = 10 * 60 * 1000;
+
+  let halvingTarget = null; // ms timestamp of estimated halving
+
+  async function loadHalving() {
+    try {
+      const res    = await fetch('https://blockchain.info/q/getblockcount?cors=true');
+      const height = parseInt(await res.text());
+
+      const blocksLeft = NEXT_HALVING_BLOCK - height;
+      halvingTarget    = Date.now() + blocksLeft * AVG_BLOCK_TIME;
+      const estDate    = new Date(halvingTarget);
+      const pct        = ((height - LAST_HALVING_BLOCK) / EPOCH_BLOCKS) * 100;
+
+      document.getElementById('halvingBlocks').textContent       = blocksLeft.toLocaleString();
+      document.getElementById('halvingDate').textContent         = estDate.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+      document.getElementById('halvingCurrentBlock').textContent = height.toLocaleString();
+      document.getElementById('halvingPct').textContent          = pct.toFixed(1) + '%';
+      document.getElementById('halvingBar').style.width          = pct + '%';
+
+      drawHalvingArc(pct);
+      tickCountdown();
+      setInterval(tickCountdown, 1000);
+
+    } catch(e) { console.error('Halving failed', e); }
+  }
+
+  function tickCountdown() {
+    if (!halvingTarget) return;
+    const diff = Math.max(0, halvingTarget - Date.now());
+
+    const totalSecs = Math.floor(diff / 1000);
+    const secs  = totalSecs % 60;
+    const mins  = Math.floor(totalSecs / 60) % 60;
+    const hours = Math.floor(totalSecs / 3600) % 24;
+    const totalDays = Math.floor(totalSecs / 86400);
+    const years = Math.floor(totalDays / 365);
+    const days  = totalDays % 365;
+
+    const pad = (n, w) => String(n).padStart(w, '0');
+
+    document.getElementById('cdYears').textContent = years;
+    document.getElementById('cdDays').textContent  = pad(days, 3);
+    document.getElementById('cdHours').textContent = pad(hours, 2);
+    document.getElementById('cdMins').textContent  = pad(mins, 2);
+    document.getElementById('cdSecs').textContent  = pad(secs, 2);
+  }
+
+  function drawHalvingArc(pct) {
+    const canvas = document.getElementById('halvingArc');
+    const ctx    = canvas.getContext('2d');
+    const cx = 80, cy = 80, r = 62;
+
+    ctx.clearRect(0, 0, 160, 160);
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+    ctx.lineWidth = 12;
+    ctx.strokeStyle = '#1a1a1a';
+    ctx.stroke();
+
+    const startAngle = -Math.PI / 2;
+    const endAngle   = startAngle + (pct / 100) * 2 * Math.PI;
+
+    const grad = ctx.createLinearGradient(cx - r, cy, cx + r, cy);
+    grad.addColorStop(0, '#F7931A');
+    grad.addColorStop(1, '#ffb84d');
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, startAngle, endAngle);
+    ctx.lineWidth = 12;
+    ctx.strokeStyle = grad;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+  }
+
+  // ══════════════════════════════════════════════
+  // CHART 3: RAINBOW CHART
+  // ══════════════════════════════════════════════
+  const GENESIS_TS = new Date('2009-01-03').getTime();
+
+  // Log regression: price ≈ 10^(A * log10(daysSinceGenesis) + B)
+  const REG_A = 5.84509376;
+  const REG_B = -17.01593313;
+
+  function regVal(days) {
+    return Math.pow(10, REG_A * Math.log10(days) + REG_B);
+  }
+
+  const BANDS = [
+    { mult: 0.45,  color: '#c0392b', label: 'Fire Sale'         },
+    { mult: 0.70,  color: '#e67e22', label: 'Buy!'              },
+    { mult: 1.05,  color: '#f1c40f', label: 'Accumulate'        },
+    { mult: 1.55,  color: '#2ecc71', label: 'Still Cheap'       },
+    { mult: 2.30,  color: '#1abc9c', label: 'Reasonable'        },
+    { mult: 3.40,  color: '#3498db', label: 'Is This Real?'     },
+    { mult: 5.00,  color: '#9b59b6', label: 'FOMO'              },
+    { mult: 7.50,  color: '#8e44ad', label: 'Sell Seriously'    },
+    { mult: 11.5,  color: '#6c3483', label: 'Max Bubble'        },
+  ];
+
+  async function loadRainbow() {
+    try {
+      const res  = await fetch('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=max');
+      const data = await res.json();
+
+      // Sample every 7th point to keep chart fast
+      const raw    = data.prices;
+      const sample = raw.filter((_, i) => i % 7 === 0);
+      const times  = sample.map(p => new Date(p[0]));
+      const prices = sample.map(p => p[1]);
+      const days   = sample.map(p => (p[0] - GENESIS_TS) / 86400000);
+
+      // Build band lines (sparse — one point per 30 days for projection)
+      const lastDay = (Date.now() - GENESIS_TS) / 86400000;
+      const projDays = [];
+      for (let d = 500; d <= lastDay + 1; d += 30) projDays.push(d);
+      const projTimes = projDays.map(d => new Date(GENESIS_TS + d * 86400000));
+
+      // Current price & zone
+      const currentPrice = prices[prices.length - 1];
+      const currentDays  = days[days.length - 1];
+      const currentReg   = regVal(currentDays);
+      const ratio        = currentPrice / currentReg;
+
+      // Find zone
+      let zoneName = BANDS[BANDS.length - 1].label;
+      for (let i = 0; i < BANDS.length - 1; i++) {
+        if (ratio >= BANDS[i].mult && ratio < BANDS[i + 1].mult) {
+          zoneName = BANDS[i + 1].label;
+          break;
+        }
+      }
+      if (ratio < BANDS[0].mult) zoneName = BANDS[0].label;
+
+      document.getElementById('rbPrice').textContent   = fmtK(currentPrice);
+      document.getElementById('rbBase').textContent    = fmtK(currentReg);
+      document.getElementById('rbZoneStat').textContent = zoneName;
+      document.getElementById('rbZone').textContent    = 'Zone: ' + zoneName;
+
+      // Build legend
+      const legend = document.getElementById('rbLegend');
+      legend.innerHTML = BANDS.map(b =>
+        `<div class="rb-item"><div class="rb-dot" style="background:${b.color}"></div>${b.label}</div>`
+      ).join('');
+
+      drawRainbow(projTimes, projDays, times, prices, days);
+
+    } catch(e) { console.error('Rainbow failed', e); }
+  }
+
+  function drawRainbow(projTimes, projDays, times, prices, days) {
+    const ctx = document.getElementById('rainbowChart').getContext('2d');
+    if (rbChart) rbChart.destroy();
+
+    // Band datasets (filled between adjacent lines)
+    const bandDatasets = BANDS.map((band, i) => ({
+      label: band.label,
+      data: projTimes.map((t, j) => ({ x: t, y: regVal(projDays[j]) * band.mult })),
+      borderColor: band.color,
+      borderWidth: 1,
+      backgroundColor: band.color + '55',
+      fill: i === 0 ? false : '-1',
+      pointRadius: 0,
+      tension: 0.1,
+      parsing: false,
+    }));
+
+    // Actual price
+    const priceDataset = {
+      label: 'BTC Price',
+      data: times.map((t, i) => ({ x: t, y: prices[i] })),
+      borderColor: '#ffffff',
+      borderWidth: 2.5,
+      backgroundColor: 'transparent',
+      fill: false,
+      pointRadius: 0,
+      tension: 0.2,
+      parsing: false,
+    };
+
+    rbChart = new Chart(ctx, {
+      type: 'line',
+      data: { datasets: [...bandDatasets, priceDataset] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        animation: { duration: 800 },
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1a1a1a', titleColor: '#555', bodyColor: '#fff',
+            borderColor: '#2a2a2a', borderWidth: 1, padding: 12,
+            filter: item => item.dataset.label === 'BTC Price',
+            callbacks: {
+              title: items => new Date(items[0].raw.x).toLocaleDateString('en-US', { year:'numeric', month:'short' }),
+              label: item => `BTC: ${fmtK(item.raw.y)}`,
+            }
+          }
+        },
+        scales: {
+          x: {
+            type: 'time',
+            time: { displayFormats: { year:'yyyy', month:'MMM yy' } },
+            grid: { color: '#0d0d0d' }, border: { color: '#1c1c1c' },
+            ticks: { color: '#444', font: { family:'Inter', size:11, weight:'600' }, maxTicksLimit: 8 }
+          },
+          y: {
+            type: 'logarithmic',
+            position: 'right',
+            grid: { color: '#0d0d0d' }, border: { color: '#1c1c1c' },
+            ticks: {
+              color: '#444', font: { family:'Inter', size:11, weight:'600' },
+              callback: v => {
+                if (v >= 1e6) return '$' + (v/1e6).toFixed(0) + 'M';
+                if (v >= 1e3) return '$' + (v/1e3).toFixed(0) + 'K';
+                return '$' + v;
+              },
+              maxTicksLimit: 6,
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // ── Boot ──
+  const adapterScript = document.createElement('script');
+  adapterScript.src = 'https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js';
+  adapterScript.onload = () => {
+    loadHashRate('1year');
+    loadHalving();
+    loadRainbow();
+  };
+  document.head.appendChild(adapterScript);
+</script>
+</body>
+</html>

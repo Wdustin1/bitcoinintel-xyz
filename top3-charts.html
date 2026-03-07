@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bitcoin Intel XYZ — Charts</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:     #080808;
+      --card:   #0f0f0f;
+      --border: #1c1c1c;
+      --orange: #F7931A;
+      --red:    #ef4444;
+      --green:  #22c55e;
+      --sub:    #444;
+      --grid:   #131313;
+    }
+
+    html, body {
+      background: var(--bg);
+      color: #fff;
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 40px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(8,8,8,0.95);
+      position: sticky; top: 0; z-index: 100;
+    }
+
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo svg { width: 28px; height: 28px; }
+    .logo-text { font-size: 14px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--orange); }
+
+    .live { display: flex; align-items: center; gap: 7px; }
+    .dot  { width: 7px; height: 7px; background: var(--green); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .live-txt { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--green); }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 36px 24px 72px; display: flex; flex-direction: column; gap: 22px; }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px 32px;
+      position: relative;
+    }
+
+    .card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 22px; }
+
+    .card-label { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--sub); margin-bottom: 4px; }
+
+    .card-title { font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
+
+    .card-value { font-size: 36px; font-weight: 900; letter-spacing: -.03em; line-height: 1; }
+
+    .card-sub { font-size: 12px; color: var(--sub); font-weight: 500; margin-top: 4px; }
+
+    .watermark { position: absolute; bottom: 14px; right: 18px; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #2a2a2a; user-select: none; }
+
+    /* ── TABS ── */
+    .tabs { display: flex; gap: 3px; background: #161616; border-radius: 9px; padding: 3px; }
+    .tab { font-size: 11px; font-weight: 700; color: var(--sub); padding: 5px 13px; border-radius: 6px; cursor: pointer; border: none; background: none; font-family: 'Inter', sans-serif; letter-spacing: .04em; transition: all .15s; }
+    .tab:hover { color: #aaa; }
+    .tab.active { background: var(--orange); color: #000; }
+
+    /* ── CHART WRAP ── */
+    .chart-wrap { position: relative; }
+
+    /* ── LEGEND ── */
+    .legend { display: flex; gap: 20px; margin-bottom: 16px; }
+    .leg-item { display: flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 600; color: #888; letter-spacing: .04em; text-transform: uppercase; }
+    .leg-dot { width: 10px; height: 10px; border-radius: 3px; }
+
+    /* ── STATS ROW ── */
+    .stats-row { display: flex; gap: 0; margin-top: 18px; border-top: 1px solid var(--border); padding-top: 18px; }
+    .stat { flex: 1; padding: 0 18px; border-right: 1px solid var(--border); }
+    .stat:first-child { padding-left: 0; }
+    .stat:last-child  { border-right: none; }
+    .stat-label { font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--sub); margin-bottom: 4px; }
+    .stat-value { font-size: 15px; font-weight: 700; color: #ccc; }
+
+    /* ── DOMINANCE BADGE ── */
+    .dom-badge {
+      display: inline-flex; align-items: baseline; gap: 4px;
+    }
+    .dom-num { font-size: 42px; font-weight: 900; letter-spacing: -.03em; color: var(--orange); }
+    .dom-pct { font-size: 20px; font-weight: 700; color: var(--orange); }
+
+    /* ── LIQ MAP note ── */
+    .map-note { font-size: 11px; color: var(--sub); font-weight: 500; max-width: 400px; line-height: 1.5; }
+  </style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="#">
+    <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#F7931A"/><path d="M22.2 13.8c.3-2-1.2-3.1-3.3-3.8l.7-2.7-1.6-.4-.7 2.7-1.3-.3.7-2.7-1.6-.4-.7 2.7-2.6-.6-.4 1.7s1.2.3 1.2.3c.6.2.7.6.7.9L12 18.2c-.1.2-.3.5-.7.4l-1.2-.3-.8 1.8 2.5.6-.7 2.8 1.6.4.7-2.8 1.3.3-.7 2.8 1.6.4.7-2.8c2.8.5 4.9.3 5.8-2.2.7-2-.03-3.2-1.5-3.9.9-.2 1.6-.8 1.8-2.1zm-3.2 4.5c-.5 2-3.9.9-5 .6l.9-3.5c1.1.3 4.6.8 4.1 2.9zm.5-4.5c-.5 1.8-3.3.9-4.2.6l.8-3.2c.9.2 3.9.7 3.4 2.6z" fill="#fff"/></svg>
+    <span class="logo-text">Bitcoin Intel XYZ</span>
+  </a>
+  <div class="live"><div class="dot"></div><span class="live-txt">Live</span></div>
+</header>
+
+<div class="container">
+
+  <!-- ══════════════════════════════════════════════
+       CHART 1: LIQUIDATIONS
+  ══════════════════════════════════════════════ -->
+  <div class="card" id="liqCard">
+    <div class="card-header">
+      <div>
+        <div class="card-label">Bitcoin Futures</div>
+        <div class="card-title">Liquidations</div>
+        <div class="card-sub">Long &amp; short liquidations by time window</div>
+      </div>
+      <div class="tabs" id="liqTabs">
+        <button class="tab active" onclick="setLiqView('grouped')">By Window</button>
+        <button class="tab" onclick="setLiqView('hourly')">Hourly</button>
+      </div>
+    </div>
+
+    <div class="legend">
+      <div class="leg-item"><div class="leg-dot" style="background:#ef4444"></div>Longs Liquidated</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#22c55e"></div>Shorts Liquidated</div>
+    </div>
+
+    <div class="chart-wrap" style="height:240px;">
+      <canvas id="liqChart"></canvas>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat"><div class="stat-label">24H Longs</div><div class="stat-value" id="liqLong24">—</div></div>
+      <div class="stat"><div class="stat-label">24H Shorts</div><div class="stat-value" id="liqShort24">—</div></div>
+      <div class="stat"><div class="stat-label">24H Total</div><div class="stat-value" id="liqTotal24">—</div></div>
+      <div class="stat"><div class="stat-label">Dominant Side</div><div class="stat-value" id="liqDom">—</div></div>
+    </div>
+
+    <div class="watermark">bitcoinintel.xyz</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       CHART 2: BTC DOMINANCE
+  ══════════════════════════════════════════════ -->
+  <div class="card" id="domCard">
+    <div class="card-header">
+      <div>
+        <div class="card-label">Market Share</div>
+        <div class="dom-badge">
+          <span class="dom-num" id="domCurrent">—</span>
+          <span class="dom-pct">%</span>
+        </div>
+        <div class="card-sub">Bitcoin dominance — share of total crypto market cap</div>
+      </div>
+      <div class="tabs" id="domTabs">
+        <button class="tab" onclick="loadDominance(14)">14D</button>
+        <button class="tab active" onclick="loadDominance(30)">30D</button>
+        <button class="tab" onclick="loadDominance(90)">90D</button>
+      </div>
+    </div>
+
+    <div class="chart-wrap" style="height:240px;">
+      <canvas id="domChart"></canvas>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat"><div class="stat-label">Period High</div><div class="stat-value" id="domHigh">—</div></div>
+      <div class="stat"><div class="stat-label">Period Low</div><div class="stat-value" id="domLow">—</div></div>
+      <div class="stat"><div class="stat-label">30D Change</div><div class="stat-value" id="domChange">—</div></div>
+      <div class="stat"><div class="stat-label">Alt Coins</div><div class="stat-value" id="domAlts">—</div></div>
+    </div>
+
+    <div class="watermark">bitcoinintel.xyz</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       CHART 3: LIQUIDATION MAP
+  ══════════════════════════════════════════════ -->
+  <div class="card" id="mapCard">
+    <div class="card-header">
+      <div>
+        <div class="card-label">Price Level Analysis</div>
+        <div class="card-title">Liquidation Map</div>
+        <div class="card-sub map-note">Liquidation clusters from last 24h — shows which price levels saw the most forced selling. Current price marked in orange.</div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <div class="leg-item"><div class="leg-dot" style="background:#ef4444"></div>Long Liquidations</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#22c55e"></div>Short Liquidations</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#F7931A; border-radius:50%"></div>Current Price</div>
+    </div>
+
+    <div class="chart-wrap" style="height:420px;">
+      <canvas id="mapChart"></canvas>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat"><div class="stat-label">Peak Liq Level</div><div class="stat-value" id="mapPeakLevel">—</div></div>
+      <div class="stat"><div class="stat-label">Peak Volume</div><div class="stat-value" id="mapPeakVol">—</div></div>
+      <div class="stat"><div class="stat-label">Price Levels</div><div class="stat-value" id="mapLevels">—</div></div>
+      <div class="stat"><div class="stat-label">Data Window</div><div class="stat-value">24H</div></div>
+    </div>
+
+    <div class="watermark">bitcoinintel.xyz</div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+  // ── Helpers ──────────────────────────────────────
+  const fmtM  = v => v >= 1e9 ? '$' + (v/1e9).toFixed(2) + 'B' : '$' + (v/1e6).toFixed(1) + 'M';
+  const fmtK  = v => '$' + Number(v).toLocaleString('en-US', {maximumFractionDigits:0});
+  const fmtPct = v => (v >= 0 ? '+' : '') + v.toFixed(2) + '%';
+
+  let liqChart = null, domChart = null, mapChart = null;
+  let rawOrders = [];
+  let liqView = 'grouped';
+
+  // ══════════════════════════════════════════════
+  // CHART 1: LIQUIDATIONS
+  // ══════════════════════════════════════════════
+  async function loadLiquidations() {
+    try {
+      const now = Date.now();
+      const since = now - 24 * 60 * 60 * 1000;
+      const url = `https://fapi.binance.com/fapi/v1/allForceOrders?symbol=BTCUSDT&startTime=${since}&limit=1000`;
+      const res = await fetch(url);
+      rawOrders = await res.json();
+
+      renderLiqView(liqView);
+    } catch(e) {
+      console.error('Liq failed', e);
+    }
+  }
+
+  function setLiqView(view) {
+    liqView = view;
+    document.querySelectorAll('#liqTabs .tab').forEach(t => {
+      t.classList.toggle('active', t.textContent === (view === 'grouped' ? 'By Window' : 'Hourly'));
+    });
+    renderLiqView(view);
+  }
+
+  function renderLiqView(view) {
+    if (view === 'grouped') renderLiqGrouped();
+    else renderLiqHourly();
+  }
+
+  function renderLiqGrouped() {
+    const now = Date.now();
+    const windows = [
+      { label: '1H',  ms: 1  * 3600000 },
+      { label: '4H',  ms: 4  * 3600000 },
+      { label: '12H', ms: 12 * 3600000 },
+      { label: '24H', ms: 24 * 3600000 },
+    ];
+
+    const agg = windows.map(w => {
+      let long = 0, short = 0;
+      rawOrders.forEach(o => {
+        if ((now - o.time) <= w.ms) {
+          const val = parseFloat(o.executedQty) * parseFloat(o.averagePrice);
+          if (o.side === 'SELL') long += val; // SELL order = long being liquidated
+          else short += val;
+        }
+      });
+      return { label: w.label, long, short };
+    });
+
+    // Stats
+    const last = agg[agg.length - 1];
+    document.getElementById('liqLong24').textContent  = fmtM(last.long);
+    document.getElementById('liqShort24').textContent = fmtM(last.short);
+    document.getElementById('liqTotal24').textContent = fmtM(last.long + last.short);
+    const domSide = last.long > last.short;
+    const domEl = document.getElementById('liqDom');
+    domEl.textContent = domSide ? 'LONGS' : 'SHORTS';
+    domEl.style.color = domSide ? '#ef4444' : '#22c55e';
+
+    drawLiqChart(
+      agg.map(a => a.label),
+      agg.map(a => a.long  / 1e6),
+      agg.map(a => a.short / 1e6),
+      'Liquidations ($M)',
+      false
+    );
+  }
+
+  function renderLiqHourly() {
+    const now = Date.now();
+    const hours = 24;
+    const buckets = Array.from({length: hours}, (_, i) => ({
+      label: i + 'h ago',
+      long: 0, short: 0,
+    }));
+
+    rawOrders.forEach(o => {
+      const age = now - o.time;
+      const bucket = Math.min(Math.floor(age / 3600000), hours - 1);
+      const val = parseFloat(o.executedQty) * parseFloat(o.averagePrice);
+      if (o.side === 'SELL') buckets[bucket].long  += val;
+      else                   buckets[bucket].short += val;
+    });
+
+    const displayed = buckets.slice(0, 12).reverse();
+
+    drawLiqChart(
+      displayed.map(b => b.label),
+      displayed.map(b => b.long  / 1e6),
+      displayed.map(b => b.short / 1e6),
+      'Liquidations ($M)',
+      true
+    );
+  }
+
+  function drawLiqChart(labels, longs, shorts, yLabel, stacked) {
+    const ctx = document.getElementById('liqChart').getContext('2d');
+    if (liqChart) liqChart.destroy();
+
+    liqChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Longs Liquidated',
+            data: longs,
+            backgroundColor: 'rgba(239,68,68,0.85)',
+            borderColor: '#ef4444',
+            borderWidth: 0,
+            borderRadius: 4,
+            borderSkipped: false,
+          },
+          {
+            label: 'Shorts Liquidated',
+            data: shorts,
+            backgroundColor: 'rgba(34,197,94,0.85)',
+            borderColor: '#22c55e',
+            borderWidth: 0,
+            borderRadius: 4,
+            borderSkipped: false,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 500, easing: 'easeInOutQuart' },
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1a1a1a',
+            titleColor: '#666',
+            bodyColor: '#fff',
+            borderColor: '#2a2a2a',
+            borderWidth: 1,
+            padding: 12,
+            callbacks: {
+              label: item => ` ${item.dataset.label}: $${item.raw.toFixed(1)}M`
+            }
+          }
+        },
+        scales: {
+          x: {
+            stacked: stacked,
+            grid: { color: 'transparent' },
+            border: { color: '#1c1c1c' },
+            ticks: { color: '#444', font: { family:'Inter', size:11, weight:'600' } }
+          },
+          y: {
+            stacked: stacked,
+            grid: { color: '#131313' },
+            border: { color: '#1c1c1c' },
+            ticks: {
+              color: '#444',
+              font: { family:'Inter', size:11, weight:'600' },
+              callback: v => '$' + v.toFixed(0) + 'M'
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // ══════════════════════════════════════════════
+  // CHART 2: BTC DOMINANCE
+  // ══════════════════════════════════════════════
+  async function loadDominance(days) {
+    // Update tabs
+    document.querySelectorAll('#domTabs .tab').forEach(t => {
+      t.classList.toggle('active', t.textContent === days + 'D');
+    });
+
+    try {
+      const [btcRes, globalRes, currentRes] = await Promise.all([
+        fetch(`https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=${days}`),
+        fetch(`https://api.coingecko.com/api/v3/global/market_cap_chart?days=${days}&vs_currency=usd`),
+        fetch('https://api.coingecko.com/api/v3/global'),
+      ]);
+
+      const btcData    = await btcRes.json();
+      const globalData = await globalRes.json();
+      const currentData = await currentRes.json();
+
+      const btcMcaps   = btcData.market_caps;     // [[ts, val], ...]
+      const totalMcaps = globalData.market_cap_chart?.market_cap || [];
+
+      // Align by index (same daily granularity)
+      const len = Math.min(btcMcaps.length, totalMcaps.length);
+      const dominances = [];
+      const times = [];
+
+      for (let i = 0; i < len; i++) {
+        const btcM   = btcMcaps[i][1];
+        const totalM = totalMcaps[i][1];
+        if (totalM > 0) {
+          dominances.push((btcM / totalM) * 100);
+          times.push(new Date(btcMcaps[i][0]));
+        }
+      }
+
+      const current = currentData.data.market_cap_percentage.btc;
+      document.getElementById('domCurrent').textContent = current.toFixed(1);
+
+      const high = Math.max(...dominances);
+      const low  = Math.min(...dominances);
+      const change = dominances[dominances.length - 1] - dominances[0];
+
+      document.getElementById('domHigh').textContent   = high.toFixed(1) + '%';
+      document.getElementById('domLow').textContent    = low.toFixed(1) + '%';
+      document.getElementById('domChange').textContent = fmtPct(change);
+      document.getElementById('domChange').style.color = change >= 0 ? '#22c55e' : '#ef4444';
+      document.getElementById('domAlts').textContent   = (100 - current).toFixed(1) + '%';
+
+      drawDomChart(times, dominances);
+
+    } catch(e) {
+      console.error('Dominance failed', e);
+    }
+  }
+
+  function drawDomChart(times, vals) {
+    const ctx = document.getElementById('domChart').getContext('2d');
+    const grad = ctx.createLinearGradient(0, 0, 0, 240);
+    grad.addColorStop(0, 'rgba(247,147,26,0.2)');
+    grad.addColorStop(1, 'rgba(247,147,26,0)');
+
+    if (domChart) domChart.destroy();
+
+    domChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: times,
+        datasets: [{
+          data: vals,
+          borderColor: '#F7931A',
+          borderWidth: 2.5,
+          backgroundColor: grad,
+          fill: true,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: '#F7931A',
+          pointHoverBorderColor: '#fff',
+          pointHoverBorderWidth: 2,
+          tension: 0.35,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 600, easing: 'easeInOutQuart' },
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1a1a1a',
+            titleColor: '#555',
+            bodyColor: '#fff',
+            borderColor: '#2a2a2a',
+            borderWidth: 1,
+            padding: 12,
+            displayColors: false,
+            callbacks: {
+              title: items => new Date(items[0].label).toLocaleDateString('en-US', { month:'short', day:'numeric' }),
+              label: item => 'BTC Dominance: ' + item.raw.toFixed(2) + '%',
+            }
+          }
+        },
+        scales: {
+          x: {
+            type: 'time',
+            time: { displayFormats: { day:'MMM d', week:'MMM d' } },
+            grid: { color: '#131313' },
+            border: { color: '#1c1c1c' },
+            ticks: { color: '#444', font: { family:'Inter', size:11, weight:'600' }, maxTicksLimit: 7 }
+          },
+          y: {
+            position: 'right',
+            grid: { color: '#131313' },
+            border: { color: '#1c1c1c' },
+            ticks: {
+              color: '#444',
+              font: { family:'Inter', size:11, weight:'600' },
+              callback: v => v.toFixed(0) + '%',
+              maxTicksLimit: 5,
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // ══════════════════════════════════════════════
+  // CHART 3: LIQUIDATION MAP
+  // ══════════════════════════════════════════════
+  async function loadLiqMap() {
+    // Use the same rawOrders loaded by loadLiquidations()
+    // Also get current BTC price
+    try {
+      const priceRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+      const priceData = await priceRes.json();
+      const currentPrice = priceData.bitcoin.usd;
+
+      // Wait for rawOrders to be populated
+      if (rawOrders.length === 0) {
+        await new Promise(r => setTimeout(r, 2000));
+      }
+
+      // Bucket size: $1000 increments
+      const BUCKET = 1000;
+      const buckets = {};
+
+      rawOrders.forEach(o => {
+        const price = parseFloat(o.averagePrice);
+        const bucket = Math.floor(price / BUCKET) * BUCKET;
+        if (!buckets[bucket]) buckets[bucket] = { long: 0, short: 0 };
+        const val = parseFloat(o.executedQty) * parseFloat(o.averagePrice);
+        if (o.side === 'SELL') buckets[bucket].long  += val;
+        else                   buckets[bucket].short += val;
+      });
+
+      // Sort price levels
+      const levels = Object.keys(buckets).map(Number).sort((a, b) => a - b);
+
+      // Build chart data
+      const labels = levels.map(l => '$' + (l / 1000).toFixed(0) + 'K');
+      const longVals  = levels.map(l => buckets[l].long  / 1e6);
+      const shortVals = levels.map(l => -(buckets[l].short / 1e6)); // negative for left side
+
+      // Find current price bucket for annotation
+      const currentBucket = Math.floor(currentPrice / BUCKET) * BUCKET;
+      const currentIdx = levels.indexOf(currentBucket);
+
+      // Stats
+      const allTotals = levels.map(l => buckets[l].long + buckets[l].short);
+      const peakIdx   = allTotals.indexOf(Math.max(...allTotals));
+
+      document.getElementById('mapPeakLevel').textContent = '$' + (levels[peakIdx] / 1000).toFixed(0) + 'K';
+      document.getElementById('mapPeakVol').textContent   = fmtM(allTotals[peakIdx]);
+      document.getElementById('mapLevels').textContent    = levels.length + ' levels';
+
+      drawMapChart(labels, longVals, shortVals, currentIdx, currentPrice);
+
+    } catch(e) {
+      console.error('Map failed', e);
+    }
+  }
+
+  function drawMapChart(labels, longs, shorts, currentIdx, currentPrice) {
+    const ctx = document.getElementById('mapChart').getContext('2d');
+    if (mapChart) mapChart.destroy();
+
+    mapChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Long Liquidations ($M)',
+            data: longs,
+            backgroundColor: longs.map((_, i) => i === currentIdx ? 'rgba(247,147,26,0.9)' : 'rgba(239,68,68,0.75)'),
+            borderColor: longs.map((_, i) => i === currentIdx ? '#F7931A' : '#ef4444'),
+            borderWidth: 0,
+            borderRadius: 3,
+          },
+          {
+            label: 'Short Liquidations ($M)',
+            data: shorts,
+            backgroundColor: shorts.map((_, i) => i === currentIdx ? 'rgba(247,147,26,0.9)' : 'rgba(34,197,94,0.75)'),
+            borderColor: shorts.map((_, i) => i === currentIdx ? '#F7931A' : '#22c55e'),
+            borderWidth: 0,
+            borderRadius: 3,
+          }
+        ]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 700, easing: 'easeInOutQuart' },
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1a1a1a',
+            titleColor: '#888',
+            bodyColor: '#fff',
+            borderColor: '#2a2a2a',
+            borderWidth: 1,
+            padding: 12,
+            callbacks: {
+              label: item => {
+                const v = Math.abs(item.raw).toFixed(2);
+                const lbl = item.dataset.label.split(' ')[0];
+                return ` ${lbl}: $${v}M`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            stacked: false,
+            grid: { color: '#131313' },
+            border: { color: '#1c1c1c' },
+            ticks: {
+              color: '#444',
+              font: { family:'Inter', size:10, weight:'600' },
+              callback: v => '$' + Math.abs(v).toFixed(1) + 'M',
+            }
+          },
+          y: {
+            stacked: false,
+            grid: { color: 'transparent' },
+            border: { color: '#1c1c1c' },
+            ticks: {
+              color: '#555',
+              font: { family:'Inter', size:10, weight:'600' },
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // ── Boot ──────────────────────────────────────────
+  const adapterScript = document.createElement('script');
+  adapterScript.src = 'https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js';
+  adapterScript.onload = async () => {
+    await loadLiquidations();
+    loadDominance(30);
+    loadLiqMap();
+  };
+  document.head.appendChild(adapterScript);
+</script>
+</body>
+</html>
