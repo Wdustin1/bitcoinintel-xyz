@@ -2211,23 +2211,22 @@
             { d: new Date('2016-07-09'), label: 'Halving 2016' },
             { d: new Date('2020-05-11'), label: 'Halving 2020' },
             { d: new Date('2024-04-20'), label: 'Halving 2024' },
-            { d: new Date('2028-04-10'), label: 'Halving 2028 ~est.' },
+            { d: new Date('2028-04-10'), label: 'Halving 2028' },
           ];
           halvings.forEach(({ d, label }) => {
             const px = xs.getPixelForValue(d.getTime());
             if (px < xs.left || px > xs.right) return;
-            const isEst = label.includes('est');
             ctx.save();
-            ctx.strokeStyle = isEst ? 'rgba(255,165,0,0.45)' : 'rgba(255,165,0,0.7)';
-            ctx.lineWidth = isEst ? 1.5 : 2;
-            ctx.setLineDash(isEst ? [4, 6] : [6, 4]);
+            ctx.strokeStyle = 'rgba(255,165,0,0.7)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([6, 4]);
             ctx.beginPath();
             ctx.moveTo(px, ys.top);
             ctx.lineTo(px, ys.bottom);
             ctx.stroke();
             ctx.setLineDash([]);
-            ctx.fillStyle = isEst ? 'rgba(255,165,0,0.55)' : 'rgba(255,165,0,0.85)';
-            ctx.font = `bold 10px Inter, sans-serif`;
+            ctx.fillStyle = 'rgba(255,165,0,0.85)';
+            ctx.font = 'bold 10px Inter, sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'bottom';
             ctx.fillText(label, px, ys.bottom - 4);
