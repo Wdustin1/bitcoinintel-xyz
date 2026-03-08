@@ -2146,20 +2146,25 @@
       // Lower bound of band 0 (one step below band 0)
       function band0Lower(x) { return Math.exp(fittedLog(x) + (-1 - RB_I_DEC) * RB_BAND_WIDTH); }
 
-      // Pre-compute band values for every weekly point + 9-month projection
-      const PROJ_WEEKS = 39;
+      // Project bands to Jan 2029 (well past 2028 halving)
+      const CHART_END_MS = new Date('2029-01-01').getTime();
+      const lastDataMs   = allPts[allPts.length-1].x * 1000;
       const bandData = [];
       pts.forEach((p, j) => {
         const idx = j + 1;
         bandData.push({ xMs: p.x * 1000, uppers: Array.from({length:9}, (_,i) => bandUpper(idx, i)), b0lower: band0Lower(idx) });
       });
-      for (let w = 1; w <= PROJ_WEEKS; w++) {
-        const idx = n + w * 7;
+      // Weekly steps from last data point to chart end
+      let projMs = lastDataMs + 7 * 86400000;
+      let projIdx = n + 7;
+      while (projMs <= CHART_END_MS) {
         bandData.push({
-          xMs:    allPts[allPts.length-1].x * 1000 + w * 7 * 86400000,
-          uppers: Array.from({length:9}, (_,i) => bandUpper(idx, i)),
-          b0lower: band0Lower(idx)
+          xMs:    projMs,
+          uppers: Array.from({length:9}, (_,i) => bandUpper(projIdx, i)),
+          b0lower: band0Lower(projIdx)
         });
+        projMs  += 7 * 86400000;
+        projIdx += 7;
       }
 
       // Custom plugin: draws rainbow bands on canvas before Chart.js datasets
@@ -2203,28 +2208,29 @@
         afterDraw(chart) {
           const { ctx, scales: { x: xs, y: ys } } = chart;
           const halvings = [
-            { d: new Date('2012-11-28'), label: '2012' },
-            { d: new Date('2016-07-09'), label: '2016' },
-            { d: new Date('2020-05-11'), label: '2020' },
-            { d: new Date('2024-04-20'), label: '2024' },
+            { d: new Date('2012-11-28'), label: 'Halving 2012' },
+            { d: new Date('2016-07-09'), label: 'Halving 2016' },
+            { d: new Date('2020-05-11'), label: 'Halving 2020' },
+            { d: new Date('2024-04-20'), label: 'Halving 2024' },
           ];
           halvings.forEach(({ d, label }) => {
             const px = xs.getPixelForValue(d.getTime());
             if (px < xs.left || px > xs.right) return;
             ctx.save();
-            ctx.strokeStyle = 'rgba(255,255,255,0.45)';
-            ctx.lineWidth = 1;
-            ctx.setLineDash([4, 4]);
+            ctx.strokeStyle = 'rgba(255,165,0,0.7)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([6, 4]);
             ctx.beginPath();
             ctx.moveTo(px, ys.top);
             ctx.lineTo(px, ys.bottom);
             ctx.stroke();
             ctx.setLineDash([]);
-            ctx.fillStyle = 'rgba(255,255,255,0.4)';
-            ctx.font = 'bold 9px Inter, sans-serif';
+            // Label at bottom
+            ctx.fillStyle = 'rgba(255,165,0,0.85)';
+            ctx.font = 'bold 10px Inter, sans-serif';
             ctx.textAlign = 'center';
-            ctx.textBaseline = 'top';
-            ctx.fillText('Halving ' + label, px, ys.top + 4);
+            ctx.textBaseline = 'bottom';
+            ctx.fillText(label, px, ys.bottom - 4);
             ctx.restore();
           });
         }
@@ -2282,18 +2288,25 @@
           scales: {
             x: {
               type: 'time',
+              min: new Date('2011-01-01').getTime(),
+              max: new Date('2029-01-01').getTime(),
               time: { displayFormats: { year: 'yyyy', month: 'MMM yy' } },
-              grid: { color: 'rgba(0,0,0,0.3)' }, border: { color: '#1c1c1c' },
-              ticks: { color: '#fff', font: { family: 'Inter', size: 11, weight: '700' }, maxTicksLimit: 8 }
+              grid: { color: '#1e1e1e', lineWidth: 1 }, border: { color: '#2a2a2a' },
+              ticks: { color: '#888', font: { family: 'Inter', size: 11, weight: '600' }, maxTicksLimit: 10 }
             },
             y: {
               type: 'logarithmic', position: 'right',
-              min: 0.05,
-              grid: { color: 'rgba(0,0,0,0.25)' }, border: { color: '#1c1c1c' },
+              min: 0.1, max: 1000000,
+              grid: { color: '#1e1e1e', lineWidth: 1 }, border: { color: '#2a2a2a' },
+              afterBuildTicks: axis => {
+                axis.ticks = [0.1,1,10,100,1000,10000,100000,1000000].map(v => ({ value: v }));
+              },
               ticks: {
-                color: '#fff', font: { family: 'Inter', size: 11, weight: '700' },
-                callback: v => v>=1e6?'$'+(v/1e6).toFixed(0)+'M':v>=1e3?'$'+(v/1e3).toFixed(0)+'K':v>=1?'$'+Math.round(v):'',
-                maxTicksLimit: 8
+                color: '#888', font: { family: 'Inter', size: 11, weight: '600' },
+                callback: v => {
+                  const m = { 0.1:'$0.1', 1:'$1', 10:'$10', 100:'$100', 1000:'$1K', 10000:'$10K', 100000:'$100K', 1000000:'$1M' };
+                  return m[v] ?? '';
+                }
               }
             }
           }
