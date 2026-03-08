@@ -177,6 +177,30 @@
     .up   { color: var(--green); }
     .down { color: var(--red); }
 
+    /* ── OPEN INTEREST ── */
+    .oi-grid     { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+    .oi-stat     { background: #141414; border: 1px solid #1e1e1e; border-radius: 10px; padding: 14px 16px; }
+    .oi-stat-label { font-size: 11px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 6px; }
+    .oi-stat-val   { font-size: 18px; font-weight: 900; color: #fff; }
+    .oi-stat-sub   { font-size: 12px; font-weight: 700; margin-top: 4px; }
+
+    /* ── FUNDING RATE ── */
+    .fr-table    { width: 100%; border-collapse: collapse; }
+    .fr-table th { font-size: 11px; font-weight: 700; color: #444; text-transform: uppercase; letter-spacing: .06em; padding: 0 12px 10px; text-align: left; }
+    .fr-table th:last-child { text-align: right; }
+    .fr-table td { padding: 10px 12px; border-top: 1px solid #151515; font-size: 13px; }
+    .fr-table tr:hover td { background: #111; }
+    .fr-exch     { font-weight: 700; color: #ccc; }
+    .fr-next     { color: #555; font-size: 12px; }
+    .fr-rate     { font-weight: 800; font-size: 14px; text-align: right; }
+    .fr-pos      { color: #ef4444; }
+    .fr-neg      { color: #22c55e; }
+    .fr-zero     { color: #888; }
+    .fr-summary  { display: flex; gap: 24px; margin-bottom: 18px; }
+    .fr-sum-item { display: flex; flex-direction: column; gap: 3px; }
+    .fr-sum-label { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: .07em; font-weight: 600; }
+    .fr-sum-val   { font-size: 22px; font-weight: 900; }
+
     /* ── TOTAL LIQUIDATIONS REKT ── */
     .rekt-grid    { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .rekt-card    { background: #141414; border: 1px solid #1e1e1e; border-radius: 12px; padding: 20px 22px; display: flex; flex-direction: column; gap: 12px; }
@@ -275,6 +299,12 @@
       <a class="nav-link" href="#fear-greed"><span class="nav-icon">😰</span>Fear &amp; Greed<span class="live-badge"></span></a>
       <a class="nav-link" href="#dominance"><span class="nav-icon">👑</span>BTC Dominance<span class="live-badge"></span></a>
       <a class="nav-link" href="#market-overview"><span class="nav-icon">📊</span>Market Overview<span class="live-badge"></span></a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Derivatives</div>
+      <a class="nav-link" href="#open-interest"><span class="nav-icon">📊</span>Open Interest<span class="live-badge"></span></a>
+      <a class="nav-link" href="#funding-rate"><span class="nav-icon">💸</span>Funding Rate<span class="live-badge"></span></a>
     </div>
 
     <div class="nav-section">
@@ -391,6 +421,76 @@
     </div>
 
   </div><!-- /grid-2 -->
+
+  <!-- ── OPEN INTEREST + FUNDING RATE ── -->
+  <div class="grid-2">
+
+    <div class="card section-anchor" id="open-interest">
+      <div class="card-label">Derivatives</div>
+      <div class="card-title" style="margin-bottom:18px;">BTC Open Interest</div>
+      <div class="oi-grid">
+        <div class="oi-stat">
+          <div class="oi-stat-label">Total OI</div>
+          <div class="oi-stat-val" id="oiTotal">—</div>
+          <div class="oi-stat-sub" id="oiChange24">—</div>
+        </div>
+        <div class="oi-stat">
+          <div class="oi-stat-label">1H Change</div>
+          <div class="oi-stat-val" id="oiChange1h">—</div>
+          <div class="oi-stat-sub" style="color:#555;font-size:11px;">open interest</div>
+        </div>
+        <div class="oi-stat">
+          <div class="oi-stat-label">4H Change</div>
+          <div class="oi-stat-val" id="oiChange4h">—</div>
+          <div class="oi-stat-sub" style="color:#555;font-size:11px;">open interest</div>
+        </div>
+        <div class="oi-stat">
+          <div class="oi-stat-label">OI/Vol Ratio</div>
+          <div class="oi-stat-val" id="oiRatio">—</div>
+          <div class="oi-stat-sub" style="color:#555;font-size:11px;">leverage indicator</div>
+        </div>
+      </div>
+      <div class="oi-grid" style="grid-template-columns:1fr 1fr;margin-bottom:0;">
+        <div class="oi-stat">
+          <div class="oi-stat-label">24H Volume</div>
+          <div class="oi-stat-val" id="oiVol">—</div>
+          <div class="oi-stat-sub" id="oiVolChange">—</div>
+        </div>
+        <div class="oi-stat">
+          <div class="oi-stat-label">Avg Funding Rate</div>
+          <div class="oi-stat-val" id="oiAvgFunding">—</div>
+          <div class="oi-stat-sub" style="color:#555;font-size:11px;">across exchanges</div>
+        </div>
+      </div>
+      <div class="watermark">bitcoinintel.xyz</div>
+    </div>
+
+    <div class="card section-anchor" id="funding-rate">
+      <div class="card-label">Derivatives</div>
+      <div class="card-title" style="margin-bottom:6px;">BTC Funding Rate</div>
+      <div class="fr-summary" style="margin-bottom:16px;">
+        <div class="fr-sum-item">
+          <span class="fr-sum-label">Avg Rate</span>
+          <span class="fr-sum-val" id="frAvg">—</span>
+        </div>
+        <div class="fr-sum-item">
+          <span class="fr-sum-label">Sentiment</span>
+          <span class="fr-sum-val" id="frSentiment">—</span>
+        </div>
+      </div>
+      <table class="fr-table">
+        <thead><tr>
+          <th>Exchange</th>
+          <th>Interval</th>
+          <th>Next</th>
+          <th>Rate</th>
+        </tr></thead>
+        <tbody id="frTableBody"></tbody>
+      </table>
+      <div class="watermark">bitcoinintel.xyz</div>
+    </div>
+
+  </div><!-- /grid-2 derivatives -->
 
   <!-- ── LIQUIDATIONS ── -->
   <div class="card section-anchor" id="liquidations">
@@ -899,6 +999,87 @@
   }
 
   // ════════════════════════════════════════
+  // OPEN INTEREST
+  // ════════════════════════════════════════
+  async function loadOpenInterest() {
+    try {
+      const res  = await fetch('/api/openinterest');
+      const data = await res.json();
+      const d    = data.data?.[0];
+      if (!d) return;
+
+      const fmtPctStat = (v, el) => {
+        const e = document.getElementById(el);
+        if (!e) return;
+        e.textContent = (v >= 0 ? '+' : '') + v.toFixed(2) + '%';
+        e.style.color = v >= 0 ? '#22c55e' : '#ef4444';
+      };
+
+      document.getElementById('oiTotal').textContent    = fmtB(d.openInterest);
+      document.getElementById('oiVol').textContent      = fmtB(d.volUsd);
+      document.getElementById('oiRatio').textContent    = d.oiVolRadio ? d.oiVolRadio.toFixed(2) + 'x' : '—';
+
+      const avgFr = (d.avgFundingRate * 100);
+      const frEl  = document.getElementById('oiAvgFunding');
+      frEl.textContent  = (avgFr >= 0 ? '+' : '') + avgFr.toFixed(4) + '%';
+      frEl.style.color  = avgFr > 0 ? '#ef4444' : '#22c55e';
+
+      fmtPctStat(d.oichangePercent,    'oiChange24');
+      fmtPctStat(d.h1OIChangePercent,  'oiChange1h');
+      fmtPctStat(d.h4OIChangePercent,  'oiChange4h');
+      fmtPctStat(d.volChangePercent,   'oiVolChange');
+    } catch(e) { console.error(e); }
+  }
+
+  // ════════════════════════════════════════
+  // FUNDING RATE
+  // ════════════════════════════════════════
+  async function loadFundingRate() {
+    try {
+      const res  = await fetch('/api/funding');
+      const data = await res.json();
+      const d    = data.data?.[0];
+      if (!d) return;
+
+      // Use uMarginList (USDT-margined, most liquid)
+      const exchanges = (d.uMarginList || [])
+        .filter(e => e.status === 1)
+        .sort((a, b) => Math.abs(b.rate) - Math.abs(a.rate))
+        .slice(0, 12);
+
+      // Average rate
+      const avg = exchanges.reduce((s, e) => s + e.rate, 0) / exchanges.length;
+      const avgPct = avg * 100;
+      const frAvgEl = document.getElementById('frAvg');
+      frAvgEl.textContent = (avgPct >= 0 ? '+' : '') + avgPct.toFixed(4) + '%';
+      frAvgEl.style.color = avgPct > 0 ? '#ef4444' : '#22c55e';
+
+      const sentEl = document.getElementById('frSentiment');
+      if (avgPct > 0.01)       { sentEl.textContent = 'LONGS PAYING'; sentEl.style.color = '#ef4444'; }
+      else if (avgPct < -0.01) { sentEl.textContent = 'SHORTS PAYING'; sentEl.style.color = '#22c55e'; }
+      else                     { sentEl.textContent = 'NEUTRAL'; sentEl.style.color = '#888'; }
+
+      const tbody = document.getElementById('frTableBody');
+      tbody.innerHTML = exchanges.map(e => {
+        const ratePct  = (e.rate * 100);
+        const rateStr  = (ratePct >= 0 ? '+' : '') + ratePct.toFixed(4) + '%';
+        const rateCls  = ratePct > 0.005 ? 'fr-pos' : ratePct < -0.005 ? 'fr-neg' : 'fr-zero';
+        const nextMs   = e.nextFundingTime - Date.now();
+        const nextH    = Math.floor(nextMs / 3600000);
+        const nextM    = Math.floor((nextMs % 3600000) / 60000);
+        const nextStr  = nextMs > 0 ? `${nextH}h ${nextM}m` : '—';
+        const interval = e.fundingIntervalHours ? `${e.fundingIntervalHours}h` : '8h';
+        return `<tr>
+          <td class="fr-exch">${e.exchangeName}</td>
+          <td class="fr-next">${interval}</td>
+          <td class="fr-next">${nextStr}</td>
+          <td class="fr-rate ${rateCls}">${rateStr}</td>
+        </tr>`;
+      }).join('');
+    } catch(e) { console.error(e); }
+  }
+
+  // ════════════════════════════════════════
   // HASH RATE
   // ════════════════════════════════════════
   async function loadHashRate(timespan) {
@@ -1039,6 +1220,8 @@
     loadPrice(7);
     loadFearGreed();
     loadDominance();
+    loadOpenInterest();
+    loadFundingRate();
     loadLiquidations();
     loadHashRate('1year');
     loadHalving();
