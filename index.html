@@ -2128,12 +2128,12 @@
 
   async function loadRainbow() {
     try {
-      const res  = await fetch('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=max');
+      const res  = await fetch('https://api.blockchain.info/charts/market-price?timespan=all&format=json&cors=true');
       const data = await res.json();
-      const raw  = data.prices.filter((_,i)=>i%7===0);
-      const times = raw.map(p=>new Date(p[0]));
-      const prices = raw.map(p=>p[1]);
-      const days   = raw.map(p=>(p[0]-GENESIS)/86400000);
+      const raw  = data.values.filter((_,i)=>i%7===0); // weekly sample
+      const times  = raw.map(p=>new Date(p.x*1000));
+      const prices = raw.map(p=>p.y);
+      const days   = raw.map(p=>(p.x*1000-GENESIS)/86400000);
       const lastDay = (Date.now()-GENESIS)/86400000;
       const projDays = []; for(let d=500;d<=lastDay+1;d+=30) projDays.push(d);
       const projTimes = projDays.map(d=>new Date(GENESIS+d*86400000));
