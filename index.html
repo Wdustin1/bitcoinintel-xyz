@@ -294,8 +294,22 @@
     .section-anchor { scroll-margin-top: 20px; }
 
     /* ── FOOTER ── */
-    footer { border-top: 1px solid var(--border); background: #000; padding: 32px 0; text-align: center; }
-    footer img { max-width: 100%; width: auto; max-height: 140px; display: inline-block; object-fit: contain; opacity: 0.92; }
+    footer { border-top: 1px solid #1a1a1a; background: #000; }
+    .footer-banner { text-align: center; padding: 48px 48px 40px; border-bottom: 1px solid #111; }
+    .footer-banner img { max-height: 140px; width: auto; opacity: 0.92; display: inline-block; }
+    .footer-cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 40px; padding: 36px 56px; border-bottom: 1px solid #111; }
+    .footer-col-title { font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--orange); margin-bottom: 14px; }
+    .footer-col p { font-size: 12px; color: #444; line-height: 1.75; font-weight: 500; }
+    .footer-col p + p { margin-top: 10px; }
+    .footer-social { display: flex; flex-direction: column; gap: 10px; }
+    .footer-social a { font-size: 12px; font-weight: 700; color: #555; text-decoration: none; display: flex; align-items: center; gap: 8px; letter-spacing: .02em; transition: color .15s; }
+    .footer-social a:hover { color: var(--orange); }
+    .footer-sources { display: flex; flex-direction: column; gap: 9px; }
+    .footer-sources span { font-size: 11px; color: #333; font-weight: 600; display: flex; align-items: center; gap: 7px; }
+    .src-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--orange); flex-shrink: 0; }
+    .footer-bottom { display: flex; align-items: center; justify-content: space-between; padding: 16px 56px; }
+    .footer-copy { font-size: 11px; color: #2a2a2a; font-weight: 600; }
+    .footer-disclaimer { font-size: 10px; color: #1e1e1e; font-weight: 500; max-width: 480px; text-align: right; line-height: 1.5; }
   </style>
 </head>
 <body>
@@ -775,7 +789,41 @@
 
 </div><!-- /content -->
 
-<footer><img src="/footer-banner.png" alt="Bitcoin Intel XYZ" /></footer>
+<footer>
+  <div class="footer-banner">
+    <img src="/logo-banner-1.png" alt="Bitcoin Intel XYZ"/>
+  </div>
+  <div class="footer-cols">
+    <div class="footer-col">
+      <div class="footer-col-title">About</div>
+      <p>Real-time Bitcoin intelligence for serious traders. Live on-chain data, derivatives metrics, and market indicators — all in one place.</p>
+      <p>Built for those who want signal, not noise.</p>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Follow Us</div>
+      <div class="footer-social">
+        <a href="https://x.com/BitcoinAblaze" target="_blank">𝕏 &nbsp;@BitcoinAblaze</a>
+        <a href="#" target="_blank">💬 &nbsp;Discord Community</a>
+        <a href="#" target="_blank">✈️ &nbsp;Telegram Channel</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Data Sources</div>
+      <div class="footer-sources">
+        <span><span class="src-dot"></span>CoinGecko — Price &amp; Market Cap</span>
+        <span><span class="src-dot"></span>CoinMarketCap — BTC Dominance</span>
+        <span><span class="src-dot"></span>OKX — Liquidation Data</span>
+        <span><span class="src-dot"></span>CoinGlass — Open Interest &amp; Funding</span>
+        <span><span class="src-dot"></span>Blockchain.com — Hash Rate</span>
+        <span><span class="src-dot"></span>Alternative.me — Fear &amp; Greed</span>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2025 Bitcoin Intel XYZ · All rights reserved</span>
+    <span class="footer-disclaimer">Not financial advice. All data is provided for informational purposes only. DYOR.</span>
+  </div>
+</footer>
 </div><!-- /main -->
 
 <script>
