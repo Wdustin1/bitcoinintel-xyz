@@ -1588,6 +1588,7 @@
       const prices     = [];
       const modelPrices= [];
       const s2fRatios  = [];
+      const eraKeys    = [];
 
       supplyPts.forEach(pt => {
         const supply   = pt.y;
@@ -1604,6 +1605,7 @@
           prices.push(btcPx);
           modelPrices.push(modPx);
           s2fRatios.push(sf);
+          eraKeys.push(reward); // use block reward as era key
         }
       });
 
@@ -1626,40 +1628,83 @@
       vmEl.textContent = (pctVsModel >= 0 ? '+' : '') + pctVsModel.toFixed(1) + '% vs model';
       vmEl.style.color  = pctVsModel >= 0 ? '#22c55e' : '#ef4444';
 
+      // ── Split price into per-era datasets (one colour per halving cycle) ──
+      const eraConfig = {
+        50:    { label: 'Era 1 (50 BTC)',    color: '#ef4444' }, // red
+        25:    { label: 'Era 2 (25 BTC)',    color: '#f97316' }, // orange
+        12.5:  { label: 'Era 3 (12.5 BTC)', color: '#eab308' }, // yellow
+        6.25:  { label: 'Era 4 (6.25 BTC)', color: '#22c55e' }, // green
+        3.125: { label: 'Era 5 (3.125 BTC)',color: '#a855f7' }, // purple
+      };
+      // Build era segments; include a bridge point so lines connect at era boundary
+      const eraDatasets = [];
+      let prevEra = null, eraData = [];
+      for (let i = 0; i < times.length; i++) {
+        const era = eraKeys[i];
+        if (prevEra !== null && era !== prevEra) {
+          // Close off previous era with this point as a bridge
+          eraData.push({ x: times[i], y: prices[i] });
+          eraDatasets.push({ ...eraConfig[prevEra], data: eraData,
+            borderWidth: 2, pointRadius: 0, fill: false, tension: 0.2, yAxisID: 'y', spanGaps: true });
+          eraData = [{ x: times[i], y: prices[i] }]; // start new era with bridge
+        } else {
+          eraData.push({ x: times[i], y: prices[i] });
+        }
+        prevEra = era;
+      }
+      if (eraData.length) {
+        eraDatasets.push({ ...eraConfig[prevEra], data: eraData,
+          borderWidth: 2.5, pointRadius: 0, fill: false, tension: 0.2, yAxisID: 'y', spanGaps: true });
+      }
+
       const ctx = document.getElementById('s2fChart').getContext('2d');
       if (s2fChart) s2fChart.destroy();
       s2fChart = new Chart(ctx, {
         type: 'line',
-        data: { labels: times, datasets: [
-          { label: 'S2F Model Price', data: modelPrices, borderColor: 'rgba(255,255,255,0.5)',
-            borderWidth: 1.5, borderDash: [4,4], pointRadius: 0, fill: false, tension: 0.2, yAxisID: 'y' },
-          { label: 'BTC Price', data: prices, borderColor: '#F7931A', borderWidth: 2,
+        data: { datasets: [
+          // Dashed model price line first (renders behind)
+          { label: 'S2F Model', data: times.map((t,i) => ({x:t, y:modelPrices[i]})),
+            borderColor: 'rgba(255,255,255,0.35)', borderWidth: 1.5, borderDash: [5,4],
             pointRadius: 0, fill: false, tension: 0.2, yAxisID: 'y' },
+          // Era-coloured price lines
+          ...eraDatasets,
         ]},
         options: {
           responsive: true, maintainAspectRatio: false, animation: { duration: 600 },
           interaction: { mode: 'index', intersect: false },
           plugins: {
-            legend: { display: false },
+            legend: {
+              display: true, position: 'bottom',
+              labels: { color: '#555', font: { family: 'Inter', size: 10, weight: '600' },
+                        boxWidth: 12, padding: 14,
+                        filter: item => item.text !== 'S2F Model' } // hide model from legend
+            },
             tooltip: {
               backgroundColor: '#1a1a1a', titleColor: '#555', bodyColor: '#fff',
               borderColor: '#2a2a2a', borderWidth: 1, padding: 12,
               callbacks: {
-                title: i => new Date(i[0].label).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}),
-                label: i => i.dataset.label === 'BTC Price'
-                  ? ` BTC: $${Math.round(i.raw).toLocaleString()}`
-                  : ` Model: $${Math.round(i.raw).toLocaleString()}`
+                title: i => new Date(i[0].parsed.x).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}),
+                label: i => i.dataset.label === 'S2F Model'
+                  ? ` Model: $${Math.round(i.parsed.y).toLocaleString()}`
+                  : ` ${i.dataset.label}: $${Math.round(i.parsed.y).toLocaleString()}`
               }
             }
           },
           scales: {
-            x: { type: 'time', time: { displayFormats: { month: 'MMM yy' } },
+            x: { type: 'time', time: { displayFormats: { year: 'yyyy', month: 'MMM yy' } },
                  grid: { color: '#131313' }, border: { color: '#1c1c1c' },
                  ticks: { color: '#444', font: { family: 'Inter', size: 11, weight: '600' }, maxTicksLimit: 8 } },
             y: { type: 'logarithmic', position: 'right',
                  grid: { color: '#131313' }, border: { color: '#1c1c1c' },
                  ticks: { color: '#444', font: { family: 'Inter', size: 11, weight: '600' },
-                   callback: v => '$' + (v >= 1000 ? Math.round(v/1000)+'K' : v) } }
+                   callback: v => {
+                     if (v === 0.01 || v === 0.1 || v === 1 || v === 10 || v === 100 ||
+                         v === 1000 || v === 10000 || v === 100000 || v === 1000000)
+                       return '$' + (v >= 1000 ? (v/1000)+'K' : v);
+                     return '';
+                   }
+                 }
+            }
           }
         }
       });
