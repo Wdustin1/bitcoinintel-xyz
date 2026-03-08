@@ -1630,11 +1630,11 @@
 
       // ── Split price into per-era datasets (one colour per halving cycle) ──
       const eraConfig = {
-        50:    { label: 'Era 1 (50 BTC)',    color: '#ef4444' }, // red
-        25:    { label: 'Era 2 (25 BTC)',    color: '#f97316' }, // orange
-        12.5:  { label: 'Era 3 (12.5 BTC)', color: '#eab308' }, // yellow
-        6.25:  { label: 'Era 4 (6.25 BTC)', color: '#22c55e' }, // green
-        3.125: { label: 'Era 5 (3.125 BTC)',color: '#a855f7' }, // purple
+        50:    { label: 'Era 1 — 50 BTC',    borderColor: '#ef4444' }, // red
+        25:    { label: 'Era 2 — 25 BTC',    borderColor: '#f97316' }, // orange
+        12.5:  { label: 'Era 3 — 12.5 BTC', borderColor: '#eab308' }, // yellow
+        6.25:  { label: 'Era 4 — 6.25 BTC', borderColor: '#22c55e' }, // green
+        3.125: { label: 'Era 5 — 3.125 BTC',borderColor: '#a855f7' }, // purple
       };
       // Build era segments; include a bridge point so lines connect at era boundary
       const eraDatasets = [];
