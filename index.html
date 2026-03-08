@@ -770,45 +770,54 @@
     try {
       const priceRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
       const currentPrice = (await priceRes.json()).bitcoin.usd;
-      const BUCKET = 500;
-      const buckets = {};
+      const BUCKET = 1000; // $1k buckets for wider, cleaner view
+      const RANGE  = 0.20; // ±20% from current price
+
+      // Pre-populate full range with empty buckets so X axis is always wide
+      const rangeMin = Math.floor(currentPrice * (1 - RANGE) / BUCKET) * BUCKET;
+      const rangeMax = Math.floor(currentPrice * (1 + RANGE) / BUCKET) * BUCKET;
+      const allBuckets = {};
+      for (let b = rangeMin; b <= rangeMax; b += BUCKET) allBuckets[b] = { long: 0, short: 0 };
+
       rawOrders.forEach(o => {
         const price  = parseFloat(o.averagePrice);
         const bucket = Math.floor(price / BUCKET) * BUCKET;
-        if (!buckets[bucket]) buckets[bucket] = { long: 0, short: 0 };
+        if (bucket < rangeMin || bucket > rangeMax) return; // clip outliers
+        if (!allBuckets[bucket]) allBuckets[bucket] = { long: 0, short: 0 };
         const val = parseFloat(o.executedQty) * parseFloat(o.averagePrice);
-        if (o.side === 'SELL') buckets[bucket].long += val;
-        else buckets[bucket].short += val;
+        if (o.side === 'SELL') allBuckets[bucket].long += val;
+        else allBuckets[bucket].short += val;
       });
 
-      const levels = Object.keys(buckets).map(Number).sort((a, b) => a - b);
-      const labels  = levels.map(l => '$' + (l / 1000).toFixed(1) + 'K');
-      const longBars  = levels.map(l => (buckets[l].long  || 0) / 1e6);
-      const shortBars = levels.map(l => (buckets[l].short || 0) / 1e6);
+      const levels = Object.keys(allBuckets).map(Number).sort((a, b) => a - b);
+      const labels  = levels.map(l => '$' + Math.round(l / 1000) + 'K');
+      const longBars  = levels.map(l => (allBuckets[l].long  || 0) / 1e6);
+      const shortBars = levels.map(l => (allBuckets[l].short || 0) / 1e6);
 
       const currentBucket = Math.floor(currentPrice / BUCKET) * BUCKET;
-      const currentIdx = Math.max(0, levels.findIndex(l => l >= currentBucket) - 1);
+      const currentIdx = levels.indexOf(currentBucket);
+      const safeIdx = currentIdx >= 0 ? currentIdx : Math.floor(levels.length / 2);
 
-      // Cumulative long liq: from current price going LEFT (what longs wiped as price fell here)
+      // Cumulative long liq: from current price going LEFT
       const cumLong = levels.map((_, i) => {
-        if (i > currentIdx) return null;
+        if (i > safeIdx) return null;
         let sum = 0;
-        for (let j = i; j <= currentIdx; j++) sum += longBars[j];
+        for (let j = i; j <= safeIdx; j++) sum += longBars[j];
         return sum;
       });
 
-      // Cumulative short liq: from current price going RIGHT (what shorts wiped as price rose here)
+      // Cumulative short liq: from current price going RIGHT
       const cumShort = levels.map((_, i) => {
-        if (i < currentIdx) return null;
+        if (i < safeIdx) return null;
         let sum = 0;
-        for (let j = currentIdx; j <= i; j++) sum += shortBars[j];
+        for (let j = safeIdx; j <= i; j++) sum += shortBars[j];
         return sum;
       });
 
       // Stats
-      const allTotals = levels.map(l => (buckets[l].long || 0) + (buckets[l].short || 0));
+      const allTotals = levels.map(l => (allBuckets[l].long || 0) + (allBuckets[l].short || 0));
       const peakIdx   = allTotals.indexOf(Math.max(...allTotals));
-      document.getElementById('mapPeakLevel').textContent = '$' + (levels[peakIdx] / 1000).toFixed(1) + 'K';
+      document.getElementById('mapPeakLevel').textContent = '$' + Math.round(levels[peakIdx] / 1000) + 'K';
       document.getElementById('mapPeakVol').textContent   = fmtB(allTotals[peakIdx]);
       document.getElementById('mapLevels').textContent    = levels.length + ' levels';
 
@@ -816,7 +825,7 @@
       const priceLinePlugin = {
         id: 'priceLine',
         afterDraw(chart) {
-          const meta = chart.getDatasetMeta(0)?.data?.[currentIdx];
+          const meta = chart.getDatasetMeta(0)?.data?.[safeIdx];
           if (!meta) return;
           const x = meta.x, { top, bottom } = chart.chartArea;
           const c = chart.ctx;
