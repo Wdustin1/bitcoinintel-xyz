@@ -609,11 +609,10 @@
   <div class="card section-anchor" id="hash-rate">
     <div class="card-header">
       <div>
-        <div style="font-size:36px;font-weight:900;color:var(--orange);letter-spacing:-.03em;line-height:1;" id="hrCurrent">—</div>
-        <div style="font-size:11px;font-weight:600;color:#555;margin-top:4px;">EH/s — Exahashes per second</div>
+        <div class="card-title">Hash Rate</div>
+        <div class="site-sub">bitcoinintel.xyz</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
-        <div class="card-label" style="text-align:right;">Hash Rate</div>
         <div class="tabs" id="hrTabs">
           <button class="tab" onclick="loadHashRate('6months')">6M</button>
           <button class="tab active" onclick="loadHashRate('1year')">1Y</button>
@@ -623,10 +622,10 @@
     </div>
     <div class="chart-wrap" style="height:240px;"><canvas id="hrChart"></canvas></div>
     <div class="stats-row">
+      <div class="stat"><div class="stat-label">Current</div><div class="stat-value" id="hrCurrent">—</div></div>
       <div class="stat"><div class="stat-label">All-Time High</div><div class="stat-value" id="hrATH">—</div></div>
       <div class="stat"><div class="stat-label">Period Low</div><div class="stat-value" id="hrLow">—</div></div>
       <div class="stat"><div class="stat-label">Period Change</div><div class="stat-value" id="hrChange">—</div></div>
-      <div class="stat"><div class="stat-label">Source</div><div class="stat-value" style="color:#555;">Blockchain.com</div></div>
     </div>
     <div class="watermark">bitcoinintel.xyz</div>
   </div>
