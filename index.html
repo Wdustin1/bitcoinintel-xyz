@@ -1866,9 +1866,9 @@
       const ctx    = canvas.getContext('2d');
       const W = canvas.width, H = canvas.height;
       const SC = W / 640;  // scale factor relative to original 640px design
-      const cx = W / 2, cy = H / 2 - 20;
+      const cx = W / 2, cy = H / 2 - 50 * SC; // shift centre up for label room at bottom
       const INNER_R = 22 * SC;
-      const MAX_R   = W * 0.38;
+      const MAX_R   = W * 0.33;
 
       // Log scale: $0.1 → $200K+
       const LOG_MIN = -1.0, LOG_MAX = 6.3;
@@ -1919,7 +1919,7 @@
       });
 
       // ── Outer orange boundary ring ──
-      const RING_R = MAX_R + 22 * SC;
+      const RING_R = MAX_R + 14 * SC;
       ctx.beginPath();
       ctx.arc(cx, cy, RING_R, 0, 2 * Math.PI);
       ctx.strokeStyle = '#F7931A';
@@ -1947,7 +1947,7 @@
       [0.125, 0.375, 0.625, 0.875].forEach(q => drawArrow(toAngle(q), RING_R));
 
       // ── Phase labels outside the ring ──
-      const LABEL_R = RING_R + 32 * SC;
+      const LABEL_R = RING_R + 22 * SC;
       const phases = [
         { q: 0,    lines: ['Halving',    '& Recovery'],  color: '#F7931A' },
         { q: 0.25, lines: ['Bull',       'Market Peak'], color: '#F7931A' },
@@ -2058,7 +2058,7 @@
       }
 
       // ── Colour legend bar ──
-      const lgX = cx - 110*SC, lgY = H - 42*SC, lgW = 220*SC, lgH = 8*SC;
+      const lgX = cx - 110*SC, lgY = H - 52*SC, lgW = 220*SC, lgH = 8*SC;
       const grad = ctx.createLinearGradient(lgX, 0, lgX + lgW, 0);
       grad.addColorStop(0,    'hsl(5,75%,20%)');
       grad.addColorStop(0.35, 'hsl(5,80%,40%)');
