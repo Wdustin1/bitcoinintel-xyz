@@ -782,6 +782,11 @@
       </div>
     </div>
     <div class="chart-wrap" style="height:260px;"><canvas id="s2fChart"></canvas></div>
+    <div style="display:flex;align-items:center;gap:10px;margin:10px 0 4px;padding:0 2px;">
+      <span style="font-size:10px;font-weight:700;color:#444;">1,460 days to halving</span>
+      <div style="flex:1;height:6px;border-radius:3px;background:linear-gradient(to right,hsl(0,100%,55%),hsl(60,100%,55%),hsl(120,100%,55%),hsl(180,100%,55%),hsl(240,100%,55%));"></div>
+      <span style="font-size:10px;font-weight:700;color:#444;">0 days</span>
+    </div>
     <div class="stats-row">
       <div class="stat"><div class="stat-label">Current Supply</div><div class="stat-value" id="s2fSupply">—</div></div>
       <div class="stat"><div class="stat-label">Annual Flow</div><div class="stat-value" id="s2fFlow">—</div></div>
@@ -1563,17 +1568,14 @@
       const supplyData = await supplyRes.json();
       const priceData  = await priceRes.json();
 
-      const supplyPts = supplyData.values; // [{x: unix_sec, y: btc}]
-      const pricePts  = priceData.values;  // [{x: unix_sec, y: usd}]
+      const supplyPts = supplyData.values;
+      const pricePts  = priceData.values;
 
-      // Build price lookup map by Unix day key
+      // Price lookup map by Unix day
       const priceMap = {};
-      pricePts.forEach(pt => {
-        const day = Math.floor(pt.x / 86400);
-        priceMap[day] = pt.y;
-      });
+      pricePts.forEach(pt => { priceMap[Math.floor(pt.x / 86400)] = pt.y; });
 
-      // Block reward by supply level (halving thresholds)
+      // Block reward from supply level
       function blockReward(supply) {
         if (supply < 10500000)  return 50;
         if (supply < 15750000)  return 25;
@@ -1582,41 +1584,57 @@
         return 3.125;
       }
 
-      const BLOCKS_PER_YEAR = 144 * 365;
+      // Halving dates (UTC) — used to calculate days until next halving
+      const halvingDates = [
+        new Date('2012-11-28'), new Date('2016-07-09'),
+        new Date('2020-05-11'), new Date('2024-04-20'),
+        new Date('2028-04-15')  // estimated 5th halving
+      ];
+      function daysToNextHalving(dateMs) {
+        for (const hd of halvingDates) {
+          if (hd.getTime() > dateMs) return (hd.getTime() - dateMs) / 86400000;
+        }
+        return 0;
+      }
 
-      const times      = [];
-      const prices     = [];
-      const modelPrices= [];
-      const s2fRatios  = [];
-      const eraKeys    = [];
+      // Color gradient: red (1460 days away) → orange → yellow → green → blue (0 days)
+      function halvingColor(days) {
+        const t = Math.min(1, Math.max(0, days / 1460)); // 1=far (red), 0=near (blue)
+        const hue = Math.round((1 - t) * 240);           // 0=red, 240=blue
+        return `hsl(${hue}, 100%, 55%)`;
+      }
+
+      const BLOCKS_PER_YEAR = 144 * 365;
+      const scatterPts  = [];
+      const modelPts    = [];
+      const dotColors   = [];
 
       supplyPts.forEach(pt => {
-        const supply   = pt.y;
+        const supply = pt.y;
+        if (supply <= 0) return;
         const reward   = blockReward(supply);
-        const flow     = BLOCKS_PER_YEAR * reward;
-        const sf       = supply / flow;
-        const marketCap= Math.exp(3.3 * Math.log(sf) + 14.6);
-        const modPx    = marketCap / supply;
+        const sf       = supply / (BLOCKS_PER_YEAR * reward);
+        const modPx    = Math.exp(3.3 * Math.log(sf) + 14.6) / supply;
         const day      = Math.floor(pt.x / 86400);
         const btcPx    = priceMap[day] || priceMap[day-1] || priceMap[day+1] || null;
+        if (!btcPx || btcPx <= 0) return;
 
-        if (btcPx && btcPx > 0) {
-          times.push(new Date(pt.x * 1000));
-          prices.push(btcPx);
-          modelPrices.push(modPx);
-          s2fRatios.push(sf);
-          eraKeys.push(reward); // use block reward as era key
-        }
+        const dateMs = pt.x * 1000;
+        const days   = daysToNextHalving(dateMs);
+        const color  = halvingColor(days);
+
+        scatterPts.push({ x: new Date(dateMs), y: btcPx });
+        modelPts.push({ x: new Date(dateMs), y: modPx });
+        dotColors.push(color);
       });
 
-      // Current values (last point)
+      // Stats
       const lastSupply = supplyPts[supplyPts.length-1].y;
       const lastReward = blockReward(lastSupply);
       const lastFlow   = BLOCKS_PER_YEAR * lastReward;
       const lastSF     = lastSupply / lastFlow;
-      const lastMktCap = Math.exp(3.3 * Math.log(lastSF) + 14.6);
-      const lastModPx  = lastMktCap / lastSupply;
-      const lastBtcPx  = prices[prices.length-1];
+      const lastModPx  = Math.exp(3.3 * Math.log(lastSF) + 14.6) / lastSupply;
+      const lastBtcPx  = scatterPts[scatterPts.length-1].y;
       const pctVsModel = ((lastBtcPx - lastModPx) / lastModPx) * 100;
 
       document.getElementById('s2fRatio').textContent     = lastSF.toFixed(1);
@@ -1626,67 +1644,35 @@
       document.getElementById('s2fReward').textContent    = lastReward + ' BTC';
       const vmEl = document.getElementById('s2fVsModel');
       vmEl.textContent = (pctVsModel >= 0 ? '+' : '') + pctVsModel.toFixed(1) + '% vs model';
-      vmEl.style.color  = pctVsModel >= 0 ? '#22c55e' : '#ef4444';
-
-      // ── Split price into per-era datasets (one colour per halving cycle) ──
-      const eraConfig = {
-        50:    { label: 'Era 1 — 50 BTC',    borderColor: '#ef4444' }, // red
-        25:    { label: 'Era 2 — 25 BTC',    borderColor: '#f97316' }, // orange
-        12.5:  { label: 'Era 3 — 12.5 BTC', borderColor: '#eab308' }, // yellow
-        6.25:  { label: 'Era 4 — 6.25 BTC', borderColor: '#22c55e' }, // green
-        3.125: { label: 'Era 5 — 3.125 BTC',borderColor: '#a855f7' }, // purple
-      };
-      // Build era segments; include a bridge point so lines connect at era boundary
-      const eraDatasets = [];
-      let prevEra = null, eraData = [];
-      for (let i = 0; i < times.length; i++) {
-        const era = eraKeys[i];
-        if (prevEra !== null && era !== prevEra) {
-          // Close off previous era with this point as a bridge
-          eraData.push({ x: times[i], y: prices[i] });
-          eraDatasets.push({ ...eraConfig[prevEra], data: eraData,
-            borderWidth: 2, pointRadius: 0, fill: false, tension: 0.2, yAxisID: 'y', spanGaps: true });
-          eraData = [{ x: times[i], y: prices[i] }]; // start new era with bridge
-        } else {
-          eraData.push({ x: times[i], y: prices[i] });
-        }
-        prevEra = era;
-      }
-      if (eraData.length) {
-        eraDatasets.push({ ...eraConfig[prevEra], data: eraData,
-          borderWidth: 2.5, pointRadius: 0, fill: false, tension: 0.2, yAxisID: 'y', spanGaps: true });
-      }
+      vmEl.style.color = pctVsModel >= 0 ? '#22c55e' : '#ef4444';
 
       const ctx = document.getElementById('s2fChart').getContext('2d');
       if (s2fChart) s2fChart.destroy();
       s2fChart = new Chart(ctx, {
-        type: 'line',
+        type: 'scatter',
         data: { datasets: [
-          // Dashed model price line first (renders behind)
-          { label: 'S2F Model', data: times.map((t,i) => ({x:t, y:modelPrices[i]})),
-            borderColor: 'rgba(255,255,255,0.35)', borderWidth: 1.5, borderDash: [5,4],
-            pointRadius: 0, fill: false, tension: 0.2, yAxisID: 'y' },
-          // Era-coloured price lines
-          ...eraDatasets,
+          // Dashed white model price line (behind)
+          { type: 'line', label: 'S2F Model Price', data: modelPts,
+            borderColor: 'rgba(255,255,255,0.4)', borderWidth: 1.5, borderDash: [5,4],
+            pointRadius: 0, fill: false, tension: 0.15, order: 2 },
+          // Scatter dots colored by days-to-halving
+          { type: 'scatter', label: 'BTC Price', data: scatterPts,
+            backgroundColor: dotColors, pointRadius: 2.5, pointHoverRadius: 5,
+            borderWidth: 0, order: 1 },
         ]},
         options: {
-          responsive: true, maintainAspectRatio: false, animation: { duration: 600 },
-          interaction: { mode: 'index', intersect: false },
+          responsive: true, maintainAspectRatio: false, animation: { duration: 400 },
+          interaction: { mode: 'nearest', intersect: false },
           plugins: {
-            legend: {
-              display: true, position: 'bottom',
-              labels: { color: '#555', font: { family: 'Inter', size: 10, weight: '600' },
-                        boxWidth: 12, padding: 14,
-                        filter: item => item.text !== 'S2F Model' } // hide model from legend
-            },
+            legend: { display: false },
             tooltip: {
               backgroundColor: '#1a1a1a', titleColor: '#555', bodyColor: '#fff',
               borderColor: '#2a2a2a', borderWidth: 1, padding: 12,
               callbacks: {
                 title: i => new Date(i[0].parsed.x).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}),
-                label: i => i.dataset.label === 'S2F Model'
+                label: i => i.dataset.label === 'S2F Model Price'
                   ? ` Model: $${Math.round(i.parsed.y).toLocaleString()}`
-                  : ` ${i.dataset.label}: $${Math.round(i.parsed.y).toLocaleString()}`
+                  : ` BTC: $${Math.round(i.parsed.y).toLocaleString()}`
               }
             }
           },
@@ -1697,14 +1683,8 @@
             y: { type: 'logarithmic', position: 'right',
                  grid: { color: '#131313' }, border: { color: '#1c1c1c' },
                  ticks: { color: '#444', font: { family: 'Inter', size: 11, weight: '600' },
-                   callback: v => {
-                     if (v === 0.01 || v === 0.1 || v === 1 || v === 10 || v === 100 ||
-                         v === 1000 || v === 10000 || v === 100000 || v === 1000000)
-                       return '$' + (v >= 1000 ? (v/1000)+'K' : v);
-                     return '';
-                   }
-                 }
-            }
+                   callback: v => [0.01,0.1,1,10,100,1000,10000,100000,1000000].includes(v)
+                     ? '$'+(v>=1000?(v/1000)+'K':v) : '' } }
           }
         }
       });
