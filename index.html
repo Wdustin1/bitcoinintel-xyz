@@ -1364,9 +1364,16 @@
         }
       } catch(_) {}
 
-      // ── Market Signal ──
-      const oiDir     = d.oichangePercent;   // 24h OI change %
-      const fundDir   = d.avgFundingRate;    // positive = longs paying
+      // ── Market Signal — use /api/funding for accurate rate (same source as Funding Rate card) ──
+      let fundDir = d.avgFundingRate; // fallback
+      try {
+        const frRes  = await fetch('/api/funding');
+        const frData = await frRes.json();
+        const exList = frData?.data?.[0]?.uMarginList || [];
+        const rates  = exList.map(e => e.rate).filter(r => r !== null && r !== undefined);
+        if (rates.length) fundDir = rates.reduce((a, b) => a + b, 0) / rates.length;
+      } catch(_) {}
+      const oiDir = d.oichangePercent;   // 24h OI change %
       const signalEl  = document.getElementById('oiSignalLabel');
       const descEl    = document.getElementById('oiSignalDesc');
       const wrapEl    = document.getElementById('oiSignalWrap');
