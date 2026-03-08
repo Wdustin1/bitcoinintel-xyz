@@ -20,7 +20,7 @@
       --sidebar:  240px;
     }
 
-    --topbar: 52px;
+    --topbar: 72px;
 
     html, body {
       background: var(--bg);
@@ -52,17 +52,10 @@
       flex-shrink: 0;
     }
     .topbar-logo img {
-      width: 34px;
-      height: 34px;
+      width: 46px;
+      height: 46px;
       border-radius: 50%;
       object-fit: cover;
-    }
-    .topbar-logo-text {
-      font-size: 13px;
-      font-weight: 800;
-      color: #fff;
-      letter-spacing: .01em;
-      line-height: 1.2;
     }
     .topbar-price {
       display: flex;
@@ -80,11 +73,12 @@
       text-transform: uppercase;
     }
     .topbar-btc-price {
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 900;
       color: #fff;
       letter-spacing: -.02em;
       font-variant-numeric: tabular-nums;
+      font-family: 'Inter', system-ui, sans-serif;
     }
     .topbar-pct {
       font-size: 13px;
@@ -387,7 +381,6 @@
 <header class="topbar">
   <a class="topbar-logo" href="/">
     <img src="logo-profile.jpg" alt="Bitcoin Intel XYZ"/>
-    <span class="topbar-logo-text">Bitcoin<br/>Intel XYZ</span>
   </a>
   <div class="topbar-price">
     <span class="topbar-btc-label">BTC</span>
