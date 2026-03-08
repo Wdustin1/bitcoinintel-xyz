@@ -2120,19 +2120,21 @@
       const res  = await fetch('https://api.blockchain.info/charts/market-price?timespan=all&format=json&cors=true');
       const data = await res.json();
 
-      // Filter to prices > $0.05 (matches repo start ~2010)
-      const allPts = data.values.filter(p => p.y > 0.05);
-      // Weekly sample for regression + rendering
+      // Use ALL price data (including early low-price values for regression accuracy)
+      const allPts = data.values.filter(p => p.y > 0);
+      // Weekly sample for rendering performance
       const pts = allPts.filter((_, i) => i % 7 === 0);
-      const n   = pts.length;
-
-      // Sequential 1-indexed x values (matches repo: xdata = [x+1 for x in range(len)])
-      const xArr = pts.map((_, i) => i + 1);
       const yArr = pts.map(p => p.y);
 
-      // OLS: log(price) = a * log(x) + c
+      // x = actual days since Bitcoin genesis (2009-01-03) — calendar-based, no gap issues
+      const GENESIS_SEC = 1230940800; // 2009-01-03 00:00:00 UTC
+      function daysFromGenesis(unix_sec) { return (unix_sec - GENESIS_SEC) / 86400 + 1; }
+      const xArr = pts.map(p => daysFromGenesis(p.x));
+      const n    = xArr.length;
+
+      // OLS: log(price) = a * log(days) + c
       const logX  = xArr.map(x => Math.log(x));
-      const logY  = yArr.map(y => Math.log(y));
+      const logY  = yArr.map(y => Math.log(Math.max(y, 0.001)));
       const sumX  = logX.reduce((a,b) => a+b, 0);
       const sumY  = logY.reduce((a,b) => a+b, 0);
       const sumXY = logX.reduce((s,x,i) => s + x*logY[i], 0);
@@ -2140,24 +2142,22 @@
       const regA  = (n*sumXY - sumX*sumY) / (n*sumX2 - sumX*sumX);
       const regC  = (sumY - regA*sumX) / n;
 
+      // x-value for any timestamp (same formula as regression)
+      function idxForTime(tMs) { return daysFromGenesis(tMs / 1000); }
+
       function fittedLog(x)   { return regA * Math.log(x) + regC; }
       function bandUpper(x,i) { return Math.exp(fittedLog(x) + (i - RB_I_DEC) * RB_BAND_WIDTH); }
 
       // Lower bound of band 0 (one step below band 0)
       function band0Lower(x) { return Math.exp(fittedLog(x) + (-1 - RB_I_DEC) * RB_BAND_WIDTH); }
 
-      // Continuous time→index mapping: index = weeks since first data point + 1
-      // This gives a smooth function for ALL timestamps (historical and future)
-      const T0_MS    = allPts[0].x * 1000;
-      const WEEK_MS  = 7 * 86400000;
-      function idxForTime(tMs) { return (tMs - T0_MS) / WEEK_MS + 1; }
-
-      // Generate band data at uniform 2-week steps from data start to 2029
-      // No split between historical/projected — one seamless curve
-      const CHART_END_MS = new Date('2029-01-01').getTime();
-      const BAND_STEP_MS = 14 * 86400000; // every 2 weeks — smooth but not too many points
+      // Generate band data at uniform 2-week steps from 2010 to 2029
+      // Uses exact same x formula as regression — guaranteed to align
+      const CHART_START_MS = new Date('2010-01-01').getTime();
+      const CHART_END_MS   = new Date('2029-01-01').getTime();
+      const BAND_STEP_MS   = 14 * 86400000;
       const bandData = [];
-      for (let tMs = T0_MS; tMs <= CHART_END_MS; tMs += BAND_STEP_MS) {
+      for (let tMs = CHART_START_MS; tMs <= CHART_END_MS; tMs += BAND_STEP_MS) {
         const idx = idxForTime(tMs);
         bandData.push({
           xMs:    tMs,
