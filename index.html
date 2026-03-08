@@ -966,6 +966,7 @@
 
   let priceChart = null, mapChart = null, hrChart = null, rbChart = null, s2fChart = null;
   let rawOrders  = [];
+  let btcMarketCap = null; // shared across cards
 
   let halvingTarget = null;
 
@@ -1025,6 +1026,7 @@
       document.getElementById('pOpen').textContent = fmt(first);
 
       const md = dd.market_data;
+      btcMarketCap = md.market_cap.usd;
       document.getElementById('pMcap').textContent = fmtB(md.market_cap.usd);
       document.getElementById('pVol').textContent  = fmtB(md.total_volume.usd);
       document.getElementById('mMcap').textContent = fmtB(md.market_cap.usd);
@@ -1350,19 +1352,14 @@
       fmtPctStat(d.h4OIChangePercent,  'oiChange4h');
       fmtPctStat(d.volChangePercent,   'oiVolChange');
 
-      // ── OI as % of Market Cap ──
-      try {
-        const priceRes  = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_market_cap=true');
-        const priceData = await priceRes.json();
-        const mcap      = priceData?.bitcoin?.usd_market_cap;
-        if (mcap && d.openInterest) {
-          const pct = (d.openInterest / mcap) * 100;
-          document.getElementById('oiMcapPct').textContent = pct.toFixed(1) + '%';
-          // Color: <2% low leverage, 2-4% moderate, >4% high
-          const pctEl = document.getElementById('oiMcapPct');
-          pctEl.style.color = pct < 2 ? '#22c55e' : pct < 4 ? '#F7931A' : '#ef4444';
-        }
-      } catch(_) {}
+      // ── OI as % of Market Cap — use cached btcMarketCap from price card ──
+      const mcap = btcMarketCap;
+      if (mcap && d.openInterest) {
+        const pct   = (d.openInterest / mcap) * 100;
+        const pctEl = document.getElementById('oiMcapPct');
+        pctEl.textContent = pct.toFixed(1) + '%';
+        pctEl.style.color = pct < 2 ? '#22c55e' : pct < 4 ? '#F7931A' : '#ef4444';
+      }
 
       // ── Market Signal — use /api/funding for accurate rate (same source as Funding Rate card) ──
       let fundDir = d.avgFundingRate; // fallback
