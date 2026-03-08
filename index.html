@@ -1557,8 +1557,8 @@
   async function loadS2F() {
     try {
       const [supplyRes, priceRes] = await Promise.all([
-        fetch('https://api.blockchain.info/charts/total-bitcoins?timespan=5years&format=json&cors=true'),
-        fetch('https://api.blockchain.info/charts/market-price?timespan=5years&format=json&cors=true')
+        fetch('https://api.blockchain.info/charts/total-bitcoins?timespan=all&format=json&cors=true'),
+        fetch('https://api.blockchain.info/charts/market-price?timespan=all&format=json&cors=true')
       ]);
       const supplyData = await supplyRes.json();
       const priceData  = await priceRes.json();
@@ -1599,7 +1599,7 @@
         const day      = Math.floor(pt.x / 86400);
         const btcPx    = priceMap[day] || priceMap[day-1] || priceMap[day+1] || null;
 
-        if (btcPx) {
+        if (btcPx && btcPx > 0) {
           times.push(new Date(pt.x * 1000));
           prices.push(btcPx);
           modelPrices.push(modPx);
