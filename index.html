@@ -177,6 +177,18 @@
     .up   { color: var(--green); }
     .down { color: var(--red); }
 
+    /* ── TOTAL LIQUIDATIONS REKT ── */
+    .rekt-grid    { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .rekt-card    { background: #141414; border: 1px solid #1e1e1e; border-radius: 12px; padding: 20px 22px; display: flex; flex-direction: column; gap: 12px; }
+    .rekt-header  { display: flex; align-items: baseline; justify-content: space-between; }
+    .rekt-period  { font-size: 15px; font-weight: 700; color: #ccc; }
+    .rekt-total   { font-size: 18px; font-weight: 900; color: #fff; letter-spacing: -.01em; }
+    .rekt-row     { display: flex; align-items: center; justify-content: space-between; padding-top: 4px; border-top: 1px solid #1a1a1a; }
+    .rekt-row:first-of-type { margin-top: 2px; }
+    .rekt-side    { font-size: 13px; color: #666; }
+    .rekt-long    { font-size: 14px; font-weight: 700; color: #22c55e; }
+    .rekt-short   { font-size: 14px; font-weight: 700; color: #ef4444; }
+
     /* ── FEAR & GREED ── */
     .fg-inner   { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; }
     .gauge-wrap { display: flex; flex-direction: column; align-items: center; padding: 4px 0; }
@@ -267,7 +279,7 @@
 
     <div class="nav-section">
       <div class="nav-section-label">Liquidations</div>
-      <a class="nav-link" href="#liquidations"><span class="nav-icon">💥</span>Liquidations<span class="live-badge"></span></a>
+      <a class="nav-link" href="#liquidations"><span class="nav-icon">💥</span>Liquidations Rekt<span class="live-badge"></span></a>
       <a class="nav-link" href="#liq-map"><span class="nav-icon">🗺️</span>Liquidation Map<span class="live-badge"></span></a>
     </div>
 
@@ -382,27 +394,29 @@
 
   <!-- ── LIQUIDATIONS ── -->
   <div class="card section-anchor" id="liquidations">
-    <div class="card-header">
-      <div>
-        <div class="card-label">Bitcoin Futures</div>
-        <div class="card-title">Liquidations</div>
-        <div class="card-sub">Long &amp; short liquidations by time window</div>
+    <div class="card-label">Bitcoin Futures</div>
+    <div class="card-title" style="margin-bottom:20px;">Total Liquidations Rekt</div>
+    <div class="rekt-grid">
+      <div class="rekt-card">
+        <div class="rekt-header"><span class="rekt-period">1h Rekt</span><span class="rekt-total" id="rektTotal1h">—</span></div>
+        <div class="rekt-row"><span class="rekt-side">Long</span><span class="rekt-long" id="rektLong1h">—</span></div>
+        <div class="rekt-row"><span class="rekt-side">Short</span><span class="rekt-short" id="rektShort1h">—</span></div>
       </div>
-      <div class="tabs" id="liqTabs">
-        <button class="tab active" onclick="setLiqView('grouped')">By Window</button>
-        <button class="tab" onclick="setLiqView('hourly')">Hourly</button>
+      <div class="rekt-card">
+        <div class="rekt-header"><span class="rekt-period">4h Rekt</span><span class="rekt-total" id="rektTotal4h">—</span></div>
+        <div class="rekt-row"><span class="rekt-side">Long</span><span class="rekt-long" id="rektLong4h">—</span></div>
+        <div class="rekt-row"><span class="rekt-side">Short</span><span class="rekt-short" id="rektShort4h">—</span></div>
       </div>
-    </div>
-    <div class="legend">
-      <div class="leg-item"><div class="leg-dot" style="background:#ef4444"></div>Longs Liquidated</div>
-      <div class="leg-item"><div class="leg-dot" style="background:#22c55e"></div>Shorts Liquidated</div>
-    </div>
-    <div class="chart-wrap" style="height:240px;"><canvas id="liqChart"></canvas></div>
-    <div class="stats-row">
-      <div class="stat"><div class="stat-label">24H Longs</div><div class="stat-value" id="liqLong24">—</div></div>
-      <div class="stat"><div class="stat-label">24H Shorts</div><div class="stat-value" id="liqShort24">—</div></div>
-      <div class="stat"><div class="stat-label">24H Total</div><div class="stat-value" id="liqTotal24">—</div></div>
-      <div class="stat"><div class="stat-label">Dominant Side</div><div class="stat-value" id="liqDom">—</div></div>
+      <div class="rekt-card">
+        <div class="rekt-header"><span class="rekt-period">12h Rekt</span><span class="rekt-total" id="rektTotal12h">—</span></div>
+        <div class="rekt-row"><span class="rekt-side">Long</span><span class="rekt-long" id="rektLong12h">—</span></div>
+        <div class="rekt-row"><span class="rekt-side">Short</span><span class="rekt-short" id="rektShort12h">—</span></div>
+      </div>
+      <div class="rekt-card">
+        <div class="rekt-header"><span class="rekt-period">24h Rekt</span><span class="rekt-total" id="rektTotal24h">—</span></div>
+        <div class="rekt-row"><span class="rekt-side">Long</span><span class="rekt-long" id="rektLong24h">—</span></div>
+        <div class="rekt-row"><span class="rekt-side">Short</span><span class="rekt-short" id="rektShort24h">—</span></div>
+      </div>
     </div>
     <div class="watermark">bitcoinintel.xyz</div>
   </div>
@@ -545,9 +559,9 @@
   const fmtPct = n => (n >= 0 ? '+' : '') + n.toFixed(2) + '%';
   const pad    = (n, w) => String(n).padStart(w, '0');
 
-  let priceChart = null, liqChart = null, mapChart = null, hrChart = null, rbChart = null;
+  let priceChart = null, mapChart = null, hrChart = null, rbChart = null;
   let rawOrders  = [];
-  let liqView    = 'grouped';
+
   let halvingTarget = null;
 
   // ── Sidebar active state ──
@@ -712,59 +726,42 @@
   // ════════════════════════════════════════
   // LIQUIDATIONS
   // ════════════════════════════════════════
+  function fmtRekt(n) {
+    if (n >= 1e9) return '$'+(n/1e9).toFixed(2)+'B';
+    if (n >= 1e6) return '$'+(n/1e6).toFixed(2)+'M';
+    return '$'+(n/1e3).toFixed(2)+'K';
+  }
+
   async function loadLiquidations() {
     try {
       const res  = await fetch('/api/liquidations');
       const data = await res.json();
       rawOrders  = data.orders || [];
-      renderLiqView(liqView);
+      renderRektGrid();
       loadLiqMap();
     } catch(e) { console.error(e); }
   }
 
-  function setLiqView(view) {
-    liqView = view;
-    document.querySelectorAll('#liqTabs .tab').forEach(t => t.classList.toggle('active', t.textContent===(view==='grouped'?'By Window':'Hourly')));
-    renderLiqView(view);
-  }
-
-  function renderLiqView(view) {
-    if (view==='grouped') {
-      const now = Date.now();
-      const wins = [{label:'1H',ms:3600000},{label:'4H',ms:14400000},{label:'12H',ms:43200000},{label:'24H',ms:86400000}];
-      const agg = wins.map(w=>{
-        let long=0,short=0;
-        rawOrders.forEach(o=>{ if((now-o.time)<=w.ms){ const v=parseFloat(o.executedQty)*parseFloat(o.averagePrice); if(o.side==='SELL')long+=v; else short+=v; }});
-        return {label:w.label,long,short};
+  function renderRektGrid() {
+    const now  = Date.now();
+    const wins = [
+      { key:'1h',  ms: 3600000 },
+      { key:'4h',  ms: 14400000 },
+      { key:'12h', ms: 43200000 },
+      { key:'24h', ms: 86400000 },
+    ];
+    wins.forEach(w => {
+      let long = 0, short = 0;
+      rawOrders.forEach(o => {
+        if ((now - o.time) <= w.ms) {
+          const v = parseFloat(o.executedQty) * parseFloat(o.averagePrice);
+          if (o.side === 'SELL') long += v; else short += v;
+        }
       });
-      const last = agg[agg.length-1];
-      document.getElementById('liqLong24').textContent  = fmtB(last.long);
-      document.getElementById('liqShort24').textContent = fmtB(last.short);
-      document.getElementById('liqTotal24').textContent = fmtB(last.long+last.short);
-      const el = document.getElementById('liqDom');
-      el.textContent = last.long>last.short?'LONGS':'SHORTS';
-      el.style.color = last.long>last.short?'#ef4444':'#22c55e';
-      drawLiqChart(agg.map(a=>a.label),agg.map(a=>a.long/1e6),agg.map(a=>a.short/1e6));
-    } else {
-      const now = Date.now();
-      const buckets = Array.from({length:12},()=>({long:0,short:0}));
-      rawOrders.forEach(o=>{ const b=Math.min(Math.floor((now-o.time)/3600000),11); const v=parseFloat(o.executedQty)*parseFloat(o.averagePrice); if(o.side==='SELL')buckets[b].long+=v; else buckets[b].short+=v; });
-      const disp = buckets.reverse();
-      drawLiqChart(disp.map((_,i)=>i+'h ago'),disp.map(b=>b.long/1e6),disp.map(b=>b.short/1e6));
-    }
-  }
-
-  function drawLiqChart(labels, longs, shorts) {
-    const ctx = document.getElementById('liqChart').getContext('2d');
-    if (liqChart) liqChart.destroy();
-    liqChart = new Chart(ctx, {
-      type:'bar', data:{ labels, datasets:[
-        {label:'Longs',data:longs,backgroundColor:'rgba(239,68,68,.85)',borderRadius:4,borderSkipped:false},
-        {label:'Shorts',data:shorts,backgroundColor:'rgba(34,197,94,.85)',borderRadius:4,borderSkipped:false}]},
-      options:{ responsive:true, maintainAspectRatio:false, animation:{duration:400}, interaction:{mode:'index',intersect:false},
-        plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#1a1a1a', titleColor:'#555', bodyColor:'#fff', borderColor:'#2a2a2a', borderWidth:1, padding:12, callbacks:{label:i=>` ${i.dataset.label}: $${i.raw.toFixed(1)}M`}}},
-        scales:{ x:{grid:{color:'transparent'},border:{color:'#1c1c1c'},ticks:{color:'#444',font:{family:'Inter',size:11,weight:'600'}}},
-          y:{grid:{color:'#131313'},border:{color:'#1c1c1c'},ticks:{color:'#444',font:{family:'Inter',size:11,weight:'600'},callback:v=>'$'+v.toFixed(0)+'M'}}}}
+      const suffix = w.key.charAt(0).toUpperCase() + w.key.slice(1); // '1h' → '1h' (use raw key)
+      document.getElementById('rektTotal'  + w.key).textContent = fmtRekt(long + short);
+      document.getElementById('rektLong'   + w.key).textContent = fmtRekt(long);
+      document.getElementById('rektShort'  + w.key).textContent = fmtRekt(short);
     });
   }
 
