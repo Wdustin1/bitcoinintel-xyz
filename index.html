@@ -1678,17 +1678,18 @@
         ]},
         options: {
           responsive: true, maintainAspectRatio: false, animation: { duration: 400 },
-          interaction: { mode: 'nearest', intersect: false },
+          interaction: { mode: 'index', intersect: false },
           plugins: {
             legend: { display: false },
             tooltip: {
-              backgroundColor: '#1a1a1a', titleColor: '#555', bodyColor: '#fff',
+              backgroundColor: '#1a1a1a', titleColor: '#888', bodyColor: '#fff',
               borderColor: '#2a2a2a', borderWidth: 1, padding: 12,
+              displayColors: false,
               callbacks: {
                 title: i => new Date(i[0].parsed.x).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}),
                 label: i => i.dataset.label === 'S2F Model Price'
                   ? ` Model: $${Math.round(i.parsed.y).toLocaleString()}`
-                  : ` BTC: $${Math.round(i.parsed.y).toLocaleString()}`
+                  : ` BTC Price: $${Math.round(i.parsed.y).toLocaleString()}`
               }
             }
           },
