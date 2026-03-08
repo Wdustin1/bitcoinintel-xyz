@@ -649,9 +649,9 @@
   // ════════════════════════════════════════
   async function loadLiquidations() {
     try {
-      const now  = Date.now();
-      const res  = await fetch(`https://fapi.binance.com/fapi/v1/allForceOrders?symbol=BTCUSDT&startTime=${now-86400000}&limit=1000`);
-      rawOrders  = await res.json();
+      const res  = await fetch('/api/liquidations');
+      const data = await res.json();
+      rawOrders  = data.orders || [];
       renderLiqView(liqView);
       loadLiqMap();
     } catch(e) { console.error(e); }
