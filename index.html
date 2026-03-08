@@ -131,6 +131,60 @@
     @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.3} }
 
     /* ═══════════════════════════════════════
+       TOP HEADER
+    ═══════════════════════════════════════ */
+    .top-header {
+      position: fixed;
+      top: 0; left: var(--sidebar); right: 0;
+      height: 60px;
+      background: rgba(8,8,8,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid #1a1a1a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      z-index: 90;
+      gap: 16px;
+    }
+    .header-nav {
+      display: flex;
+      gap: 4px;
+      background: #111;
+      border: 1px solid #1e1e1e;
+      border-radius: 999px;
+      padding: 4px;
+    }
+    .header-nav a {
+      color: #666;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 16px;
+      border-radius: 999px;
+      transition: background .15s, color .15s;
+      white-space: nowrap;
+    }
+    .header-nav a:hover { background: #1a1a1a; color: #aaa; }
+    .header-nav a.active { background: #1e1e1e; color: #fff; }
+    .header-btc {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #111;
+      border: 1px solid #1e1e1e;
+      border-radius: 999px;
+      padding: 7px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+    }
+    .header-btc-icon { font-size: 15px; }
+    .header-btc-change { font-size: 12px; font-weight: 600; }
+
+    /* ═══════════════════════════════════════
        MAIN CONTENT
     ═══════════════════════════════════════ */
     .main {
@@ -142,7 +196,7 @@
 
     .content {
       flex: 1;
-      padding: 32px 36px 60px;
+      padding: 92px 36px 60px;
       display: flex;
       flex-direction: column;
       gap: 20px;
@@ -379,6 +433,22 @@
      MAIN CONTENT
 ═══════════════════════════════════════ -->
 <div class="main">
+
+<!-- TOP HEADER -->
+<header class="top-header">
+  <nav class="header-nav">
+    <a href="#btc-price" class="active">Price &amp; Market</a>
+    <a href="#open-interest">Derivatives</a>
+    <a href="#hash-rate">On-Chain</a>
+    <a href="#halving-spiral">Advanced</a>
+  </nav>
+  <div class="header-btc">
+    <span class="header-btc-icon">₿</span>
+    <span id="hdrPrice">—</span>
+    <span class="header-btc-change" id="hdrChange">—</span>
+  </div>
+</header>
+
 <div class="content">
 
   <!-- ── BTC PRICE ── -->
@@ -1011,6 +1081,12 @@
       document.getElementById('priceDisplay').textContent = fmt(last);
       const ce = document.getElementById('priceChange');
       ce.textContent = fmtPct(pct); ce.className = 'price-change '+(isUp?'up':'down');
+
+      // Header ticker
+      const hdrP = document.getElementById('hdrPrice');
+      const hdrC = document.getElementById('hdrChange');
+      if (hdrP) hdrP.textContent = fmt(last);
+      if (hdrC) { hdrC.textContent = fmtPct(pct); hdrC.style.color = isUp ? '#22c55e' : '#ef4444'; }
 
 
       document.getElementById('pHigh').textContent = fmt(high);
