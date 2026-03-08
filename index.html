@@ -2143,18 +2143,22 @@
       function fittedLog(x)   { return regA * Math.log(x) + regC; }
       function bandUpper(x,i) { return Math.exp(fittedLog(x) + (i - RB_I_DEC) * RB_BAND_WIDTH); }
 
+      // Lower bound of band 0 (one step below band 0)
+      function band0Lower(x) { return Math.exp(fittedLog(x) + (-1 - RB_I_DEC) * RB_BAND_WIDTH); }
+
       // Pre-compute band values for every weekly point + 9-month projection
       const PROJ_WEEKS = 39;
       const bandData = [];
       pts.forEach((p, j) => {
         const idx = j + 1;
-        bandData.push({ xMs: p.x * 1000, uppers: Array.from({length:9}, (_,i) => bandUpper(idx, i)) });
+        bandData.push({ xMs: p.x * 1000, uppers: Array.from({length:9}, (_,i) => bandUpper(idx, i)), b0lower: band0Lower(idx) });
       });
       for (let w = 1; w <= PROJ_WEEKS; w++) {
         const idx = n + w * 7;
         bandData.push({
           xMs:    allPts[allPts.length-1].x * 1000 + w * 7 * 86400000,
-          uppers: Array.from({length:9}, (_,i) => bandUpper(idx, i))
+          uppers: Array.from({length:9}, (_,i) => bandUpper(idx, i)),
+          b0lower: band0Lower(idx)
         });
       }
 
@@ -2176,8 +2180,8 @@
             for (let i = 0; i < 9; i++) {
               const top0    = ys.getPixelForValue(bandData[j].uppers[i]);
               const top1    = ys.getPixelForValue(bandData[j+1].uppers[i]);
-              const bottom0 = i === 0 ? ca.bottom : ys.getPixelForValue(bandData[j].uppers[i-1]);
-              const bottom1 = i === 0 ? ca.bottom : ys.getPixelForValue(bandData[j+1].uppers[i-1]);
+              const bottom0 = i === 0 ? ys.getPixelForValue(bandData[j].b0lower) : ys.getPixelForValue(bandData[j].uppers[i-1]);
+              const bottom1 = i === 0 ? ys.getPixelForValue(bandData[j+1].b0lower) : ys.getPixelForValue(bandData[j+1].uppers[i-1]);
 
               ctx.fillStyle = RB_COLORS[i];
               ctx.beginPath();
