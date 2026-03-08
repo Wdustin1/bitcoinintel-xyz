@@ -146,6 +146,28 @@
       z-index: 300;
       gap: 16px;
     }
+    .team-card {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 10px; padding: 28px 32px;
+      background: #0f0f0f; border: 1px solid #1e1e1e; border-radius: 16px;
+      flex: 1; min-width: 200px; text-align: center;
+    }
+    .team-avatar {
+      width: 80px; height: 80px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px; font-weight: 800; color: #fff;
+    }
+    .team-name { font-size: 16px; font-weight: 700; color: #fff; }
+    .team-title { font-size: 12px; font-weight: 600; color: #888; letter-spacing: .05em; text-transform: uppercase; }
+    .team-x {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 600; color: #555;
+      text-decoration: none; padding: 6px 12px;
+      border: 1px solid #222; border-radius: 999px;
+      transition: color .15s, border-color .15s;
+      margin-top: 4px;
+    }
+    .team-x:hover { color: #fff; border-color: #444; }
     .header-logo {
       display: flex; align-items: center; gap: 10px;
       text-decoration: none; flex-shrink: 0;
@@ -453,6 +475,7 @@
     <a href="#btc-price" class="active">Price &amp; Market</a>
     <a href="#open-interest">Derivatives</a>
     <a href="#hash-rate">On-Chain</a>
+    <a href="#team">Team</a>
     <a href="#halving-spiral">Advanced</a>
   </nav>
   <div style="display:flex;align-items:center;gap:10px;">
@@ -1002,6 +1025,46 @@
   </div>
 
 </div><!-- /content -->
+
+<!-- ═══ TEAM ═══ -->
+<div class="card section-anchor" id="team" style="max-width:760px;">
+  <div class="card-header">
+    <div>
+      <div class="card-title">Team</div>
+      <div class="site-sub">bitcoinintel.xyz</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:32px;padding:8px 0 24px;flex-wrap:wrap;">
+
+    <!-- Robert -->
+    <div class="team-card">
+      <div class="team-avatar" style="background:linear-gradient(135deg,#F7931A,#f5a623);">
+        <span>R</span>
+      </div>
+      <div class="team-name">Robert Gullickson</div>
+      <div class="team-title">Founder &amp; CEO</div>
+      <a href="https://x.com/investwithdoc" target="_blank" rel="noopener" class="team-x">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.261 5.632zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        @investwithdoc
+      </a>
+    </div>
+
+    <!-- Dustin -->
+    <div class="team-card">
+      <div class="team-avatar" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);">
+        <span>D</span>
+      </div>
+      <div class="team-name">Dustin</div>
+      <div class="team-title">CTO &amp; Chief Mod</div>
+      <a href="https://x.com/metadustin" target="_blank" rel="noopener" class="team-x">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.261 5.632zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        @metadustin
+      </a>
+    </div>
+
+  </div>
+  <div class="watermark">bitcoinintel.xyz</div>
+</div>
 
 <footer>
   <div class="footer-cols">
