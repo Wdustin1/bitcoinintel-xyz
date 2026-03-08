@@ -20,8 +20,6 @@
       --sidebar:  240px;
     }
 
-    --topbar: 72px;
-
     html, body {
       background: var(--bg);
       color: #fff;
@@ -32,86 +30,14 @@
     /* ═══════════════════════════════════════
        TOP BAR
     ═══════════════════════════════════════ */
-    .topbar {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      height: var(--topbar);
-      background: #0a0a0a;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 24px 0 20px;
-      z-index: 300;
-    }
-    .topbar-logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      flex-shrink: 0;
-    }
-    .topbar-logo img {
-      width: 46px;
-      height: 46px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-    .topbar-price {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-    .topbar-btc-label {
-      font-size: 10px;
-      font-weight: 800;
-      color: var(--orange);
-      letter-spacing: .1em;
-      text-transform: uppercase;
-    }
-    .topbar-btc-price {
-      font-size: 22px;
-      font-weight: 900;
-      color: #fff;
-      letter-spacing: -.02em;
-      font-variant-numeric: tabular-nums;
-      font-family: 'Inter', system-ui, sans-serif;
-    }
-    .topbar-pct {
-      font-size: 13px;
-      font-weight: 700;
-    }
-    .topbar-right {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      font-size: 11px;
-      font-weight: 600;
-      color: #333;
-      flex-shrink: 0;
-    }
-    .topbar-live-dot {
-      width: 7px;
-      height: 7px;
-      background: #22c55e;
-      border-radius: 50%;
-      box-shadow: 0 0 6px #22c55e;
-      animation: livepulse 2s infinite;
-      flex-shrink: 0;
-    }
-    @keyframes livepulse { 0%,100%{opacity:1} 50%{opacity:.35} }
-
     /* ═══════════════════════════════════════
        SIDEBAR
     ═══════════════════════════════════════ */
     .sidebar {
       position: fixed;
-      top: var(--topbar); left: 0;
+      top: 0; left: 0;
       width: var(--sidebar);
-      height: calc(100vh - var(--topbar));
+      height: 100vh;
       background: #0a0a0a;
       border-right: 1px solid var(--border);
       display: flex;
@@ -209,8 +135,7 @@
     ═══════════════════════════════════════ */
     .main {
       margin-left: var(--sidebar);
-      margin-top: var(--topbar);
-      min-height: calc(100vh - var(--topbar));
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
@@ -374,24 +299,6 @@
   </style>
 </head>
 <body>
-
-<!-- ═══════════════════════════════════════
-     TOP BAR
-═══════════════════════════════════════ -->
-<header class="topbar">
-  <a class="topbar-logo" href="/">
-    <img src="logo-profile.jpg" alt="Bitcoin Intel XYZ"/>
-  </a>
-  <div class="topbar-price">
-    <span class="topbar-btc-label">BTC</span>
-    <span class="topbar-btc-price" id="topbarPrice">—</span>
-    <span class="topbar-pct" id="topbarPct">—</span>
-  </div>
-  <div class="topbar-right">
-    <span class="topbar-live-dot"></span>
-    Live · <span id="topbarUpdated">updating…</span>
-  </div>
-</header>
 
 <!-- ═══════════════════════════════════════
      SIDEBAR
@@ -933,13 +840,7 @@
       const ce = document.getElementById('priceChange');
       ce.textContent = fmtPct(pct); ce.className = 'price-change '+(isUp?'up':'down');
 
-      // Update sticky top bar
-      const tbPrice = document.getElementById('topbarPrice');
-      const tbPct   = document.getElementById('topbarPct');
-      const tbUp    = document.getElementById('topbarUpdated');
-      if (tbPrice) tbPrice.textContent = fmt(last);
-      if (tbPct)   { tbPct.textContent = (isUp?'▲':'▼') + ' ' + Math.abs(pct).toFixed(2) + '%'; tbPct.style.color = color; }
-      if (tbUp)    tbUp.textContent = new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+
       document.getElementById('pHigh').textContent = fmt(high);
       document.getElementById('pLow').textContent  = fmt(low);
       document.getElementById('pOpen').textContent = fmt(first);
