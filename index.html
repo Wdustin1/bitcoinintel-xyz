@@ -810,7 +810,7 @@
       </div>
     </div>
     <div style="display:flex;justify-content:center;padding:8px 0;">
-      <canvas id="spiralCanvas" width="520" height="520" style="max-width:100%;"></canvas>
+      <canvas id="spiralCanvas" width="640" height="680" style="max-width:100%;"></canvas>
     </div>
     <div class="stats-row">
       <div class="stat"><div class="stat-label">Current Epoch</div><div class="stat-value" id="spiralEpoch">—</div></div>
@@ -1808,9 +1808,9 @@
       const canvas = document.getElementById('spiralCanvas');
       const ctx    = canvas.getContext('2d');
       const W = canvas.width, H = canvas.height;
-      const cx = W / 2, cy = H / 2;
+      const cx = W / 2, cy = H / 2 - 20; // shift centre up slightly for legend room
       const INNER_R = 22;   // min radius (centre gap)
-      const MAX_R   = W * 0.40;
+      const MAX_R   = W * 0.31;  // smaller spiral = room for labels on all sides
 
       // Log scale: $0.1 → $200K+
       const LOG_MIN = -1.0, LOG_MAX = 6.3;
@@ -1861,7 +1861,7 @@
       });
 
       // ── Outer orange boundary ring ──
-      const RING_R = MAX_R + 18;
+      const RING_R = MAX_R + 22;
       ctx.beginPath();
       ctx.arc(cx, cy, RING_R, 0, 2 * Math.PI);
       ctx.strokeStyle = '#F7931A';
@@ -1889,7 +1889,7 @@
       [0.125, 0.375, 0.625, 0.875].forEach(q => drawArrow(toAngle(q), RING_R));
 
       // ── Phase labels outside the ring ──
-      const LABEL_R = RING_R + 24;
+      const LABEL_R = RING_R + 32;
       const phases = [
         { q: 0,    lines: ['Halving',    '& Recovery'],  color: '#F7931A' },
         { q: 0.25, lines: ['Bull',       'Market Peak'], color: '#F7931A' },
@@ -2000,7 +2000,7 @@
       }
 
       // ── Colour legend bar ──
-      const lgX = cx - 100, lgY = H - 22, lgW = 200, lgH = 7;
+      const lgX = cx - 110, lgY = H - 42, lgW = 220, lgH = 8;
       const grad = ctx.createLinearGradient(lgX, 0, lgX + lgW, 0);
       grad.addColorStop(0,    'hsl(5,75%,20%)');
       grad.addColorStop(0.35, 'hsl(5,80%,40%)');
