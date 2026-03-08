@@ -1747,174 +1747,302 @@
   // ════════════════════════════════════════
   async function loadHalfingSpiral() {
     try {
-      const res   = await fetch('https://api.blockchain.info/charts/market-price?timespan=all&format=json&cors=true');
-      const data  = await res.json();
-      const pts   = data.values; // [{x: unix_sec, y: usd_price}]
+      const res  = await fetch('https://api.blockchain.info/charts/market-price?timespan=all&format=json&cors=true');
+      const data = await res.json();
+      const pts  = data.values; // [{x: unix_sec, y: usd_price}]
 
       // Halving timestamps (Unix seconds)
       const HALVINGS = [
-        0,            // Genesis (epoch 1 start)
+        0,            // Genesis
         1354060800,   // 2012-11-28
         1468267200,   // 2016-07-09
         1589155200,   // 2020-05-11
         1713484800,   // 2024-04-20
-        1870000000,   // ~2028 (estimated)
+        1870000000,   // ~2028 estimated
       ];
-      const EPOCH_COLORS = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6'];
 
       function getEpoch(ts) {
         for (let i = HALVINGS.length - 1; i >= 0; i--) {
-          if (ts >= HALVINGS[i]) return i; // epoch index 0-4
+          if (ts >= HALVINGS[i]) return i;
         }
         return 0;
       }
       function cycleProgress(ts) {
         const ep = getEpoch(ts);
-        const start = HALVINGS[ep], end = HALVINGS[ep + 1] || (HALVINGS[ep] + 4 * 365.25 * 86400);
+        const start = HALVINGS[ep];
+        const end   = HALVINGS[ep + 1] || (start + 4 * 365.25 * 86400);
         return Math.min(1, (ts - start) / (end - start));
+      }
+
+      // Build day-indexed price map for YoY colour
+      const priceByDay = {};
+      pts.forEach(p => { priceByDay[Math.floor(p.x / 86400)] = p.y; });
+
+      // Colour by YoY return: dark-red(bear) → amber(neutral) → dark-green(bull)
+      function yoyColor(ts, price) {
+        const day   = Math.floor(ts / 86400);
+        const past  = priceByDay[day - 365] || priceByDay[day - 364] || priceByDay[day - 366];
+        if (!past || past <= 0) return 'hsl(40,60%,40%)';
+        const ratio = price / past;
+        // Map log(ratio) to t ∈ [0,1]: ratio=0.3→t=0(deep red), ratio=1→t=0.4(amber), ratio=8→t=1(dark green)
+        const logR  = Math.log(ratio);
+        const t     = Math.max(0, Math.min(1, (logR - Math.log(0.25)) / (Math.log(10) - Math.log(0.25))));
+        // Colour stops: t=0 dark maroon, t=0.35 red, t=0.45 amber, t=0.6 yellow-green, t=1 dark green
+        let h, s, l;
+        if (t < 0.35) {
+          const u = t / 0.35;
+          h = 5; s = 75; l = 18 + u * 22;          // dark maroon → red
+        } else if (t < 0.48) {
+          const u = (t - 0.35) / 0.13;
+          h = 5 + u * 30; s = 80; l = 40 + u * 15; // red → amber
+        } else if (t < 0.62) {
+          const u = (t - 0.48) / 0.14;
+          h = 35 + u * 45; s = 75; l = 55 - u * 10;// amber → yellow-green
+        } else {
+          const u = Math.min(1, (t - 0.62) / 0.38);
+          h = 80 + u * 40; s = 65; l = 45 - u * 20; // yellow-green → dark green
+        }
+        return `hsl(${Math.round(h)},${s}%,${Math.round(l)}%)`;
       }
 
       const canvas = document.getElementById('spiralCanvas');
       const ctx    = canvas.getContext('2d');
       const W = canvas.width, H = canvas.height;
       const cx = W / 2, cy = H / 2;
-      const MAX_R = W * 0.44; // max radius in pixels
+      const INNER_R = 22;   // min radius (centre gap)
+      const MAX_R   = W * 0.40;
 
-      // Log price scale: map log10(price) to radius
-      const LOG_MIN = -1.5; // ~$0.03 (earliest BTC)
-      const LOG_MAX = 6.2;  // ~$1.6M (headroom)
+      // Log scale: $0.1 → $200K+
+      const LOG_MIN = -1.0, LOG_MAX = 6.3;
       function priceToR(price) {
-        if (price <= 0) return 0;
+        if (price <= 0) return INNER_R;
         const log = Math.log10(price);
-        return Math.max(0, ((log - LOG_MIN) / (LOG_MAX - LOG_MIN)) * MAX_R);
+        return INNER_R + Math.max(0, ((log - LOG_MIN) / (LOG_MAX - LOG_MIN)) * (MAX_R - INNER_R));
       }
 
-      // Draw background
+      // Angle: halving = LEFT (π), clockwise → TOP(3π/2) → RIGHT(2π) → BOTTOM(5π/2) → LEFT(3π)
+      function toAngle(prog) { return Math.PI + prog * 2 * Math.PI; }
+
+      // ── Background ──
       ctx.clearRect(0, 0, W, H);
-      ctx.fillStyle = '#0f0f0f';
+      ctx.fillStyle = '#0a0a0a';
       ctx.fillRect(0, 0, W, H);
 
-      // Draw grid rings (price levels)
-      const gridLevels = [
-        {price: 0.1,    label: '$0.1'},
-        {price: 1,      label: '$1'},
-        {price: 10,     label: '$10'},
-        {price: 100,    label: '$100'},
-        {price: 1000,   label: '$1K'},
-        {price: 10000,  label: '$10K'},
-        {price: 100000, label: '$100K'},
-        {price: 1000000,label: '$1M'},
-      ];
-      gridLevels.forEach(({price, label}) => {
+      // ── Price grid rings ──
+      const gridPrices = [0.1, 1, 10, 100, 1000, 10000, 100000, 1000000];
+      const gridLabels = ['$0.1','$1','$10','$100','$1K','$10K','$100K','$1M'];
+      gridPrices.forEach((price, i) => {
         const r = priceToR(price);
-        if (r < 8) return;
+        if (r < INNER_R + 2) return;
         ctx.beginPath();
         ctx.arc(cx, cy, r, 0, 2 * Math.PI);
-        ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-        ctx.lineWidth = 1;
+        ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+        ctx.lineWidth = 0.8;
+        ctx.setLineDash([3, 5]);
         ctx.stroke();
-        // Label at top of ring
-        ctx.fillStyle = 'rgba(255,255,255,0.2)';
-        ctx.font = '500 9px Inter, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(label, cx, cy - r - 3);
+        ctx.setLineDash([]);
+        // Label on the right side of each ring
+        ctx.fillStyle = 'rgba(255,255,255,0.22)';
+        ctx.font = '600 9px Inter, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(gridLabels[i], cx + r + 3, cy);
       });
 
-      // Draw radial spokes (quarter-cycle marks)
-      for (let q = 0; q < 4; q++) {
-        const angle = (q / 4) * 2 * Math.PI - Math.PI / 2;
+      // ── Radial spokes (4 quadrant lines) ──
+      [0, 0.25, 0.5, 0.75].forEach(q => {
+        const angle = toAngle(q);
         ctx.beginPath();
         ctx.moveTo(cx, cy);
         ctx.lineTo(cx + MAX_R * Math.cos(angle), cy + MAX_R * Math.sin(angle));
-        ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-        ctx.lineWidth = 1;
+        ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+        ctx.lineWidth = 0.8;
         ctx.stroke();
-        // Spoke labels
-        const labels = ['Halving\nDay', '~6 Months', '~12 Months', '~18 Months'];
-        const lx = cx + (MAX_R + 14) * Math.cos(angle);
-        const ly = cy + (MAX_R + 14) * Math.sin(angle);
-        ctx.fillStyle = 'rgba(255,255,255,0.18)';
-        ctx.font = '600 8px Inter, sans-serif';
+      });
+
+      // ── Outer orange boundary ring ──
+      const RING_R = MAX_R + 18;
+      ctx.beginPath();
+      ctx.arc(cx, cy, RING_R, 0, 2 * Math.PI);
+      ctx.strokeStyle = '#F7931A';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Draw clockwise arrows on the ring at each quadrant
+      function drawArrow(angle, r) {
+        const perp = angle + Math.PI / 2; // tangent direction (clockwise)
+        const ax   = cx + r * Math.cos(angle);
+        const ay   = cy + r * Math.sin(angle);
+        const size = 7;
+        ctx.save();
+        ctx.translate(ax, ay);
+        ctx.rotate(perp);
+        ctx.beginPath();
+        ctx.moveTo(0, -size);
+        ctx.lineTo(size * 0.55, size * 0.4);
+        ctx.lineTo(-size * 0.55, size * 0.4);
+        ctx.closePath();
+        ctx.fillStyle = '#F7931A';
+        ctx.fill();
+        ctx.restore();
+      }
+      [0.125, 0.375, 0.625, 0.875].forEach(q => drawArrow(toAngle(q), RING_R));
+
+      // ── Phase labels outside the ring ──
+      const LABEL_R = RING_R + 24;
+      const phases = [
+        { q: 0,    lines: ['Halving',    '& Recovery'],  color: '#F7931A' },
+        { q: 0.25, lines: ['Bull',       'Market Peak'], color: '#F7931A' },
+        { q: 0.5,  lines: ["ATH's"],                    color: '#F7931A' },
+        { q: 0.75, lines: ['Bear',       'Market'],     color: '#F7931A' },
+      ];
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      phases.forEach(({ q, lines, color }) => {
+        const angle = toAngle(q);
+        const lx = cx + LABEL_R * Math.cos(angle);
+        const ly = cy + LABEL_R * Math.sin(angle);
+        ctx.fillStyle = color;
+        ctx.font = 'bold 10px Inter, sans-serif';
+        lines.forEach((line, i) => {
+          ctx.fillText(line, lx, ly + (i - (lines.length - 1) / 2) * 13);
+        });
+      });
+
+      // ── Year labels at quadrant spoke ends ──
+      const YEAR_R = MAX_R - 10;
+      const yearSets = [
+        { q: 0,    years: "'12 '16 '20 '24" },
+        { q: 0.25, years: "'13 '17 '21 '25" },
+        { q: 0.5,  years: "'14 '18 '22 '26" },
+        { q: 0.75, years: "'15 '19 '23 '27" },
+      ];
+      yearSets.forEach(({ q, years }) => {
+        const angle = toAngle(q);
+        const lx = cx + YEAR_R * Math.cos(angle);
+        const ly = cy + YEAR_R * Math.sin(angle);
+        ctx.fillStyle = 'rgba(255,255,255,0.25)';
+        ctx.font = '500 8px Inter, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(labels[q], lx, ly);
-      }
+        ctx.fillText(years, lx, ly);
+      });
 
-      // Plot data points
-      let lastX = null, lastY = null, lastEpoch = null;
+      // ── Plot spiral ──
+      let lastX = null, lastY = null, lastEp = null;
       pts.forEach(pt => {
         if (pt.y <= 0) return;
         const ep    = getEpoch(pt.x);
+        if (ep === 0) return; // skip genesis era (no real price data)
         const prog  = cycleProgress(pt.x);
-        const angle = prog * 2 * Math.PI - Math.PI / 2; // 0° = top = halving day
+        const angle = toAngle(prog);
         const r     = priceToR(pt.y);
         const x     = cx + r * Math.cos(angle);
         const y     = cy + r * Math.sin(angle);
-        const color = EPOCH_COLORS[ep] || '#888';
+        const color = yoyColor(pt.x, pt.y);
 
-        // Draw connecting line within same epoch
-        if (lastX !== null && ep === lastEpoch) {
+        if (lastX !== null && ep === lastEp) {
           ctx.beginPath();
           ctx.moveTo(lastX, lastY);
           ctx.lineTo(x, y);
-          ctx.strokeStyle = color + '99'; // 60% opacity line
-          ctx.lineWidth = 1.2;
+          ctx.strokeStyle = color;
+          ctx.lineWidth   = 1.8;
+          ctx.lineJoin    = 'round';
           ctx.stroke();
         }
 
-        // Dot
         ctx.beginPath();
-        ctx.arc(x, y, 1.8, 0, 2 * Math.PI);
+        ctx.arc(x, y, 1.5, 0, 2 * Math.PI);
         ctx.fillStyle = color;
         ctx.fill();
 
-        lastX = x; lastY = y; lastEpoch = ep;
+        lastX = x; lastY = y; lastEp = ep;
       });
 
-      // Glowing dot for current price (last point)
-      if (pts.length && lastX !== null) {
-        // Glow
-        const grd = ctx.createRadialGradient(lastX, lastY, 0, lastX, lastY, 12);
-        grd.addColorStop(0, 'rgba(247,147,26,0.9)');
+      // ── Halving markers ──
+      HALVINGS.slice(1, 5).forEach(ts => {
+        const ep   = getEpoch(ts);
+        const prog = 0; // halving = start of cycle
+        const r    = priceToR(pts.find(p => Math.abs(p.x - ts) < 90000)?.y || 1);
+        const angle = toAngle(0);
+        // Place at the appropriate radius for that epoch's halving price
+        const halvPt = pts.reduce((best, p) => Math.abs(p.x - ts) < Math.abs(best.x - ts) ? p : best, pts[0]);
+        const hr = priceToR(halvPt.y);
+        const hx = cx + hr * Math.cos(toAngle(0));
+        const hy = cy + hr * Math.sin(toAngle(0));
+        ctx.beginPath();
+        ctx.arc(hx, hy, 3.5, 0, 2 * Math.PI);
+        ctx.fillStyle = '#F7931A';
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 1.2;
+        ctx.fill();
+        ctx.stroke();
+      });
+
+      // ── Current position glow dot ──
+      if (lastX !== null) {
+        const grd = ctx.createRadialGradient(lastX, lastY, 0, lastX, lastY, 14);
+        grd.addColorStop(0, 'rgba(247,147,26,0.95)');
         grd.addColorStop(1, 'rgba(247,147,26,0)');
         ctx.beginPath();
-        ctx.arc(lastX, lastY, 12, 0, 2 * Math.PI);
+        ctx.arc(lastX, lastY, 14, 0, 2 * Math.PI);
         ctx.fillStyle = grd;
         ctx.fill();
-        // Core dot
         ctx.beginPath();
-        ctx.arc(lastX, lastY, 4, 0, 2 * Math.PI);
+        ctx.arc(lastX, lastY, 4.5, 0, 2 * Math.PI);
         ctx.fillStyle = '#F7931A';
         ctx.fill();
         ctx.beginPath();
-        ctx.arc(lastX, lastY, 4, 0, 2 * Math.PI);
+        ctx.arc(lastX, lastY, 4.5, 0, 2 * Math.PI);
         ctx.strokeStyle = '#fff';
         ctx.lineWidth = 1.5;
         ctx.stroke();
       }
 
-      // Watermark
-      ctx.globalAlpha = 0.07;
+      // ── Colour legend bar ──
+      const lgX = cx - 100, lgY = H - 22, lgW = 200, lgH = 7;
+      const grad = ctx.createLinearGradient(lgX, 0, lgX + lgW, 0);
+      grad.addColorStop(0,    'hsl(5,75%,20%)');
+      grad.addColorStop(0.35, 'hsl(5,80%,40%)');
+      grad.addColorStop(0.48, 'hsl(35,80%,55%)');
+      grad.addColorStop(0.62, 'hsl(75,70%,45%)');
+      grad.addColorStop(1,    'hsl(120,65%,25%)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.roundRect(lgX, lgY, lgW, lgH, 4);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.35)';
+      ctx.font = '600 9px Inter, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.fillText('Bear', lgX, lgY + lgH + 3);
+      ctx.textAlign = 'right';
+      ctx.fillText('Bull', lgX + lgW, lgY + lgH + 3);
+      ctx.textAlign = 'center';
+      ctx.fillText('YoY Price Change', lgX + lgW / 2, lgY + lgH + 3);
+
+      // ── Logo watermark ──
       const logoImg = new Image();
       logoImg.onload = () => {
-        const sz = MAX_R * 0.55;
-        ctx.drawImage(logoImg, cx - sz/2, cy - sz/2 + 20, sz, sz);
-        ctx.globalAlpha = 1;
+        ctx.save();
+        ctx.globalAlpha = 0.09;
+        const sz = MAX_R * 0.45;
+        ctx.drawImage(logoImg, cx - sz / 2, cy - sz / 2 + 10, sz, sz);
+        ctx.restore();
       };
       logoImg.src = '/logo-profile.jpg';
-      ctx.globalAlpha = 1;
 
-      // Update stats
-      const lastPt  = pts[pts.length - 1];
-      const nowEp   = getEpoch(lastPt.x);
-      const nowProg = cycleProgress(lastPt.x);
-      const cycleStart = HALVINGS[nowEp];
-      const cycleEnd   = HALVINGS[nowEp + 1] || (cycleStart + 4 * 365.25 * 86400);
-      const daysInto   = Math.floor((lastPt.x - cycleStart) / 86400);
-      const daysLeft   = Math.floor((cycleEnd - lastPt.x) / 86400);
-      const rewardMap  = ['50 BTC','25 BTC','12.5 BTC','6.25 BTC','3.125 BTC'];
+      // ── Stats ──
+      const lastPt   = pts[pts.length - 1];
+      const nowEp    = getEpoch(lastPt.x);
+      const nowProg  = cycleProgress(lastPt.x);
+      const cycStart = HALVINGS[nowEp];
+      const cycEnd   = HALVINGS[nowEp + 1] || (cycStart + 4 * 365.25 * 86400);
+      const daysInto = Math.floor((lastPt.x - cycStart) / 86400);
+      const daysLeft = Math.floor((cycEnd - lastPt.x) / 86400);
+      const rewards  = ['50 BTC','25 BTC','12.5 BTC','6.25 BTC','3.125 BTC'];
 
-      document.getElementById('spiralEpoch').textContent    = `Epoch ${nowEp + 1} (${rewardMap[nowEp]})`;
+      document.getElementById('spiralEpoch').textContent    = `Epoch ${nowEp + 1} — ${rewards[nowEp]}`;
       document.getElementById('spiralProgress').textContent = (nowProg * 100).toFixed(1) + '%';
       document.getElementById('spiralDays').textContent     = daysInto.toLocaleString() + ' days';
       document.getElementById('spiralDaysLeft').textContent = daysLeft.toLocaleString() + ' days';
