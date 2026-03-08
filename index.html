@@ -902,7 +902,7 @@
       <div></div>
     </div>
     <div style="display:flex;justify-content:center;padding:8px 0;">
-      <canvas id="spiralCanvas" width="640" height="680" style="max-width:100%;"></canvas>
+      <canvas id="spiralCanvas" width="900" height="900" style="max-width:100%;"></canvas>
     </div>
     <div class="stats-row">
       <div class="stat"><div class="stat-label">Current Epoch</div><div class="stat-value" id="spiralEpoch">—</div></div>
@@ -1865,9 +1865,10 @@
       const canvas = document.getElementById('spiralCanvas');
       const ctx    = canvas.getContext('2d');
       const W = canvas.width, H = canvas.height;
-      const cx = W / 2, cy = H / 2 - 20; // shift centre up slightly for legend room
-      const INNER_R = 22;   // min radius (centre gap)
-      const MAX_R   = W * 0.31;  // smaller spiral = room for labels on all sides
+      const SC = W / 640;  // scale factor relative to original 640px design
+      const cx = W / 2, cy = H / 2 - 20;
+      const INNER_R = 22 * SC;
+      const MAX_R   = W * 0.38;
 
       // Log scale: $0.1 → $200K+
       const LOG_MIN = -1.0, LOG_MAX = 6.3;
@@ -1894,13 +1895,13 @@
         ctx.beginPath();
         ctx.arc(cx, cy, r, 0, 2 * Math.PI);
         ctx.strokeStyle = 'rgba(255,255,255,0.07)';
-        ctx.lineWidth = 0.8;
+        ctx.lineWidth = 0.8 * SC;
         ctx.setLineDash([3, 5]);
         ctx.stroke();
         ctx.setLineDash([]);
         // Label on the right side of each ring
         ctx.fillStyle = 'rgba(255,255,255,0.22)';
-        ctx.font = '600 9px Inter, sans-serif';
+        ctx.font = `600 ${Math.round(9*SC)}px Inter, sans-serif`;
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
         ctx.fillText(gridLabels[i], cx + r + 3, cy);
@@ -1913,16 +1914,16 @@
         ctx.moveTo(cx, cy);
         ctx.lineTo(cx + MAX_R * Math.cos(angle), cy + MAX_R * Math.sin(angle));
         ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-        ctx.lineWidth = 0.8;
+        ctx.lineWidth = 0.8 * SC;
         ctx.stroke();
       });
 
       // ── Outer orange boundary ring ──
-      const RING_R = MAX_R + 22;
+      const RING_R = MAX_R + 22 * SC;
       ctx.beginPath();
       ctx.arc(cx, cy, RING_R, 0, 2 * Math.PI);
       ctx.strokeStyle = '#F7931A';
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2 * SC;
       ctx.stroke();
 
       // Draw clockwise arrows on the ring at each quadrant
@@ -1946,7 +1947,7 @@
       [0.125, 0.375, 0.625, 0.875].forEach(q => drawArrow(toAngle(q), RING_R));
 
       // ── Phase labels outside the ring ──
-      const LABEL_R = RING_R + 32;
+      const LABEL_R = RING_R + 32 * SC;
       const phases = [
         { q: 0,    lines: ['Halving',    '& Recovery'],  color: '#F7931A' },
         { q: 0.25, lines: ['Bull',       'Market Peak'], color: '#F7931A' },
@@ -1960,14 +1961,14 @@
         const lx = cx + LABEL_R * Math.cos(angle);
         const ly = cy + LABEL_R * Math.sin(angle);
         ctx.fillStyle = color;
-        ctx.font = 'bold 10px Inter, sans-serif';
+        ctx.font = `bold ${Math.round(10*SC)}px Inter, sans-serif`;
         lines.forEach((line, i) => {
           ctx.fillText(line, lx, ly + (i - (lines.length - 1) / 2) * 13);
         });
       });
 
       // ── Year labels at quadrant spoke ends ──
-      const YEAR_R = MAX_R - 10;
+      const YEAR_R = MAX_R - 10 * SC;
       const yearSets = [
         { q: 0,    years: "'12 '16 '20 '24" },
         { q: 0.25, years: "'13 '17 '21 '25" },
@@ -1979,7 +1980,7 @@
         const lx = cx + YEAR_R * Math.cos(angle);
         const ly = cy + YEAR_R * Math.sin(angle);
         ctx.fillStyle = 'rgba(255,255,255,0.25)';
-        ctx.font = '500 8px Inter, sans-serif';
+        ctx.font = `500 ${Math.round(8*SC)}px Inter, sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(years, lx, ly);
@@ -2003,7 +2004,7 @@
           ctx.moveTo(lastX, lastY);
           ctx.lineTo(x, y);
           ctx.strokeStyle = color;
-          ctx.lineWidth   = 1.8;
+          ctx.lineWidth   = 1.8 * SC;
           ctx.lineJoin    = 'round';
           ctx.stroke();
         }
@@ -2031,7 +2032,7 @@
         ctx.arc(hx, hy, 3.5, 0, 2 * Math.PI);
         ctx.fillStyle = '#F7931A';
         ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 1.2;
+        ctx.lineWidth = 1.2 * SC;
         ctx.fill();
         ctx.stroke();
       });
@@ -2042,22 +2043,22 @@
         grd.addColorStop(0, 'rgba(247,147,26,0.95)');
         grd.addColorStop(1, 'rgba(247,147,26,0)');
         ctx.beginPath();
-        ctx.arc(lastX, lastY, 14, 0, 2 * Math.PI);
+        ctx.arc(lastX, lastY, 14 * SC, 0, 2 * Math.PI);
         ctx.fillStyle = grd;
         ctx.fill();
         ctx.beginPath();
-        ctx.arc(lastX, lastY, 4.5, 0, 2 * Math.PI);
+        ctx.arc(lastX, lastY, 4.5 * SC, 0, 2 * Math.PI);
         ctx.fillStyle = '#F7931A';
         ctx.fill();
         ctx.beginPath();
-        ctx.arc(lastX, lastY, 4.5, 0, 2 * Math.PI);
+        ctx.arc(lastX, lastY, 4.5 * SC, 0, 2 * Math.PI);
         ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 1.5;
+        ctx.lineWidth = 1.5 * SC;
         ctx.stroke();
       }
 
       // ── Colour legend bar ──
-      const lgX = cx - 110, lgY = H - 42, lgW = 220, lgH = 8;
+      const lgX = cx - 110*SC, lgY = H - 42*SC, lgW = 220*SC, lgH = 8*SC;
       const grad = ctx.createLinearGradient(lgX, 0, lgX + lgW, 0);
       grad.addColorStop(0,    'hsl(5,75%,20%)');
       grad.addColorStop(0.35, 'hsl(5,80%,40%)');
