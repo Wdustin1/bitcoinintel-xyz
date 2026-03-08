@@ -1949,17 +1949,18 @@
       // ── Phase labels outside the ring ──
       const LABEL_R = RING_R + 22 * SC;
       const phases = [
-        { q: 0,    lines: ['Halving',    '& Recovery'],  color: '#F7931A' },
-        { q: 0.25, lines: ['Bull',       'Market Peak'], color: '#F7931A' },
-        { q: 0.5,  lines: ["ATH's"],                    color: '#F7931A' },
-        { q: 0.75, lines: ['Bear',       'Market'],     color: '#F7931A' },
+        { q: 0,    lines: ['Halving',    '& Recovery'],  color: '#F7931A', extra: 18 },
+        { q: 0.25, lines: ['Bull',       'Market Peak'], color: '#F7931A', extra: 0  },
+        { q: 0.5,  lines: ["ATH's"],                    color: '#F7931A', extra: 0  },
+        { q: 0.75, lines: ['Bear',       'Market'],     color: '#F7931A', extra: 0  },
       ];
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      phases.forEach(({ q, lines, color }) => {
+      phases.forEach(({ q, lines, color, extra }) => {
         const angle = toAngle(q);
-        const lx = cx + LABEL_R * Math.cos(angle);
-        const ly = cy + LABEL_R * Math.sin(angle);
+        const r = LABEL_R + extra * SC;
+        const lx = cx + r * Math.cos(angle);
+        const ly = cy + r * Math.sin(angle);
         ctx.fillStyle = color;
         ctx.font = `bold ${Math.round(10*SC)}px Inter, sans-serif`;
         lines.forEach((line, i) => {
