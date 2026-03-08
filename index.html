@@ -178,10 +178,21 @@
     .down { color: var(--red); }
 
     /* ── FEAR & GREED ── */
+    .fg-inner   { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; }
     .gauge-wrap { display: flex; flex-direction: column; align-items: center; padding: 4px 0; }
     .gauge-num  { font-size: 30px; font-weight: 900; letter-spacing: -.02em; margin-top: 8px; }
     .gauge-mood { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; margin-top: 3px; }
     .gauge-sub  { font-size: 11px; color: var(--sub); margin-top: 5px; }
+
+    /* Historical values */
+    .fg-history { display: flex; flex-direction: column; gap: 0; }
+    .fg-history-title { font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 16px; letter-spacing: -.01em; }
+    .fg-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .fg-row:last-child { border-bottom: none; }
+    .fg-row-left { display: flex; flex-direction: column; gap: 3px; }
+    .fg-row-period { font-size: 13px; font-weight: 600; color: #ccc; }
+    .fg-row-class  { font-size: 12px; font-weight: 700; letter-spacing: .04em; }
+    .fg-badge { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 900; color: #fff; flex-shrink: 0; }
 
     /* ── DOMINANCE ── */
     .dom-num { font-size: 44px; font-weight: 900; letter-spacing: -.04em; color: var(--orange); line-height: 1; margin: 10px 0 4px; }
@@ -304,20 +315,42 @@
     <div class="watermark">bitcoinintel.xyz</div>
   </div>
 
-  <!-- ── FEAR & GREED + DOMINANCE + MARKET ── -->
-  <div class="grid-3">
-
-    <div class="card section-anchor" id="fear-greed">
-      <div class="card-label">Sentiment</div>
-      <div class="card-title" style="margin-bottom:12px;">Fear &amp; Greed</div>
+  <!-- ── FEAR & GREED (full width) ── -->
+  <div class="card section-anchor" id="fear-greed">
+    <div class="card-label">Sentiment</div>
+    <div class="card-title" style="margin-bottom:18px;">Fear &amp; Greed Index</div>
+    <div class="fg-inner">
       <div class="gauge-wrap">
-        <canvas id="gaugeCanvas" width="220" height="130"></canvas>
+        <canvas id="gaugeCanvas" width="260" height="155"></canvas>
         <div class="gauge-num" id="fgValue">—</div>
         <div class="gauge-mood" id="fgMood" style="color:#888">—</div>
         <div class="gauge-sub" id="fgSub"></div>
       </div>
-      <div class="watermark">bitcoinintel.xyz</div>
+      <div class="fg-history">
+        <div class="fg-history-title">Historical Values</div>
+        <div class="fg-row">
+          <div class="fg-row-left"><span class="fg-row-period">Now</span><span class="fg-row-class" id="fgClassNow">—</span></div>
+          <div class="fg-badge" id="fgBadgeNow">—</div>
+        </div>
+        <div class="fg-row">
+          <div class="fg-row-left"><span class="fg-row-period">Yesterday</span><span class="fg-row-class" id="fgClassYesterday">—</span></div>
+          <div class="fg-badge" id="fgBadgeYesterday">—</div>
+        </div>
+        <div class="fg-row">
+          <div class="fg-row-left"><span class="fg-row-period">Last Week</span><span class="fg-row-class" id="fgClassWeek">—</span></div>
+          <div class="fg-badge" id="fgBadgeWeek">—</div>
+        </div>
+        <div class="fg-row">
+          <div class="fg-row-left"><span class="fg-row-period">Last Month</span><span class="fg-row-class" id="fgClassMonth">—</span></div>
+          <div class="fg-badge" id="fgBadgeMonth">—</div>
+        </div>
+      </div>
     </div>
+    <div class="watermark">bitcoinintel.xyz</div>
+  </div>
+
+  <!-- ── DOMINANCE + MARKET (2-col) ── -->
+  <div class="grid-2">
 
     <div class="card section-anchor" id="dominance">
       <div class="card-label">Market Share</div>
@@ -345,7 +378,7 @@
       <div class="watermark">bitcoinintel.xyz</div>
     </div>
 
-  </div>
+  </div><!-- /grid-2 -->
 
   <!-- ── LIQUIDATIONS ── -->
   <div class="card section-anchor" id="liquidations">
@@ -597,37 +630,69 @@
   // ════════════════════════════════════════
   // FEAR & GREED
   // ════════════════════════════════════════
+  const FG_COLORS = {'Extreme Fear':'#ef4444','Fear':'#f97316','Neutral':'#eab308','Greed':'#84cc16','Extreme Greed':'#22c55e'};
+
+  function fgColor(cls) { return FG_COLORS[cls] || '#888'; }
+
+  function setFgRow(period, cls, val) {
+    const color = fgColor(cls);
+    document.getElementById('fgClass'+period).textContent = cls;
+    document.getElementById('fgClass'+period).style.color = color;
+    document.getElementById('fgBadge'+period).textContent = val;
+    document.getElementById('fgBadge'+period).style.background = color;
+  }
+
   async function loadFearGreed() {
     try {
-      const res = await fetch('https://api.alternative.me/fng/?limit=1');
-      const d   = (await res.json()).data[0];
-      const val = parseInt(d.value), cls = d.value_classification;
-      drawGauge(val);
-      document.getElementById('fgValue').textContent = val;
-      const colors = {'Extreme Fear':'#ef4444','Fear':'#f97316','Neutral':'#eab308','Greed':'#84cc16','Extreme Greed':'#22c55e'};
+      const res  = await fetch('https://api.alternative.me/fng/?limit=31');
+      const data = (await res.json()).data;
+      const now  = data[0], yesterday = data[1], week = data[7], month = data[30];
+
+      drawGauge(parseInt(now.value));
+      document.getElementById('fgValue').textContent = now.value;
       const el = document.getElementById('fgMood');
-      el.textContent = cls.toUpperCase(); el.style.color = colors[cls]||'#888';
-      document.getElementById('fgSub').textContent = 'Updated '+new Date(d.timestamp*1000).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+      el.textContent = now.value_classification.toUpperCase();
+      el.style.color = fgColor(now.value_classification);
+      document.getElementById('fgSub').textContent = 'Updated '+new Date(now.timestamp*1000).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+
+      setFgRow('Now',       now.value_classification,       now.value);
+      setFgRow('Yesterday', yesterday.value_classification, yesterday.value);
+      setFgRow('Week',      week.value_classification,      week.value);
+      setFgRow('Month',     month.value_classification,     month.value);
     } catch(e) { console.error(e); }
   }
 
   function drawGauge(val) {
     const canvas = document.getElementById('gaugeCanvas');
     const ctx = canvas.getContext('2d');
-    const cx=110, cy=120, r=90;
-    ctx.clearRect(0,0,220,130);
+    const cx=130, cy=148, r=108;
+    ctx.clearRect(0,0,260,155);
+
+    // Color arc zones
     const zones=[{from:0,to:25,color:'#ef4444'},{from:25,to:45,color:'#f97316'},{from:45,to:55,color:'#eab308'},{from:55,to:75,color:'#84cc16'},{from:75,to:100,color:'#22c55e'}];
     zones.forEach(z=>{
       ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI+(z.from/100)*Math.PI,Math.PI+(z.to/100)*Math.PI);
-      ctx.lineWidth=20; ctx.strokeStyle=z.color; ctx.lineCap='butt'; ctx.stroke();
+      ctx.lineWidth=22; ctx.strokeStyle=z.color; ctx.lineCap='butt'; ctx.stroke();
     });
-    ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI,2*Math.PI); ctx.lineWidth=7; ctx.strokeStyle='#0f0f0f'; ctx.stroke();
+    // Inner gap
+    ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI,2*Math.PI); ctx.lineWidth=8; ctx.strokeStyle='#0f0f0f'; ctx.stroke();
+
+    // Needle
     const angle = Math.PI+(val/100)*Math.PI;
     ctx.save(); ctx.translate(cx,cy); ctx.rotate(angle);
-    ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(72,0);
-    ctx.lineWidth=2.5; ctx.strokeStyle='#fff'; ctx.lineCap='round'; ctx.stroke(); ctx.restore();
-    ctx.beginPath(); ctx.arc(cx,cy,7,0,2*Math.PI); ctx.fillStyle='#fff'; ctx.fill();
-    ctx.beginPath(); ctx.arc(cx,cy,4,0,2*Math.PI); ctx.fillStyle='#0f0f0f'; ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-8,0); ctx.lineTo(86,0);
+    ctx.lineWidth=3; ctx.strokeStyle='#ddd'; ctx.lineCap='round'; ctx.stroke();
+    ctx.restore();
+
+    // Bitcoin ₿ center badge
+    const br = 16;
+    ctx.beginPath(); ctx.arc(cx,cy,br,0,2*Math.PI);
+    ctx.fillStyle='#F7931A'; ctx.fill();
+    ctx.fillStyle='#fff';
+    ctx.font='bold 15px Inter';
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText('₿',cx,cy+1);
   }
 
   // ════════════════════════════════════════
