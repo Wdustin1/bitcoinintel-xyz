@@ -635,13 +635,12 @@
   // ════════════════════════════════════════
   async function loadDominance() {
     try {
-      const res  = await fetch('https://api.coingecko.com/api/v3/global');
+      const res  = await fetch('/api/dominance');
       const data = await res.json();
-      const dom  = data.data.market_cap_percentage.btc;
-      const totalMcap = data.data.total_market_cap.usd;
+      const dom  = data.dominance;
       document.getElementById('domValue').textContent = dom.toFixed(1)+'%';
       document.getElementById('domBar').style.width   = dom+'%';
-      document.getElementById('mTotal').textContent   = fmtB(totalMcap);
+      document.getElementById('mTotal').textContent   = fmtB(data.totalMarketCap);
     } catch(e) { console.error(e); }
   }
 
