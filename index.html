@@ -333,7 +333,7 @@
       <a class="nav-link" href="#hash-rate"><span class="nav-icon">⛏️</span>Hash Rate<span class="live-badge"></span></a>
       <a class="nav-link" href="#halving"><span class="nav-icon">⏳</span>Halving Countdown<span class="live-badge"></span></a>
       <a class="nav-link" href="#rainbow"><span class="nav-icon">🌈</span>Rainbow Chart<span class="live-badge"></span></a>
-      <a class="nav-link nav-coming" href="#"><span class="nav-icon">💰</span>Mining Cost<span class="soon-badge">Soon</span></a>
+      <a class="nav-link" href="#mining-cost"><span class="nav-icon">💰</span>Mining Cost<span class="live-badge"></span></a>
       <a class="nav-link nav-coming" href="#"><span class="nav-icon">🧮</span>Rational Root<span class="soon-badge">Soon</span></a>
       <a class="nav-link nav-coming" href="#"><span class="nav-icon">📉</span>Stock-to-Flow<span class="soon-badge">Soon</span></a>
       <a class="nav-link nav-coming" href="#"><span class="nav-icon">🧠</span>ITC Risk Model<span class="soon-badge">Soon</span></a>
@@ -613,6 +613,84 @@
       <div class="stat"><div class="stat-label">Period Low</div><div class="stat-value" id="hrLow">—</div></div>
       <div class="stat"><div class="stat-label">Period Change</div><div class="stat-value" id="hrChange">—</div></div>
       <div class="stat"><div class="stat-label">Source</div><div class="stat-value" style="color:#555;">Blockchain.com</div></div>
+    </div>
+    <div class="watermark">bitcoinintel.xyz</div>
+  </div>
+
+  <!-- ── MINING COST ── -->
+  <div class="card section-anchor" id="mining-cost">
+    <div class="card-header">
+      <div>
+        <div class="card-label">On-Chain</div>
+        <div class="card-title">Bitcoin Mining Production Cost</div>
+        <div class="card-sub">Capriole methodology — three cost tiers vs. current price</div>
+      </div>
+      <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#2e2e2e;">bitcoinintel.xyz</div>
+    </div>
+
+    <!-- Price vs cost tiers -->
+    <div style="display:flex;align-items:center;gap:32px;margin-bottom:28px;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">BTC Current Price</div>
+        <div style="font-size:40px;font-weight:900;color:#fff;letter-spacing:-.03em;line-height:1;" id="mcBTCPrice">—</div>
+        <div style="font-size:13px;font-weight:700;margin-top:4px;" id="mcPriceStatus">—</div>
+      </div>
+      <div style="flex:1;min-width:200px;">
+        <div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">Price vs Cost Tiers</div>
+
+        <!-- Electricity Cost bar -->
+        <div style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <span style="font-size:11px;font-weight:700;color:#888;">⚡ Electricity Cost (floor)</span>
+            <span style="font-size:13px;font-weight:800;color:#fff;" id="mcElecVal">—</span>
+          </div>
+          <div style="background:#1a1a1a;border-radius:4px;height:6px;overflow:hidden;">
+            <div id="mcElecBar" style="height:100%;border-radius:4px;background:#22c55e;transition:width .6s ease;width:0%;"></div>
+          </div>
+        </div>
+
+        <!-- Production Cost bar -->
+        <div style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <span style="font-size:11px;font-weight:700;color:#888;">🏭 Production Cost</span>
+            <span style="font-size:13px;font-weight:800;color:#fff;" id="mcProdVal">—</span>
+          </div>
+          <div style="background:#1a1a1a;border-radius:4px;height:6px;overflow:hidden;">
+            <div id="mcProdBar" style="height:100%;border-radius:4px;background:#F7931A;transition:width .6s ease;width:0%;"></div>
+          </div>
+        </div>
+
+        <!-- Miner Break-even bar -->
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <span style="font-size:11px;font-weight:700;color:#888;">⛏️ Miner Break-Even</span>
+            <span style="font-size:13px;font-weight:800;color:#fff;" id="mcMinerVal">—</span>
+          </div>
+          <div style="background:#1a1a1a;border-radius:4px;height:6px;overflow:hidden;">
+            <div id="mcMinerBar" style="height:100%;border-radius:4px;background:#ef4444;transition:width .6s ease;width:0%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats row -->
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-label">Hashrate</div>
+        <div class="stat-value" id="mcHashrate">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Network Power</div>
+        <div class="stat-value" id="mcPower">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Efficiency</div>
+        <div class="stat-value" id="mcEfficiency">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Block Reward</div>
+        <div class="stat-value" id="mcBlockReward">—</div>
+      </div>
     </div>
     <div class="watermark">bitcoinintel.xyz</div>
   </div>
@@ -1222,6 +1300,57 @@
   // ════════════════════════════════════════
   // HALVING
   // ════════════════════════════════════════
+  // MINING COST
+  // ════════════════════════════════════════
+  async function loadMiningCost() {
+    try {
+      const [mcRes, priceRes] = await Promise.all([
+        fetch('/api/mining-cost'),
+        fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd')
+      ]);
+      const mc    = (await mcRes.json()).data;
+      const btc   = (await priceRes.json()).bitcoin.usd;
+
+      const elec = mc.electricityCostPerBTC;
+      const prod = mc.productionCostPerBTC;
+      const miner= mc.minerPricePerBTC;
+      const top  = Math.max(btc, miner) * 1.1; // scale bars relative to max
+
+      document.getElementById('mcBTCPrice').textContent = '$' + Math.round(btc).toLocaleString();
+      document.getElementById('mcElecVal').textContent  = '$' + Math.round(elec).toLocaleString();
+      document.getElementById('mcProdVal').textContent  = '$' + Math.round(prod).toLocaleString();
+      document.getElementById('mcMinerVal').textContent = '$' + Math.round(miner).toLocaleString();
+
+      document.getElementById('mcElecBar').style.width  = Math.min(100, (elec/top)*100).toFixed(1) + '%';
+      document.getElementById('mcProdBar').style.width  = Math.min(100, (prod/top)*100).toFixed(1) + '%';
+      document.getElementById('mcMinerBar').style.width = Math.min(100, (miner/top)*100).toFixed(1) + '%';
+
+      // Status label
+      const statusEl = document.getElementById('mcPriceStatus');
+      if (btc < elec) {
+        statusEl.textContent = '🔴 Below electricity cost — miners losing money';
+        statusEl.style.color = '#ef4444';
+      } else if (btc < prod) {
+        statusEl.textContent = '🟠 Below production cost — stress zone';
+        statusEl.style.color = '#F7931A';
+      } else if (btc < miner) {
+        statusEl.textContent = '🟡 Below break-even — marginal miners squeezed';
+        statusEl.style.color = '#eab308';
+      } else {
+        statusEl.textContent = '🟢 Above break-even — miners profitable';
+        statusEl.style.color = '#22c55e';
+      }
+
+      document.getElementById('mcHashrate').textContent   = (mc.hashrate/1e6).toFixed(0) + ' EH/s';
+      document.getElementById('mcPower').textContent      = mc.networkPowerGW.toFixed(1) + ' GW';
+      document.getElementById('mcEfficiency').textContent = mc.efficiency.toFixed(1) + ' J/TH';
+      document.getElementById('mcBlockReward').textContent= mc.blockReward + ' BTC';
+    } catch(e) { console.error(e); }
+  }
+
+  // ════════════════════════════════════════
+  // HALVING
+  // ════════════════════════════════════════
   const LAST_HALVING = 840000, NEXT_HALVING = 1050000, EPOCH = 210000, AVG_BLOCK = 600000;
 
   async function loadHalving() {
@@ -1331,6 +1460,7 @@
     loadFundingRate();
     loadLiquidations();
     loadHashRate('1year');
+    loadMiningCost();
     loadHalving();
     loadRainbow();
   };
