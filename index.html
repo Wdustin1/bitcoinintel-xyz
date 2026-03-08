@@ -2147,16 +2147,15 @@
       function band0Lower(x) { return Math.exp(fittedLog(x) + (-1 - RB_I_DEC) * RB_BAND_WIDTH); }
 
       // Project bands to Jan 2029 (well past 2028 halving)
-      const CHART_END_MS = new Date('2029-01-01').getTime();
-      const lastDataMs   = allPts[allPts.length-1].x * 1000;
+      const CHART_END_MS   = new Date('2029-01-01').getTime();
+      const lastActualMs   = pts[n-1].x * 1000; // last weekly sample's timestamp
       const bandData = [];
       pts.forEach((p, j) => {
         const idx = j + 1;
         bandData.push({ xMs: p.x * 1000, uppers: Array.from({length:9}, (_,i) => bandUpper(idx, i)), b0lower: band0Lower(idx) });
       });
-      // Weekly steps from last data point to chart end
-      // projIdx increments by 1 per week (matching regression's sequential index)
-      let projMs = lastDataMs + 7 * 86400000;
+      // Projection: start from right after last weekly sample (no gap)
+      let projMs  = lastActualMs + 7 * 86400000;
       let projIdx = n + 1;
       while (projMs <= CHART_END_MS) {
         bandData.push({
