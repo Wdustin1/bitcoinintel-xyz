@@ -2155,8 +2155,9 @@
         bandData.push({ xMs: p.x * 1000, uppers: Array.from({length:9}, (_,i) => bandUpper(idx, i)), b0lower: band0Lower(idx) });
       });
       // Weekly steps from last data point to chart end
+      // projIdx increments by 1 per week (matching regression's sequential index)
       let projMs = lastDataMs + 7 * 86400000;
-      let projIdx = n + 7;
+      let projIdx = n + 1;
       while (projMs <= CHART_END_MS) {
         bandData.push({
           xMs:    projMs,
@@ -2164,7 +2165,7 @@
           b0lower: band0Lower(projIdx)
         });
         projMs  += 7 * 86400000;
-        projIdx += 7;
+        projIdx += 1;
       }
 
       // Custom plugin: draws rainbow bands on canvas before Chart.js datasets
