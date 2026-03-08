@@ -421,16 +421,38 @@
 
     <div class="card section-anchor" id="dominance">
       <div class="card-label">Market Share</div>
-      <div class="card-title">BTC Dominance</div>
-      <div class="dom-num" id="domValue">—</div>
-      <div class="card-sub">Share of total crypto market cap</div>
-      <div class="dom-bar-track" style="margin-top:20px;">
-        <div class="dom-bar-fill" id="domBar" style="width:0%"></div>
+      <div class="card-title" style="margin-bottom:18px;">Dominance</div>
+
+      <!-- BTC Dominance -->
+      <div style="margin-bottom:20px;">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px;">
+          <span style="font-size:12px;font-weight:700;color:#F7931A;text-transform:uppercase;letter-spacing:.07em;">₿ Bitcoin</span>
+          <span class="dom-num" id="domValue" style="font-size:28px;">—</span>
+        </div>
+        <div class="dom-bar-track">
+          <div class="dom-bar-fill" id="domBar" style="width:0%;background:#F7931A;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:5px;">
+          <span style="font-size:10px;color:#444;font-weight:600;text-transform:uppercase;letter-spacing:.06em;">BTC</span>
+          <span style="font-size:10px;color:#444;font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Alts</span>
+        </div>
       </div>
-      <div style="display:flex;justify-content:space-between;margin-top:6px;">
-        <span style="font-size:10px;color:var(--sub);font-weight:600;text-transform:uppercase;letter-spacing:.06em;">BTC</span>
-        <span style="font-size:10px;color:var(--sub);font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Alts</span>
+
+      <!-- USDT Dominance -->
+      <div>
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px;">
+          <span style="font-size:12px;font-weight:700;color:#26a17b;text-transform:uppercase;letter-spacing:.07em;">₮ Tether</span>
+          <span class="dom-num" id="usdtDomValue" style="font-size:28px;color:#26a17b;">—</span>
+        </div>
+        <div class="dom-bar-track">
+          <div class="dom-bar-fill" id="usdtDomBar" style="width:0%;background:#26a17b;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:5px;">
+          <span style="font-size:10px;color:#444;font-weight:600;text-transform:uppercase;letter-spacing:.06em;">USDT</span>
+          <span style="font-size:10px;color:#444;font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Market</span>
+        </div>
       </div>
+
       <div class="watermark">bitcoinintel.xyz</div>
     </div>
 
@@ -839,10 +861,13 @@
     try {
       const res  = await fetch('/api/dominance');
       const data = await res.json();
-      const dom  = data.dominance;
-      document.getElementById('domValue').textContent = dom.toFixed(1)+'%';
-      document.getElementById('domBar').style.width   = dom+'%';
-      document.getElementById('mTotal').textContent   = fmtB(data.totalMarketCap);
+      const dom     = data.dominance;
+      const usdtDom = data.usdtDominance || 0;
+      document.getElementById('domValue').textContent     = dom.toFixed(1)+'%';
+      document.getElementById('domBar').style.width       = dom+'%';
+      document.getElementById('usdtDomValue').textContent = usdtDom.toFixed(1)+'%';
+      document.getElementById('usdtDomBar').style.width   = usdtDom+'%';
+      document.getElementById('mTotal').textContent       = fmtB(data.totalMarketCap);
     } catch(e) { console.error(e); }
   }
 
