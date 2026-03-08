@@ -2256,23 +2256,23 @@
         `<div class="rb-item"><div class="rb-dot" style="background:${c}"></div>${RB_LABELS[i]}</div>`
       ).join('');
 
-      // Logo watermark — bottom-right of chart area, clean and subtle
+      // Logo watermark — anchored at ~2022 / $3 in data coordinates
       const rbLogo = new Image();
       rbLogo.src = '/logo-profile.jpg';
       const rbLogoPlugin = {
         id: 'rbLogo',
         afterDraw(chart) {
           if (!rbLogo.complete || !rbLogo.naturalWidth) return;
-          const { ctx, chartArea: { right, bottom } } = chart;
-          const size = 52;
-          const pad  = 14;
+          const { ctx, scales: { x: xs, y: ys } } = chart;
+          const size = 110;
+          const cx = xs.getPixelForValue(new Date('2022-01-01').getTime());
+          const cy = ys.getPixelForValue(3);
           ctx.save();
-          ctx.globalAlpha = 0.18;
-          // Clip to circle
+          ctx.globalAlpha = 0.55;
           ctx.beginPath();
-          ctx.arc(right - pad - size/2, bottom - pad - size/2, size/2, 0, Math.PI*2);
+          ctx.arc(cx, cy, size / 2, 0, Math.PI * 2);
           ctx.clip();
-          ctx.drawImage(rbLogo, right - pad - size, bottom - pad - size, size, size);
+          ctx.drawImage(rbLogo, cx - size / 2, cy - size / 2, size, size);
           ctx.restore();
         }
       };
