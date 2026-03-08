@@ -1558,19 +1558,19 @@
     try {
       const [supplyRes, priceRes] = await Promise.all([
         fetch('https://api.blockchain.info/charts/total-bitcoins?timespan=5years&format=json&cors=true'),
-        fetch('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1825')
+        fetch('https://api.blockchain.info/charts/market-price?timespan=5years&format=json&cors=true')
       ]);
       const supplyData = await supplyRes.json();
       const priceData  = await priceRes.json();
 
       const supplyPts = supplyData.values; // [{x: unix_sec, y: btc}]
-      const pricePts  = priceData.prices;  // [[ms, usd], ...]
+      const pricePts  = priceData.values;  // [{x: unix_sec, y: usd}]
 
-      // Build price lookup map (by day)
+      // Build price lookup map by Unix day key
       const priceMap = {};
-      pricePts.forEach(([ms, p]) => {
-        const day = Math.floor(ms / 86400000);
-        priceMap[day] = p;
+      pricePts.forEach(pt => {
+        const day = Math.floor(pt.x / 86400);
+        priceMap[day] = pt.y;
       });
 
       // Block reward by supply level (halving thresholds)
@@ -1596,7 +1596,7 @@
         const sf       = supply / flow;
         const marketCap= Math.exp(3.3 * Math.log(sf) + 14.6);
         const modPx    = marketCap / supply;
-        const day      = Math.floor(pt.x * 1000 / 86400000);
+        const day      = Math.floor(pt.x / 86400);
         const btcPx    = priceMap[day] || priceMap[day-1] || priceMap[day+1] || null;
 
         if (btcPx) {
