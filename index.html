@@ -101,6 +101,21 @@
 
     .nav-icon { font-size: 14px; width: 18px; text-align: center; flex-shrink: 0; }
 
+    .nav-coming { opacity: 0.4; cursor: default; pointer-events: none; }
+    .nav-coming:hover { background: transparent !important; color: #555 !important; }
+    .soon-badge {
+      margin-left: auto;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      color: #555;
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 4px;
+      padding: 2px 6px;
+      text-transform: uppercase;
+    }
+
     .live-badge {
       margin-left: auto;
       width: 6px; height: 6px;
@@ -318,6 +333,16 @@
       <a class="nav-link" href="#hash-rate"><span class="nav-icon">⛏️</span>Hash Rate<span class="live-badge"></span></a>
       <a class="nav-link" href="#halving"><span class="nav-icon">⏳</span>Halving Countdown<span class="live-badge"></span></a>
       <a class="nav-link" href="#rainbow"><span class="nav-icon">🌈</span>Rainbow Chart<span class="live-badge"></span></a>
+      <a class="nav-link nav-coming" href="#"><span class="nav-icon">💰</span>Mining Cost<span class="soon-badge">Soon</span></a>
+      <a class="nav-link nav-coming" href="#"><span class="nav-icon">🧮</span>Rational Root<span class="soon-badge">Soon</span></a>
+      <a class="nav-link nav-coming" href="#"><span class="nav-icon">📉</span>Stock-to-Flow<span class="soon-badge">Soon</span></a>
+      <a class="nav-link nav-coming" href="#"><span class="nav-icon">🧠</span>ITC Risk Model<span class="soon-badge">Soon</span></a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Advanced</div>
+      <a class="nav-link nav-coming" href="#"><span class="nav-icon">🔥</span>Liq Heatmap<span class="soon-badge">Soon</span></a>
+      <a class="nav-link nav-coming" href="#"><span class="nav-icon">🌐</span>Crypto Heatmap<span class="soon-badge">Soon</span></a>
     </div>
 
   </nav>
