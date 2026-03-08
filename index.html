@@ -2256,12 +2256,33 @@
         `<div class="rb-item"><div class="rb-dot" style="background:${c}"></div>${RB_LABELS[i]}</div>`
       ).join('');
 
+      // Logo watermark — bottom-right of chart area, clean and subtle
+      const rbLogo = new Image();
+      rbLogo.src = '/logo-profile.jpg';
+      const rbLogoPlugin = {
+        id: 'rbLogo',
+        afterDraw(chart) {
+          if (!rbLogo.complete || !rbLogo.naturalWidth) return;
+          const { ctx, chartArea: { right, bottom } } = chart;
+          const size = 52;
+          const pad  = 14;
+          ctx.save();
+          ctx.globalAlpha = 0.18;
+          // Clip to circle
+          ctx.beginPath();
+          ctx.arc(right - pad - size/2, bottom - pad - size/2, size/2, 0, Math.PI*2);
+          ctx.clip();
+          ctx.drawImage(rbLogo, right - pad - size, bottom - pad - size, size, size);
+          ctx.restore();
+        }
+      };
+
       const ctx = document.getElementById('rainbowChart').getContext('2d');
       if (rbChart) rbChart.destroy();
 
       rbChart = new Chart(ctx, {
         type: 'line',
-        plugins: [rainbowPlugin, halvingPlugin],
+        plugins: [rainbowPlugin, halvingPlugin, rbLogoPlugin],
         data: { datasets: [{
           label: 'BTC Price',
           data:  pts.map(p => ({ x: p.x * 1000, y: p.y })),
