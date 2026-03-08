@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/liquidations.js": {
+      "regions": ["fra1"]
+    }
+  }
+}

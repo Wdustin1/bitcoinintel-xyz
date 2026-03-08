@@ -1,3 +1,5 @@
+export const config = { regions: ['fra1'] };
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   try {
@@ -8,18 +10,11 @@ export default async function handler(req, res) {
     const data     = await response.json();
 
     if (!Array.isArray(data)) {
-      // Binance geo-blocked — try Bybit as fallback
-      throw new Error('Binance unavailable');
+      throw new Error(`Binance error: ${JSON.stringify(data)}`);
     }
 
     res.json({ orders: data, source: 'binance' });
   } catch (e) {
-    // Fallback: Bybit liquidations
-    try {
-      const bybitUrl = 'https://api.bybit.com/v5/market/recent-trade?category=linear&symbol=BTCUSDT&limit=1000';
-      res.json({ orders: [], source: 'unavailable', error: e.message });
-    } catch (e2) {
-      res.json({ orders: [], source: 'unavailable', error: e2.message });
-    }
+    res.status(500).json({ orders: [], source: 'error', error: e.message });
   }
 }
