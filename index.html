@@ -1139,7 +1139,7 @@
       const data = await res.json();
       const pts  = data.values;
       const times = pts.map(p=>new Date(p.x*1000));
-      const raw   = pts.map(p=>p.y/1e9);
+      const raw   = pts.map(p=>p.y/1e6); // blockchain.info returns TH/s → divide by 1e6 for EH/s
 
       // 7-day rolling average to smooth out choppy mining pool variance
       const WINDOW = 7;
