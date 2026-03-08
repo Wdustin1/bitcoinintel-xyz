@@ -361,7 +361,7 @@
       <a class="nav-link" href="#halving"><span class="nav-icon">⏳</span>Halving Countdown<span class="live-badge"></span></a>
       <a class="nav-link" href="#rainbow"><span class="nav-icon">🌈</span>Rainbow Chart<span class="live-badge"></span></a>
       <a class="nav-link" href="#mining-cost"><span class="nav-icon">💰</span>Mining Cost<span class="live-badge"></span></a>
-      <a class="nav-link nav-coming" href="#"><span class="nav-icon">🧮</span>Rational Root<span class="soon-badge">Soon</span></a>
+      <a class="nav-link" href="#halving-spiral"><span class="nav-icon">🌀</span>Halving Spiral<span class="live-badge"></span></a>
       <a class="nav-link" href="#stock-to-flow"><span class="nav-icon">📉</span>Stock-to-Flow<span class="live-badge"></span></a>
       <a class="nav-link nav-coming" href="#"><span class="nav-icon">🧠</span>ITC Risk Model<span class="soon-badge">Soon</span></a>
     </div>
@@ -792,6 +792,35 @@
   </div>
 
   <!-- ── RAINBOW CHART ── -->
+  <!-- ── HALVING SPIRAL ── -->
+  <div class="card section-anchor" id="halving-spiral">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Halving Spiral Chart</div>
+        <div class="site-sub" style="margin-bottom:16px;">bitcoinintel.xyz</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;font-size:11px;font-weight:700;">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;">
+          <span style="color:#ef4444;">● Epoch 1 (50₿)</span>
+          <span style="color:#f97316;">● Epoch 2 (25₿)</span>
+          <span style="color:#eab308;">● Epoch 3 (12.5₿)</span>
+          <span style="color:#22c55e;">● Epoch 4 (6.25₿)</span>
+          <span style="color:#3b82f6;">● Epoch 5 (3.125₿)</span>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:center;padding:8px 0;">
+      <canvas id="spiralCanvas" width="520" height="520" style="max-width:100%;"></canvas>
+    </div>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-label">Current Epoch</div><div class="stat-value" id="spiralEpoch">—</div></div>
+      <div class="stat"><div class="stat-label">Cycle Progress</div><div class="stat-value" id="spiralProgress">—</div></div>
+      <div class="stat"><div class="stat-label">Days into Cycle</div><div class="stat-value" id="spiralDays">—</div></div>
+      <div class="stat"><div class="stat-label">Days to Halving</div><div class="stat-value" id="spiralDaysLeft">—</div></div>
+    </div>
+    <div class="watermark">bitcoinintel.xyz</div>
+  </div>
+
   <div class="card section-anchor" id="rainbow">
     <div class="card-header">
       <div>
@@ -1713,6 +1742,186 @@
     } catch(e) { console.error('S2F error:', e); }
   }
 
+  // ════════════════════════════════════════
+  // HALVING SPIRAL CHART
+  // ════════════════════════════════════════
+  async function loadHalfingSpiral() {
+    try {
+      const res   = await fetch('https://api.blockchain.info/charts/market-price?timespan=all&format=json&cors=true');
+      const data  = await res.json();
+      const pts   = data.values; // [{x: unix_sec, y: usd_price}]
+
+      // Halving timestamps (Unix seconds)
+      const HALVINGS = [
+        0,            // Genesis (epoch 1 start)
+        1354060800,   // 2012-11-28
+        1468267200,   // 2016-07-09
+        1589155200,   // 2020-05-11
+        1713484800,   // 2024-04-20
+        1870000000,   // ~2028 (estimated)
+      ];
+      const EPOCH_COLORS = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6'];
+
+      function getEpoch(ts) {
+        for (let i = HALVINGS.length - 1; i >= 0; i--) {
+          if (ts >= HALVINGS[i]) return i; // epoch index 0-4
+        }
+        return 0;
+      }
+      function cycleProgress(ts) {
+        const ep = getEpoch(ts);
+        const start = HALVINGS[ep], end = HALVINGS[ep + 1] || (HALVINGS[ep] + 4 * 365.25 * 86400);
+        return Math.min(1, (ts - start) / (end - start));
+      }
+
+      const canvas = document.getElementById('spiralCanvas');
+      const ctx    = canvas.getContext('2d');
+      const W = canvas.width, H = canvas.height;
+      const cx = W / 2, cy = H / 2;
+      const MAX_R = W * 0.44; // max radius in pixels
+
+      // Log price scale: map log10(price) to radius
+      const LOG_MIN = -1.5; // ~$0.03 (earliest BTC)
+      const LOG_MAX = 6.2;  // ~$1.6M (headroom)
+      function priceToR(price) {
+        if (price <= 0) return 0;
+        const log = Math.log10(price);
+        return Math.max(0, ((log - LOG_MIN) / (LOG_MAX - LOG_MIN)) * MAX_R);
+      }
+
+      // Draw background
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = '#0f0f0f';
+      ctx.fillRect(0, 0, W, H);
+
+      // Draw grid rings (price levels)
+      const gridLevels = [
+        {price: 0.1,    label: '$0.1'},
+        {price: 1,      label: '$1'},
+        {price: 10,     label: '$10'},
+        {price: 100,    label: '$100'},
+        {price: 1000,   label: '$1K'},
+        {price: 10000,  label: '$10K'},
+        {price: 100000, label: '$100K'},
+        {price: 1000000,label: '$1M'},
+      ];
+      gridLevels.forEach(({price, label}) => {
+        const r = priceToR(price);
+        if (r < 8) return;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+        ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        // Label at top of ring
+        ctx.fillStyle = 'rgba(255,255,255,0.2)';
+        ctx.font = '500 9px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(label, cx, cy - r - 3);
+      });
+
+      // Draw radial spokes (quarter-cycle marks)
+      for (let q = 0; q < 4; q++) {
+        const angle = (q / 4) * 2 * Math.PI - Math.PI / 2;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + MAX_R * Math.cos(angle), cy + MAX_R * Math.sin(angle));
+        ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        // Spoke labels
+        const labels = ['Halving\nDay', '~6 Months', '~12 Months', '~18 Months'];
+        const lx = cx + (MAX_R + 14) * Math.cos(angle);
+        const ly = cy + (MAX_R + 14) * Math.sin(angle);
+        ctx.fillStyle = 'rgba(255,255,255,0.18)';
+        ctx.font = '600 8px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(labels[q], lx, ly);
+      }
+
+      // Plot data points
+      let lastX = null, lastY = null, lastEpoch = null;
+      pts.forEach(pt => {
+        if (pt.y <= 0) return;
+        const ep    = getEpoch(pt.x);
+        const prog  = cycleProgress(pt.x);
+        const angle = prog * 2 * Math.PI - Math.PI / 2; // 0° = top = halving day
+        const r     = priceToR(pt.y);
+        const x     = cx + r * Math.cos(angle);
+        const y     = cy + r * Math.sin(angle);
+        const color = EPOCH_COLORS[ep] || '#888';
+
+        // Draw connecting line within same epoch
+        if (lastX !== null && ep === lastEpoch) {
+          ctx.beginPath();
+          ctx.moveTo(lastX, lastY);
+          ctx.lineTo(x, y);
+          ctx.strokeStyle = color + '99'; // 60% opacity line
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+        }
+
+        // Dot
+        ctx.beginPath();
+        ctx.arc(x, y, 1.8, 0, 2 * Math.PI);
+        ctx.fillStyle = color;
+        ctx.fill();
+
+        lastX = x; lastY = y; lastEpoch = ep;
+      });
+
+      // Glowing dot for current price (last point)
+      if (pts.length && lastX !== null) {
+        // Glow
+        const grd = ctx.createRadialGradient(lastX, lastY, 0, lastX, lastY, 12);
+        grd.addColorStop(0, 'rgba(247,147,26,0.9)');
+        grd.addColorStop(1, 'rgba(247,147,26,0)');
+        ctx.beginPath();
+        ctx.arc(lastX, lastY, 12, 0, 2 * Math.PI);
+        ctx.fillStyle = grd;
+        ctx.fill();
+        // Core dot
+        ctx.beginPath();
+        ctx.arc(lastX, lastY, 4, 0, 2 * Math.PI);
+        ctx.fillStyle = '#F7931A';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(lastX, lastY, 4, 0, 2 * Math.PI);
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      // Watermark
+      ctx.globalAlpha = 0.07;
+      const logoImg = new Image();
+      logoImg.onload = () => {
+        const sz = MAX_R * 0.55;
+        ctx.drawImage(logoImg, cx - sz/2, cy - sz/2 + 20, sz, sz);
+        ctx.globalAlpha = 1;
+      };
+      logoImg.src = '/logo-profile.jpg';
+      ctx.globalAlpha = 1;
+
+      // Update stats
+      const lastPt  = pts[pts.length - 1];
+      const nowEp   = getEpoch(lastPt.x);
+      const nowProg = cycleProgress(lastPt.x);
+      const cycleStart = HALVINGS[nowEp];
+      const cycleEnd   = HALVINGS[nowEp + 1] || (cycleStart + 4 * 365.25 * 86400);
+      const daysInto   = Math.floor((lastPt.x - cycleStart) / 86400);
+      const daysLeft   = Math.floor((cycleEnd - lastPt.x) / 86400);
+      const rewardMap  = ['50 BTC','25 BTC','12.5 BTC','6.25 BTC','3.125 BTC'];
+
+      document.getElementById('spiralEpoch').textContent    = `Epoch ${nowEp + 1} (${rewardMap[nowEp]})`;
+      document.getElementById('spiralProgress').textContent = (nowProg * 100).toFixed(1) + '%';
+      document.getElementById('spiralDays').textContent     = daysInto.toLocaleString() + ' days';
+      document.getElementById('spiralDaysLeft').textContent = daysLeft.toLocaleString() + ' days';
+
+    } catch(e) { console.error('Spiral error:', e); }
+  }
+
   async function loadRainbow() {
     try {
       const res  = await fetch('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=max');
@@ -1764,6 +1973,7 @@
     loadMiningCost();
     loadHalving();
     loadS2F();
+    loadHalfingSpiral();
     loadRainbow();
     loadLiqHeatmap();
   };
