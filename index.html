@@ -773,13 +773,9 @@
         <div class="card-title">Stock-to-Flow S2F</div>
         <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#2e2e2e;margin-top:6px;">bitcoinintel.xyz</div>
       </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
-        <div class="card-label" style="text-align:right;">PlanB Model Price</div>
-        <div style="font-size:22px;font-weight:900;color:#fff;" id="s2fModelPrice">—</div>
-        <div style="font-size:11px;font-weight:700;" id="s2fVsModel">—</div>
-      </div>
+      <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#2e2e2e;">bitcoinintel.xyz</div>
     </div>
-    <div class="chart-wrap" style="height:260px;"><canvas id="s2fChart"></canvas></div>
+    <div class="chart-wrap" style="height:300px;"><canvas id="s2fChart"></canvas></div>
     <div style="display:flex;align-items:center;gap:10px;margin:10px 0 4px;padding:0 2px;">
       <span style="font-size:10px;font-weight:700;color:#444;">1,460 days to halving</span>
       <div style="flex:1;height:6px;border-radius:3px;background:linear-gradient(to right,hsl(0,100%,55%),hsl(60,100%,55%),hsl(120,100%,55%),hsl(180,100%,55%),hsl(240,100%,55%));"></div>
@@ -1644,24 +1640,38 @@
       const lastBtcPx  = scatterPts[scatterPts.length-1].y;
       const pctVsModel = ((lastBtcPx - lastModPx) / lastModPx) * 100;
 
-      document.getElementById('s2fModelPrice').textContent= '$' + Math.round(lastModPx).toLocaleString();
-      document.getElementById('s2fSupply').textContent    = (lastSupply/1e6).toFixed(3) + 'M BTC';
-      document.getElementById('s2fFlow').textContent      = Math.round(lastFlow).toLocaleString() + ' BTC/yr';
-      document.getElementById('s2fReward').textContent    = lastReward + ' BTC';
-      const vmEl = document.getElementById('s2fVsModel');
-      vmEl.textContent = (pctVsModel >= 0 ? '+' : '') + pctVsModel.toFixed(1) + '% vs model';
-      vmEl.style.color = pctVsModel >= 0 ? '#22c55e' : '#ef4444';
+      document.getElementById('s2fSupply').textContent  = (lastSupply/1e6).toFixed(3) + 'M BTC';
+      document.getElementById('s2fFlow').textContent    = Math.round(lastFlow).toLocaleString() + ' BTC/yr';
+      document.getElementById('s2fReward').textContent  = lastReward + ' BTC';
+
+      // Pre-load logo for watermark
+      const logoImg = new Image();
+      logoImg.src = '/logo-profile.jpg';
+
+      // Watermark plugin — draws logo transparently in centre of chart area
+      const s2fWatermark = {
+        id: 's2fWatermark',
+        beforeDraw(chart) {
+          if (!logoImg.complete || !logoImg.naturalWidth) return;
+          const { ctx, chartArea: { left, top, right, bottom } } = chart;
+          const w = right - left, h = bottom - top;
+          const size = Math.min(w, h) * 0.38;
+          ctx.save();
+          ctx.globalAlpha = 0.06;
+          ctx.drawImage(logoImg, left + w/2 - size/2, top + h/2 - size/2, size, size);
+          ctx.restore();
+        }
+      };
 
       const ctx = document.getElementById('s2fChart').getContext('2d');
       if (s2fChart) s2fChart.destroy();
       s2fChart = new Chart(ctx, {
         type: 'scatter',
+        plugins: [s2fWatermark],
         data: { datasets: [
-          // Dashed white model price line (behind)
           { type: 'line', label: 'S2F Model Price', data: modelPts,
-            borderColor: 'rgba(255,255,255,0.4)', borderWidth: 1.5, borderDash: [5,4],
+            borderColor: 'rgba(255,255,255,0.45)', borderWidth: 1.5, borderDash: [5,4],
             pointRadius: 0, fill: false, tension: 0.15, order: 2 },
-          // Scatter dots colored by days-to-halving
           { type: 'scatter', label: 'BTC Price', data: scatterPts,
             backgroundColor: dotColors, pointRadius: 2.5, pointHoverRadius: 5,
             borderWidth: 0, order: 1 },
@@ -1684,22 +1694,26 @@
           },
           scales: {
             x: { type: 'time', time: { displayFormats: { year: 'yyyy', month: 'MMM yy' } },
-                 grid: { color: '#131313' }, border: { color: '#1c1c1c' },
-                 ticks: { color: '#444', font: { family: 'Inter', size: 11, weight: '600' }, maxTicksLimit: 8 } },
+                 grid: { color: '#1e1e1e', lineWidth: 1 }, border: { color: '#2a2a2a' },
+                 ticks: { color: '#444', font: { family: 'Inter', size: 11, weight: '600' }, maxTicksLimit: 10 } },
             y: { type: 'logarithmic', position: 'right',
-                 min: 0.01,
-                 grid: { color: '#131313' }, border: { color: '#1c1c1c' },
+                 grid: { color: '#1e1e1e', lineWidth: 1 }, border: { color: '#2a2a2a' },
+                 afterBuildTicks: axis => {
+                   axis.ticks = [0.01,0.1,1,10,100,1000,10000,100000,1000000,10000000].map(v=>({value:v}));
+                 },
                  ticks: { color: '#444', font: { family: 'Inter', size: 11, weight: '600' },
                    callback: v => {
-                     const labels = {0.01:'$0.01', 0.1:'$0.1', 1:'$1', 10:'$10', 100:'$100',
-                       1000:'$1K', 10000:'$10K', 100000:'$100K', 1000000:'$1M', 10000000:'$10M'};
-                     return labels[v] || '';
+                     const m = {0.01:'$0.01',0.1:'$0.1',1:'$1',10:'$10',100:'$100',
+                       1000:'$1K',10000:'$10K',100000:'$100K',1000000:'$1M',10000000:'$10M'};
+                     return m[v] ?? '';
                    }
                  }
                }
           }
         }
       });
+      // Re-draw watermark after logo loads if it wasn't ready yet
+      logoImg.onload = () => s2fChart && s2fChart.draw();
     } catch(e) { console.error('S2F error:', e); }
   }
 
