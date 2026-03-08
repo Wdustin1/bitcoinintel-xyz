@@ -2120,10 +2120,9 @@
       const res  = await fetch('https://api.blockchain.info/charts/market-price?timespan=all&format=json&cors=true');
       const data = await res.json();
 
-      // Filter to prices > $0.05 (matches StephanAkkerman repo start ~2010-07-17)
+      // Filter to prices > $0.05 (matches repo start ~2010)
       const allPts = data.values.filter(p => p.y > 0.05);
-
-      // Weekly sample for chart rendering performance
+      // Weekly sample for regression + rendering
       const pts = allPts.filter((_, i) => i % 7 === 0);
       const n   = pts.length;
 
@@ -2131,7 +2130,7 @@
       const xArr = pts.map((_, i) => i + 1);
       const yArr = pts.map(p => p.y);
 
-      // OLS regression: log(price) = a * log(x) + c  →  price = exp(c) * x^a
+      // OLS: log(price) = a * log(x) + c
       const logX  = xArr.map(x => Math.log(x));
       const logY  = yArr.map(y => Math.log(y));
       const sumX  = logX.reduce((a,b) => a+b, 0);
@@ -2142,22 +2141,90 @@
       const regC  = (sumY - regA*sumX) / n;
 
       function fittedLog(x)   { return regA * Math.log(x) + regC; }
-      function bandLower(x,i) { return Math.exp(fittedLog(x) + (i - RB_I_DEC) * RB_BAND_WIDTH - RB_BAND_WIDTH); }
       function bandUpper(x,i) { return Math.exp(fittedLog(x) + (i - RB_I_DEC) * RB_BAND_WIDTH); }
 
-      // Projection: extend 9 months (weekly steps) beyond last data point
+      // Pre-compute band values for every weekly point + 9-month projection
       const PROJ_WEEKS = 39;
-      const projPts = [];
+      const bandData = [];
+      pts.forEach((p, j) => {
+        const idx = j + 1;
+        bandData.push({ xMs: p.x * 1000, uppers: Array.from({length:9}, (_,i) => bandUpper(idx, i)) });
+      });
       for (let w = 1; w <= PROJ_WEEKS; w++) {
-        projPts.push({
-          date: new Date(allPts[allPts.length-1].x * 1000 + w * 7 * 86400000),
-          idx:  n + w * 7  // approximate future sequential index
+        const idx = n + w * 7;
+        bandData.push({
+          xMs:    allPts[allPts.length-1].x * 1000 + w * 7 * 86400000,
+          uppers: Array.from({length:9}, (_,i) => bandUpper(idx, i))
         });
       }
 
-      // Combine actual + projection time axis for band datasets
-      const allDates = [...pts.map(p => new Date(p.x*1000)), ...projPts.map(p => p.date)];
-      const allIdx   = [...xArr, ...projPts.map(p => p.idx)];
+      // Custom plugin: draws rainbow bands on canvas before Chart.js datasets
+      const rainbowPlugin = {
+        id: 'rainbowBands',
+        beforeDatasetsDraw(chart) {
+          const { ctx, scales: { x: xs, y: ys }, chartArea: ca } = chart;
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(ca.left, ca.top, ca.width, ca.height);
+          ctx.clip();
+
+          for (let j = 0; j < bandData.length - 1; j++) {
+            const x0 = xs.getPixelForValue(bandData[j].xMs);
+            const x1 = xs.getPixelForValue(bandData[j+1].xMs);
+            if (x1 < ca.left || x0 > ca.right) continue;
+
+            for (let i = 0; i < 9; i++) {
+              const top0    = ys.getPixelForValue(bandData[j].uppers[i]);
+              const top1    = ys.getPixelForValue(bandData[j+1].uppers[i]);
+              const bottom0 = i === 0 ? ca.bottom : ys.getPixelForValue(bandData[j].uppers[i-1]);
+              const bottom1 = i === 0 ? ca.bottom : ys.getPixelForValue(bandData[j+1].uppers[i-1]);
+
+              ctx.fillStyle = RB_COLORS[i];
+              ctx.beginPath();
+              ctx.moveTo(x0, top0);
+              ctx.lineTo(x1, top1);
+              ctx.lineTo(x1, bottom1);
+              ctx.lineTo(x0, bottom0);
+              ctx.closePath();
+              ctx.fill();
+            }
+          }
+          ctx.restore();
+        }
+      };
+
+      // Halving lines plugin
+      const halvingPlugin = {
+        id: 'halvingLines',
+        afterDraw(chart) {
+          const { ctx, scales: { x: xs, y: ys } } = chart;
+          const halvings = [
+            { d: new Date('2012-11-28'), label: '2012' },
+            { d: new Date('2016-07-09'), label: '2016' },
+            { d: new Date('2020-05-11'), label: '2020' },
+            { d: new Date('2024-04-20'), label: '2024' },
+          ];
+          halvings.forEach(({ d, label }) => {
+            const px = xs.getPixelForValue(d.getTime());
+            if (px < xs.left || px > xs.right) return;
+            ctx.save();
+            ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(px, ys.top);
+            ctx.lineTo(px, ys.bottom);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = 'rgba(255,255,255,0.4)';
+            ctx.font = 'bold 9px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText('Halving ' + label, px, ys.top + 4);
+            ctx.restore();
+          });
+        }
+      };
 
       // Current zone
       const curLogPrice = Math.log(yArr[yArr.length-1]);
@@ -2180,85 +2247,51 @@
         `<div class="rb-item"><div class="rb-dot" style="background:${c}"></div>${RB_LABELS[i]}</div>`
       ).join('');
 
-      // Halving vertical-line plugin
-      const halvingDates = [
-        new Date('2012-11-28'), new Date('2016-07-09'),
-        new Date('2020-05-11'), new Date('2024-04-20'),
-      ];
-      const halvingPlugin = {
-        id: 'halvingLines',
-        afterDraw(chart) {
-          const { ctx, scales: { x, y } } = chart;
-          halvingDates.forEach(d => {
-            const px = x.getPixelForValue(d);
-            if (px < x.left || px > x.right) return;
-            ctx.save();
-            ctx.strokeStyle = 'rgba(255,255,255,0.35)';
-            ctx.lineWidth = 1;
-            ctx.setLineDash([4, 4]);
-            ctx.beginPath();
-            ctx.moveTo(px, y.top);
-            ctx.lineTo(px, y.bottom);
-            ctx.stroke();
-            ctx.setLineDash([]);
-            ctx.fillStyle = 'rgba(255,255,255,0.3)';
-            ctx.font = '600 9px Inter';
-            ctx.textAlign = 'center';
-            ctx.fillText('Halving', px, y.top + 10);
-            ctx.restore();
-          });
-        }
-      };
-
       const ctx = document.getElementById('rainbowChart').getContext('2d');
       if (rbChart) rbChart.destroy();
 
-      // Band datasets (filled between lower and upper of each band)
-      const bandDs = RB_COLORS.map((color, i) => ({
-        label: RB_LABELS[i],
-        data:  allDates.map((d, j) => ({ x: d, y: bandUpper(allIdx[j], i) })),
-        borderColor: color, borderWidth: 0,
-        backgroundColor: color + 'cc',
-        fill: i === 0 ? { target: { value: 0 } } : '-1',
-        pointRadius: 0, tension: 0.2, parsing: false,
-      }));
-
-      const priceDs = {
-        label: 'BTC Price',
-        data:  pts.map(p => ({ x: new Date(p.x*1000), y: p.y })),
-        borderColor: '#ffffff', borderWidth: 2.5,
-        backgroundColor: 'transparent', fill: false,
-        pointRadius: 0, tension: 0.2, parsing: false,
-      };
-
       rbChart = new Chart(ctx, {
         type: 'line',
-        plugins: [halvingPlugin],
-        data: { datasets: [...bandDs, priceDs] },
+        plugins: [rainbowPlugin, halvingPlugin],
+        data: { datasets: [{
+          label: 'BTC Price',
+          data:  pts.map(p => ({ x: p.x * 1000, y: p.y })),
+          borderColor: '#ffffff', borderWidth: 2.5,
+          fill: false, pointRadius: 0, tension: 0.2,
+        }]},
         options: {
           responsive: true, maintainAspectRatio: false, animation: { duration: 600 },
           interaction: { mode: 'index', intersect: false },
+          parsing: false,
           plugins: {
             legend: { display: false },
             tooltip: {
-              backgroundColor: '#1a1a1a', titleColor: '#555', bodyColor: '#fff',
-              borderColor: '#2a2a2a', borderWidth: 1, padding: 12,
-              filter: i => i.dataset.label === 'BTC Price',
+              backgroundColor: '#1a1a1a', titleColor: '#999', bodyColor: '#fff',
+              borderColor: '#333', borderWidth: 1, padding: 12,
               callbacks: {
                 title: i => new Date(i[0].raw.x).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }),
                 label: i => 'BTC: ' + fmt(i.raw.y),
+                afterLabel: () => 'Zone: ' + zoneName,
               }
             }
           },
           scales: {
-            x: { type: 'time', time: { displayFormats: { year: 'yyyy', month: 'MMM yy' } },
-                 grid: { color: '#0d0d0d' }, border: { color: '#1c1c1c' },
-                 ticks: { color: '#444', font: { family: 'Inter', size: 11, weight: '600' }, maxTicksLimit: 8 } },
-            y: { type: 'logarithmic', position: 'right',
-                 grid: { color: '#0d0d0d' }, border: { color: '#1c1c1c' },
-                 ticks: { color: '#444', font: { family: 'Inter', size: 11, weight: '600' },
-                   callback: v => v>=1e6?'$'+(v/1e6).toFixed(0)+'M':v>=1e3?'$'+(v/1e3).toFixed(0)+'K':v>=1?'$'+v:'',
-                   maxTicksLimit: 8 } }
+            x: {
+              type: 'time',
+              time: { displayFormats: { year: 'yyyy', month: 'MMM yy' } },
+              grid: { color: 'rgba(0,0,0,0.3)' }, border: { color: '#1c1c1c' },
+              ticks: { color: '#fff', font: { family: 'Inter', size: 11, weight: '700' }, maxTicksLimit: 8 }
+            },
+            y: {
+              type: 'logarithmic', position: 'right',
+              min: 0.05,
+              grid: { color: 'rgba(0,0,0,0.25)' }, border: { color: '#1c1c1c' },
+              ticks: {
+                color: '#fff', font: { family: 'Inter', size: 11, weight: '700' },
+                callback: v => v>=1e6?'$'+(v/1e6).toFixed(0)+'M':v>=1e3?'$'+(v/1e3).toFixed(0)+'K':v>=1?'$'+Math.round(v):'',
+                maxTicksLimit: 8
+              }
+            }
           }
         }
       });
