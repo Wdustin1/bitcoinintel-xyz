@@ -1135,38 +1135,86 @@
   async function loadHashRate(timespan) {
     document.querySelectorAll('#hrTabs .tab').forEach(t=>{ const m={sixmonths:'6M','6months':'6M','1year':'1Y','2years':'2Y'}; t.classList.toggle('active',t.textContent===({'6months':'6M','1year':'1Y','2years':'2Y'}[timespan])); });
     try {
-      const res  = await fetch(`https://api.blockchain.info/charts/hash-rate?timespan=${timespan}&format=json&cors=true`);
-      const data = await res.json();
-      const pts  = data.values;
-      const times = pts.map(p=>new Date(p.x*1000));
-      const raw   = pts.map(p=>p.y/1e6); // blockchain.info returns TH/s → divide by 1e6 for EH/s
+      const cgDays = { '6months':180, '1year':365, '2years':730 }[timespan] || 365;
 
-      // 7-day rolling average to smooth out choppy mining pool variance
+      const [hrRes, priceRes] = await Promise.all([
+        fetch(`https://api.blockchain.info/charts/hash-rate?timespan=${timespan}&format=json&cors=true`),
+        fetch(`https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=${cgDays}&interval=daily`)
+      ]);
+      const hrData    = await hrRes.json();
+      const priceData = await priceRes.json();
+
+      const pts   = hrData.values;
+      const times = pts.map(p => new Date(p.x * 1000));
+      const raw   = pts.map(p => p.y / 1e6);
+
+      // 7-day rolling average for hash rate
       const WINDOW = 7;
       const vals = raw.map((_, i) => {
-        const start = Math.max(0, i - WINDOW + 1);
-        const slice = raw.slice(start, i + 1);
+        const slice = raw.slice(Math.max(0, i - WINDOW + 1), i + 1);
         return slice.reduce((s, v) => s + v, 0) / slice.length;
       });
 
+      // Align BTC price to hash rate timestamps (nearest daily match)
+      const pricePts = priceData.prices || []; // [[ms, price], ...]
+      const priceData2 = times.map(t => {
+        const ms = t.getTime();
+        const nearest = pricePts.reduce((best, p) => Math.abs(p[0]-ms) < Math.abs(best[0]-ms) ? p : best, pricePts[0]);
+        return nearest ? nearest[1] : null;
+      });
+
       const current = raw[raw.length-1], ath = Math.max(...raw), low = Math.min(...raw);
-      const change = ((current-raw[0])/raw[0])*100;
-      document.getElementById('hrCurrent').textContent = current.toFixed(0)+' EH/s';
-      document.getElementById('hrATH').textContent     = ath.toFixed(0)+' EH/s';
-      document.getElementById('hrLow').textContent     = low.toFixed(0)+' EH/s';
+      const change  = ((current - raw[0]) / raw[0]) * 100;
+      document.getElementById('hrCurrent').textContent = current.toFixed(0) + ' EH/s';
+      document.getElementById('hrATH').textContent     = ath.toFixed(0) + ' EH/s';
+      document.getElementById('hrLow').textContent     = low.toFixed(0) + ' EH/s';
       const ce = document.getElementById('hrChange');
-      ce.textContent = fmtPct(change); ce.style.color = change>=0?'#22c55e':'#ef4444';
+      ce.textContent = fmtPct(change); ce.style.color = change >= 0 ? '#22c55e' : '#ef4444';
 
       const ctx  = document.getElementById('hrChart').getContext('2d');
-      const grad = ctx.createLinearGradient(0,0,0,240);
-      grad.addColorStop(0,'rgba(247,147,26,.25)'); grad.addColorStop(1,'rgba(247,147,26,0)');
+      const grad = ctx.createLinearGradient(0, 0, 0, 240);
+      grad.addColorStop(0, 'rgba(247,147,26,.22)'); grad.addColorStop(1, 'rgba(247,147,26,0)');
       if (hrChart) hrChart.destroy();
       hrChart = new Chart(ctx, {
-        type:'line', data:{ labels:times, datasets:[{data:vals,borderColor:'#F7931A',borderWidth:2.5,backgroundColor:grad,fill:true,pointRadius:0,pointHoverRadius:5,pointHoverBackgroundColor:'#F7931A',pointHoverBorderColor:'#fff',pointHoverBorderWidth:2,tension:.2}]},
-        options:{ responsive:true, maintainAspectRatio:false, animation:{duration:600}, interaction:{mode:'index',intersect:false},
-          plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#1a1a1a', titleColor:'#555', bodyColor:'#fff', borderColor:'#2a2a2a', borderWidth:1, padding:12, displayColors:false, callbacks:{ title:i=>new Date(i[0].label).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}), label:i=>`Hash Rate: ${i.raw.toFixed(1)} EH/s (7d MA)`}}},
-          scales:{ x:{type:'time',time:{displayFormats:{month:'MMM yy',week:'MMM d'}},grid:{color:'#131313'},border:{color:'#1c1c1c'},ticks:{color:'#444',font:{family:'Inter',size:11,weight:'600'},maxTicksLimit:8}},
-            y:{position:'right',grid:{color:'#131313'},border:{color:'#1c1c1c'},ticks:{color:'#444',font:{family:'Inter',size:11,weight:'600'},callback:v=>Math.round(v)+' EH/s',maxTicksLimit:6}}}}
+        type: 'line',
+        data: { labels: times, datasets: [
+          // BTC Price — thin gray, left axis, no fill
+          { label:'BTC Price', data:priceData2, borderColor:'rgba(160,160,160,0.55)', borderWidth:1.2,
+            backgroundColor:'transparent', fill:false, pointRadius:0, tension:0.2, yAxisID:'yPrice', order:2 },
+          // Hash Rate — orange, right axis, with fill
+          { label:'Hash Rate', data:vals, borderColor:'#F7931A', borderWidth:2.5,
+            backgroundColor:grad, fill:true, pointRadius:0, pointHoverRadius:5,
+            pointHoverBackgroundColor:'#F7931A', pointHoverBorderColor:'#fff', pointHoverBorderWidth:2,
+            tension:0.2, yAxisID:'yHash', order:1 },
+        ]},
+        options: {
+          responsive:true, maintainAspectRatio:false, animation:{duration:600},
+          interaction:{ mode:'index', intersect:false },
+          plugins:{
+            legend:{ display:false },
+            tooltip:{
+              backgroundColor:'#1a1a1a', titleColor:'#555', bodyColor:'#fff',
+              borderColor:'#2a2a2a', borderWidth:1, padding:12,
+              callbacks:{
+                title: i => new Date(i[0].label).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+                label: i => i.dataset.label === 'BTC Price'
+                  ? ` BTC: $${Math.round(i.raw).toLocaleString()}`
+                  : ` Hash Rate: ${i.raw.toFixed(1)} EH/s (7d MA)`
+              }
+            }
+          },
+          scales:{
+            x:{ type:'time', time:{displayFormats:{month:'MMM yy',week:'MMM d'}},
+                grid:{color:'#131313'}, border:{color:'#1c1c1c'},
+                ticks:{color:'#444',font:{family:'Inter',size:11,weight:'600'},maxTicksLimit:8} },
+            yPrice:{ position:'left', grid:{color:'#131313'}, border:{color:'#1c1c1c'},
+                     ticks:{color:'#666',font:{family:'Inter',size:10,weight:'600'},
+                       callback:v=>'$'+Math.round(v/1000)+'K', maxTicksLimit:6} },
+            yHash:{ position:'right', grid:{display:false}, border:{color:'#1c1c1c'},
+                    ticks:{color:'#444',font:{family:'Inter',size:11,weight:'600'},
+                      callback:v=>Math.round(v)+' EH/s', maxTicksLimit:6} }
+          }
+        }
       });
     } catch(e) { console.error(e); }
   }
