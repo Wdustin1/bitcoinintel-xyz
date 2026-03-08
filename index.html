@@ -775,9 +775,7 @@
         options:{ responsive:true, maintainAspectRatio:false, animation:{duration:600}, interaction:{mode:'index',intersect:false},
           plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#1a1a1a', titleColor:'#555', bodyColor:'#fff', borderColor:'#2a2a2a', borderWidth:1, padding:12, displayColors:false, callbacks:{ title:i=>new Date(i[0].label).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}), label:i=>`Hash Rate: ${i.raw.toFixed(1)} EH/s`}}},
           scales:{ x:{type:'time',time:{displayFormats:{month:'MMM yy',week:'MMM d'}},grid:{color:'#131313'},border:{color:'#1c1c1c'},ticks:{color:'#444',font:{family:'Inter',size:11,weight:'600'},maxTicksLimit:8}},
-            y:{position:'right',grid:{color:'#131313'},border:{color:'#1c1c1c'},
-              ticks:{color:'#444',font:{family:'Inter',size:11,weight:'600'},callback:v=>Number.isInteger(v)?v+' EH/s':'',maxTicksLimit:6},
-              grace:'5%'}}}}
+            y:{position:'right',grid:{color:'#131313'},border:{color:'#1c1c1c'},ticks:{color:'#444',font:{family:'Inter',size:11,weight:'600'},callback:v=>Math.round(v)+' EH/s',maxTicksLimit:6}}}}
       });
     } catch(e) { console.error(e); }
   }
