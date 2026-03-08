@@ -425,11 +425,11 @@
   <div class="card section-anchor" id="liq-map">
     <div class="card-label">Price Level Analysis</div>
     <div class="card-title" style="margin-bottom:14px;">Bitcoin Liquidation Map</div>
-    <div class="legend" style="flex-wrap:wrap;gap:14px;margin-bottom:12px;">
-      <div class="leg-item"><div class="leg-dot" style="background:#F7931A"></div>Long Liquidations</div>
-      <div class="leg-item"><div class="leg-dot" style="background:#14b8a6"></div>Short Liquidations</div>
-      <div class="leg-item"><div style="width:22px;height:3px;background:#ef4444;border-radius:2px;margin-right:7px;"></div>Cumul. Long Liq</div>
-      <div class="leg-item"><div style="width:22px;height:3px;background:#22c55e;border-radius:2px;margin-right:7px;"></div>Cumul. Short Liq</div>
+    <div class="legend" style="flex-wrap:wrap;gap:16px;margin-bottom:14px;">
+      <div class="leg-item"><div class="leg-dot" style="background:#F7931A"></div>Long Liq Zone (price below current)</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#14b8a6"></div>Short Liq Zone (price above current)</div>
+      <div class="leg-item"><div style="width:22px;height:3px;background:#ef4444;border-radius:2px;margin-right:7px;"></div>Long Cascade Risk</div>
+      <div class="leg-item"><div style="width:22px;height:3px;background:#22c55e;border-radius:2px;margin-right:7px;"></div>Short Cascade Risk</div>
       <div class="leg-item"><div style="width:2px;height:14px;background:#F7931A;border-radius:2px;margin-right:7px;"></div>Current Price</div>
     </div>
     <div class="chart-wrap" style="height:360px;"><canvas id="mapChart"></canvas></div>
@@ -770,58 +770,67 @@
     try {
       const priceRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
       const currentPrice = (await priceRes.json()).bitcoin.usd;
-      const BUCKET = 1000; // $1k buckets for wider, cleaner view
-      const RANGE  = 0.20; // ±20% from current price
+      const BUCKET = 1000;
+      const RANGE  = 0.10; // ±10% from current price
 
-      // Pre-populate full range with empty buckets so X axis is always wide
+      // Pre-populate full ±10% range so X axis is always wide and consistent
       const rangeMin = Math.floor(currentPrice * (1 - RANGE) / BUCKET) * BUCKET;
       const rangeMax = Math.floor(currentPrice * (1 + RANGE) / BUCKET) * BUCKET;
-      const allBuckets = {};
-      for (let b = rangeMin; b <= rangeMax; b += BUCKET) allBuckets[b] = { long: 0, short: 0 };
+      const bkt = {};
+      for (let b = rangeMin; b <= rangeMax; b += BUCKET) bkt[b] = { long: 0, short: 0 };
 
       rawOrders.forEach(o => {
         const price  = parseFloat(o.averagePrice);
         const bucket = Math.floor(price / BUCKET) * BUCKET;
-        if (bucket < rangeMin || bucket > rangeMax) return; // clip outliers
-        if (!allBuckets[bucket]) allBuckets[bucket] = { long: 0, short: 0 };
+        if (bucket < rangeMin || bucket > rangeMax) return;
         const val = parseFloat(o.executedQty) * parseFloat(o.averagePrice);
-        if (o.side === 'SELL') allBuckets[bucket].long += val;
-        else allBuckets[bucket].short += val;
+        if (o.side === 'SELL') bkt[bucket].long += val;
+        else bkt[bucket].short += val;
       });
 
-      const levels = Object.keys(allBuckets).map(Number).sort((a, b) => a - b);
-      const labels  = levels.map(l => '$' + Math.round(l / 1000) + 'K');
-      const longBars  = levels.map(l => (allBuckets[l].long  || 0) / 1e6);
-      const shortBars = levels.map(l => (allBuckets[l].short || 0) / 1e6);
+      const levels = Object.keys(bkt).map(Number).sort((a, b) => a - b);
+      const n = levels.length;
+      const labels = levels.map(l => '$' + Math.round(l / 1000) + 'K');
 
       const currentBucket = Math.floor(currentPrice / BUCKET) * BUCKET;
-      const currentIdx = levels.indexOf(currentBucket);
-      const safeIdx = currentIdx >= 0 ? currentIdx : Math.floor(levels.length / 2);
+      let safeIdx = levels.indexOf(currentBucket);
+      if (safeIdx < 0) safeIdx = Math.floor(n / 2);
 
-      // Cumulative long liq: from current price going LEFT
-      const cumLong = levels.map((_, i) => {
-        if (i > safeIdx) return null;
-        let sum = 0;
-        for (let j = i; j <= safeIdx; j++) sum += longBars[j];
-        return sum;
+      // Single bar per level: total liquidation volume, colored by zone
+      // Left of current = orange (long liq zone), Right = teal (short liq zone)
+      const barData   = levels.map(l => ((bkt[l].long || 0) + (bkt[l].short || 0)) / 1e6);
+      const barColors = levels.map((_, i) => {
+        if (i < safeIdx)  return 'rgba(247,147,26,0.80)';   // orange — long liq zone
+        if (i > safeIdx)  return 'rgba(20,184,166,0.80)';   // teal — short liq zone
+        return 'rgba(255,255,255,0.90)';                      // white — current price bucket
       });
 
-      // Cumulative short liq: from current price going RIGHT
+      // Cumulative Long: descends LEFT→current (sum of liq from each point rightward to current)
+      // HIGH on far left, LOW (near zero) at current price → same shape as CoinGlass red line
+      const cumLong = levels.map((_, i) => {
+        if (i > safeIdx) return null;
+        let s = 0;
+        for (let j = i; j <= safeIdx; j++) s += barData[j];
+        return parseFloat(s.toFixed(4));
+      });
+
+      // Cumulative Short: ascends current→RIGHT (sum of liq from current to each point)
+      // LOW (near zero) at current price, HIGH on far right → same shape as CoinGlass green line
       const cumShort = levels.map((_, i) => {
         if (i < safeIdx) return null;
-        let sum = 0;
-        for (let j = safeIdx; j <= i; j++) sum += shortBars[j];
-        return sum;
+        let s = 0;
+        for (let j = safeIdx; j <= i; j++) s += barData[j];
+        return parseFloat(s.toFixed(4));
       });
 
       // Stats
-      const allTotals = levels.map(l => (allBuckets[l].long || 0) + (allBuckets[l].short || 0));
+      const allTotals = levels.map(l => (bkt[l].long || 0) + (bkt[l].short || 0));
       const peakIdx   = allTotals.indexOf(Math.max(...allTotals));
       document.getElementById('mapPeakLevel').textContent = '$' + Math.round(levels[peakIdx] / 1000) + 'K';
       document.getElementById('mapPeakVol').textContent   = fmtB(allTotals[peakIdx]);
       document.getElementById('mapLevels').textContent    = levels.length + ' levels';
 
-      // Plugin: draw current price vertical dashed line
+      // Plugin: draw current price dashed vertical with price label
       const priceLinePlugin = {
         id: 'priceLine',
         afterDraw(chart) {
@@ -830,15 +839,13 @@
           const x = meta.x, { top, bottom } = chart.chartArea;
           const c = chart.ctx;
           c.save();
-          c.setLineDash([7, 4]);
-          c.strokeStyle = '#F7931A';
-          c.lineWidth = 1.5;
-          c.beginPath(); c.moveTo(x, top); c.lineTo(x, bottom); c.stroke();
+          c.beginPath(); c.setLineDash([6, 4]);
+          c.strokeStyle = '#F7931A'; c.lineWidth = 2;
+          c.moveTo(x, top); c.lineTo(x, bottom); c.stroke();
           c.setLineDash([]);
-          c.fillStyle = '#F7931A';
-          c.font = 'bold 10px Inter';
+          c.fillStyle = '#F7931A'; c.font = 'bold 11px Inter';
           c.textAlign = 'center';
-          c.fillText('$' + Math.round(currentPrice).toLocaleString(), x, top - 5);
+          c.fillText('$' + Math.round(currentPrice).toLocaleString(), x, top - 6);
           c.restore();
         }
       };
@@ -848,23 +855,42 @@
       mapChart = new Chart(ctx, {
         type: 'bar',
         data: { labels, datasets: [
-          { label:'Long Liquidations', data:longBars, backgroundColor:'rgba(247,147,26,0.75)', borderWidth:0, borderRadius:2, yAxisID:'y', order:2 },
-          { label:'Short Liquidations', data:shortBars, backgroundColor:'rgba(20,184,166,0.75)', borderWidth:0, borderRadius:2, yAxisID:'y', order:2 },
-          { label:'Cumul. Long Liq', data:cumLong, type:'line', borderColor:'#ef4444', borderWidth:2, backgroundColor:'transparent', pointRadius:0, tension:0.3, yAxisID:'y2', order:1, spanGaps:false },
-          { label:'Cumul. Short Liq', data:cumShort, type:'line', borderColor:'#22c55e', borderWidth:2, backgroundColor:'transparent', pointRadius:0, tension:0.3, yAxisID:'y2', order:1, spanGaps:false },
+          // Bars — single per level, zone-colored
+          { label:'Liquidations', data:barData, backgroundColor:barColors, borderWidth:0, borderRadius:3, yAxisID:'y', order:2 },
+          // Cumulative Long — red, descending left→current
+          { label:'Cumul. Long (cascade risk)', data:cumLong, type:'line', borderColor:'rgba(239,68,68,0.9)', borderWidth:2.5,
+            backgroundColor:'rgba(239,68,68,0.08)', fill:true, pointRadius:0, tension:0.4, yAxisID:'y2', order:1, spanGaps:false },
+          // Cumulative Short — green, ascending current→right
+          { label:'Cumul. Short (cascade risk)', data:cumShort, type:'line', borderColor:'rgba(34,197,94,0.9)', borderWidth:2.5,
+            backgroundColor:'rgba(34,197,94,0.08)', fill:true, pointRadius:0, tension:0.4, yAxisID:'y2', order:1, spanGaps:false },
         ]},
         options: {
           responsive:true, maintainAspectRatio:false, animation:{duration:500},
           interaction:{ mode:'index', intersect:false },
           plugins:{
             legend:{ display:false },
-            tooltip:{ backgroundColor:'#1a1a1a', titleColor:'#888', bodyColor:'#fff', borderColor:'#2a2a2a', borderWidth:1, padding:12,
-              callbacks:{ label: i => i.raw === null ? null : ` ${i.dataset.label}: $${Math.abs(i.raw).toFixed(2)}M` }}
+            tooltip:{
+              backgroundColor:'#1a1a1a', titleColor:'#888', bodyColor:'#fff',
+              borderColor:'#2a2a2a', borderWidth:1, padding:12,
+              callbacks:{
+                title: items => labels[items[0].dataIndex] + ' level',
+                label: i => {
+                  if (i.raw === null) return null;
+                  if (i.datasetIndex === 0) return ` Volume: $${i.raw.toFixed(2)}M`;
+                  if (i.datasetIndex === 1) return ` Cumul Long Cascade: $${i.raw.toFixed(2)}M`;
+                  return ` Cumul Short Cascade: $${i.raw.toFixed(2)}M`;
+                }
+              }
+            }
           },
           scales:{
-            x:{ grid:{color:'#131313'}, border:{color:'#1c1c1c'}, ticks:{color:'#444',font:{family:'Inter',size:9,weight:'600'},maxTicksLimit:18} },
-            y:{ position:'left', grid:{color:'#131313'}, border:{color:'#1c1c1c'}, ticks:{color:'#444',font:{family:'Inter',size:10,weight:'600'},callback:v=>'$'+v.toFixed(0)+'M'} },
-            y2:{ position:'right', grid:{display:false}, border:{color:'#1c1c1c'}, ticks:{color:'#444',font:{family:'Inter',size:10,weight:'600'},callback:v=>'$'+v.toFixed(0)+'M'} }
+            x:{ grid:{color:'#131313'}, border:{color:'#1c1c1c'}, ticks:{color:'#555',font:{family:'Inter',size:9,weight:'600'},maxTicksLimit:12} },
+            y:{ position:'left', grid:{color:'#131313'}, border:{color:'#1c1c1c'},
+                ticks:{color:'#444',font:{family:'Inter',size:10,weight:'600'},callback:v=>'$'+v.toFixed(1)+'M'},
+                title:{display:true,text:'Volume ($M)',color:'#333',font:{size:10}} },
+            y2:{ position:'right', grid:{display:false}, border:{color:'#1c1c1c'},
+                 ticks:{color:'#444',font:{family:'Inter',size:10,weight:'600'},callback:v=>'$'+v.toFixed(0)+'M'},
+                 title:{display:true,text:'Cumulative ($M)',color:'#333',font:{size:10}} }
           }
         },
         plugins:[priceLinePlugin]
