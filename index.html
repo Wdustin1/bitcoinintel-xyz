@@ -1643,21 +1643,10 @@
   // ════════════════════════════════════════
   // RAINBOW CHART
   // ════════════════════════════════════════
-  const GENESIS = new Date('2009-01-03').getTime();
-  const REG_A = 5.84509376, REG_B = -17.01593313;
-  function regVal(days) { return Math.pow(10, REG_A*Math.log10(days)+REG_B); }
-
-  const BANDS = [
-    {mult:.45,  color:'#c0392b', label:'Fire Sale'},
-    {mult:.70,  color:'#e67e22', label:'Buy!'},
-    {mult:1.05, color:'#f1c40f', label:'Accumulate'},
-    {mult:1.55, color:'#2ecc71', label:'Still Cheap'},
-    {mult:2.30, color:'#1abc9c', label:'Reasonable'},
-    {mult:3.40, color:'#3498db', label:'Is This Real?'},
-    {mult:5.00, color:'#9b59b6', label:'FOMO'},
-    {mult:7.50, color:'#8e44ad', label:'Sell Seriously'},
-    {mult:11.5, color:'#6c3483', label:'Max Bubble'},
-  ];
+  // Rainbow chart — exact colors/labels from StephanAkkerman/bitcoin-rainbow-chart
+  const RB_COLORS = ['#4472c4','#54989f','#63be7b','#b1d580','#feeb84','#f6b45a','#ed7d31','#d64018','#c00200'];
+  const RB_LABELS = ['Fire sale!','BUY!','Accumulate','Still cheap','HODL!','Is this a bubble?','FOMO Intensifies','Sell. Seriously, SELL!','Maximum bubble territory'];
+  const RB_BAND_WIDTH = 0.3, RB_I_DEC = 1.5;
 
   // ════════════════════════════════════════
   // STOCK-TO-FLOW
@@ -2130,37 +2119,150 @@
     try {
       const res  = await fetch('https://api.blockchain.info/charts/market-price?timespan=all&format=json&cors=true');
       const data = await res.json();
-      const raw  = data.values.filter((_,i)=>i%7===0); // weekly sample
-      const times  = raw.map(p=>new Date(p.x*1000));
-      const prices = raw.map(p=>p.y);
-      const days   = raw.map(p=>(p.x*1000-GENESIS)/86400000);
-      const lastDay = (Date.now()-GENESIS)/86400000;
-      const projDays = []; for(let d=500;d<=lastDay+1;d+=30) projDays.push(d);
-      const projTimes = projDays.map(d=>new Date(GENESIS+d*86400000));
-      const currentPrice = prices[prices.length-1];
-      const currentDays  = days[days.length-1];
-      const ratio = currentPrice/regVal(currentDays);
-      let zoneName = BANDS[BANDS.length-1].label;
-      for(let i=0;i<BANDS.length-1;i++){ if(ratio>=BANDS[i].mult&&ratio<BANDS[i+1].mult){zoneName=BANDS[i+1].label;break;} }
-      if(ratio<BANDS[0].mult) zoneName=BANDS[0].label;
-      document.getElementById('rbPrice').textContent   = fmt(currentPrice);
-      document.getElementById('rbBase').textContent    = fmt(regVal(currentDays));
+
+      // Filter to prices > $0.05 (matches StephanAkkerman repo start ~2010-07-17)
+      const allPts = data.values.filter(p => p.y > 0.05);
+
+      // Weekly sample for chart rendering performance
+      const pts = allPts.filter((_, i) => i % 7 === 0);
+      const n   = pts.length;
+
+      // Sequential 1-indexed x values (matches repo: xdata = [x+1 for x in range(len)])
+      const xArr = pts.map((_, i) => i + 1);
+      const yArr = pts.map(p => p.y);
+
+      // OLS regression: log(price) = a * log(x) + c  →  price = exp(c) * x^a
+      const logX  = xArr.map(x => Math.log(x));
+      const logY  = yArr.map(y => Math.log(y));
+      const sumX  = logX.reduce((a,b) => a+b, 0);
+      const sumY  = logY.reduce((a,b) => a+b, 0);
+      const sumXY = logX.reduce((s,x,i) => s + x*logY[i], 0);
+      const sumX2 = logX.reduce((s,x) => s + x*x, 0);
+      const regA  = (n*sumXY - sumX*sumY) / (n*sumX2 - sumX*sumX);
+      const regC  = (sumY - regA*sumX) / n;
+
+      function fittedLog(x)   { return regA * Math.log(x) + regC; }
+      function bandLower(x,i) { return Math.exp(fittedLog(x) + (i - RB_I_DEC) * RB_BAND_WIDTH - RB_BAND_WIDTH); }
+      function bandUpper(x,i) { return Math.exp(fittedLog(x) + (i - RB_I_DEC) * RB_BAND_WIDTH); }
+
+      // Projection: extend 9 months (weekly steps) beyond last data point
+      const PROJ_WEEKS = 39;
+      const projPts = [];
+      for (let w = 1; w <= PROJ_WEEKS; w++) {
+        projPts.push({
+          date: new Date(allPts[allPts.length-1].x * 1000 + w * 7 * 86400000),
+          idx:  n + w * 7  // approximate future sequential index
+        });
+      }
+
+      // Combine actual + projection time axis for band datasets
+      const allDates = [...pts.map(p => new Date(p.x*1000)), ...projPts.map(p => p.date)];
+      const allIdx   = [...xArr, ...projPts.map(p => p.idx)];
+
+      // Current zone
+      const curLogPrice = Math.log(yArr[yArr.length-1]);
+      const curF = fittedLog(n);
+      let zoneName = RB_LABELS[RB_LABELS.length-1];
+      for (let i = 0; i < 9; i++) {
+        const lo = curF + (i - RB_I_DEC) * RB_BAND_WIDTH - RB_BAND_WIDTH;
+        const hi = curF + (i - RB_I_DEC) * RB_BAND_WIDTH;
+        if (curLogPrice >= lo && curLogPrice < hi) { zoneName = RB_LABELS[i]; break; }
+        if (i === 0 && curLogPrice < lo) { zoneName = RB_LABELS[0]; break; }
+      }
+      const currentPrice = yArr[yArr.length-1];
+      const modelPrice   = Math.exp(curF);
+
+      document.getElementById('rbPrice').textContent    = fmt(currentPrice);
+      document.getElementById('rbBase').textContent     = fmt(modelPrice);
       document.getElementById('rbZoneStat').textContent = zoneName;
-      document.getElementById('rbZone').textContent    = 'Zone: '+zoneName;
-      document.getElementById('rbLegend').innerHTML = BANDS.map(b=>`<div class="rb-item"><div class="rb-dot" style="background:${b.color}"></div>${b.label}</div>`).join('');
+      document.getElementById('rbZone').textContent     = 'Zone: ' + zoneName;
+      document.getElementById('rbLegend').innerHTML = RB_COLORS.map((c,i) =>
+        `<div class="rb-item"><div class="rb-dot" style="background:${c}"></div>${RB_LABELS[i]}</div>`
+      ).join('');
+
+      // Halving vertical-line plugin
+      const halvingDates = [
+        new Date('2012-11-28'), new Date('2016-07-09'),
+        new Date('2020-05-11'), new Date('2024-04-20'),
+      ];
+      const halvingPlugin = {
+        id: 'halvingLines',
+        afterDraw(chart) {
+          const { ctx, scales: { x, y } } = chart;
+          halvingDates.forEach(d => {
+            const px = x.getPixelForValue(d);
+            if (px < x.left || px > x.right) return;
+            ctx.save();
+            ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(px, y.top);
+            ctx.lineTo(px, y.bottom);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = 'rgba(255,255,255,0.3)';
+            ctx.font = '600 9px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText('Halving', px, y.top + 10);
+            ctx.restore();
+          });
+        }
+      };
 
       const ctx = document.getElementById('rainbowChart').getContext('2d');
       if (rbChart) rbChart.destroy();
-      const bandDatasets = BANDS.map((band,i)=>({ label:band.label, data:projTimes.map((t,j)=>({x:t,y:regVal(projDays[j])*band.mult})), borderColor:band.color, borderWidth:1, backgroundColor:band.color+'55', fill:i===0?false:'-1', pointRadius:0, tension:.1, parsing:false }));
-      const priceDs = { label:'BTC Price', data:times.map((t,i)=>({x:t,y:prices[i]})), borderColor:'#fff', borderWidth:2.5, backgroundColor:'transparent', fill:false, pointRadius:0, tension:.2, parsing:false };
+
+      // Band datasets (filled between lower and upper of each band)
+      const bandDs = RB_COLORS.map((color, i) => ({
+        label: RB_LABELS[i],
+        data:  allDates.map((d, j) => ({ x: d, y: bandUpper(allIdx[j], i) })),
+        borderColor: color, borderWidth: 0,
+        backgroundColor: color + 'cc',
+        fill: i === 0 ? { target: { value: 0 } } : '-1',
+        pointRadius: 0, tension: 0.2, parsing: false,
+      }));
+
+      const priceDs = {
+        label: 'BTC Price',
+        data:  pts.map(p => ({ x: new Date(p.x*1000), y: p.y })),
+        borderColor: '#ffffff', borderWidth: 2.5,
+        backgroundColor: 'transparent', fill: false,
+        pointRadius: 0, tension: 0.2, parsing: false,
+      };
+
       rbChart = new Chart(ctx, {
-        type:'line', data:{datasets:[...bandDatasets,priceDs]},
-        options:{ responsive:true, maintainAspectRatio:false, animation:{duration:800}, interaction:{mode:'index',intersect:false},
-          plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#1a1a1a', titleColor:'#555', bodyColor:'#fff', borderColor:'#2a2a2a', borderWidth:1, padding:12, filter:i=>i.dataset.label==='BTC Price', callbacks:{title:i=>new Date(i[0].raw.x).toLocaleDateString('en-US',{year:'numeric',month:'short'}),label:i=>'BTC: '+fmt(i.raw.y)}}},
-          scales:{ x:{type:'time',time:{displayFormats:{year:'yyyy',month:'MMM yy'}},grid:{color:'#0d0d0d'},border:{color:'#1c1c1c'},ticks:{color:'#444',font:{family:'Inter',size:11,weight:'600'},maxTicksLimit:8}},
-            y:{type:'logarithmic',position:'right',grid:{color:'#0d0d0d'},border:{color:'#1c1c1c'},ticks:{color:'#444',font:{family:'Inter',size:11,weight:'600'},callback:v=>v>=1e6?'$'+(v/1e6).toFixed(0)+'M':v>=1e3?'$'+(v/1e3).toFixed(0)+'K':'$'+v,maxTicksLimit:6}}}}
+        type: 'line',
+        plugins: [halvingPlugin],
+        data: { datasets: [...bandDs, priceDs] },
+        options: {
+          responsive: true, maintainAspectRatio: false, animation: { duration: 600 },
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1a1a1a', titleColor: '#555', bodyColor: '#fff',
+              borderColor: '#2a2a2a', borderWidth: 1, padding: 12,
+              filter: i => i.dataset.label === 'BTC Price',
+              callbacks: {
+                title: i => new Date(i[0].raw.x).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }),
+                label: i => 'BTC: ' + fmt(i.raw.y),
+              }
+            }
+          },
+          scales: {
+            x: { type: 'time', time: { displayFormats: { year: 'yyyy', month: 'MMM yy' } },
+                 grid: { color: '#0d0d0d' }, border: { color: '#1c1c1c' },
+                 ticks: { color: '#444', font: { family: 'Inter', size: 11, weight: '600' }, maxTicksLimit: 8 } },
+            y: { type: 'logarithmic', position: 'right',
+                 grid: { color: '#0d0d0d' }, border: { color: '#1c1c1c' },
+                 ticks: { color: '#444', font: { family: 'Inter', size: 11, weight: '600' },
+                   callback: v => v>=1e6?'$'+(v/1e6).toFixed(0)+'M':v>=1e3?'$'+(v/1e3).toFixed(0)+'K':v>=1?'$'+v:'',
+                   maxTicksLimit: 8 } }
+          }
+        }
       });
-    } catch(e) { console.error(e); }
+    } catch(e) { console.error('Rainbow error:', e); }
   }
 
   // ── Boot ──
