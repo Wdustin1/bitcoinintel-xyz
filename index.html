@@ -820,7 +820,7 @@
         <div class="site-sub">bitcoinintel.xyz</div>
         <div class="card-sub">Price vs long-term logarithmic regression bands</div>
       </div>
-      <div class="card-label" style="text-align:right;padding-top:4px;" id="rbZone">—</div>
+      <div class="card-label" style="text-align:right;padding-top:10px;font-size:15px;font-weight:700;color:#ffffff;" id="rbZone">—</div>
     </div>
     <div class="rb-legend" id="rbLegend"></div>
     <div class="chart-wrap" style="height:340px;"><canvas id="rainbowChart"></canvas></div>
@@ -2236,8 +2236,9 @@
       };
 
       // Current zone
+      const curX        = xArr[n-1];  // days-from-genesis for last data point
+      const curF        = fittedLog(curX);
       const curLogPrice = Math.log(yArr[yArr.length-1]);
-      const curF = fittedLog(n);
       let zoneName = RB_LABELS[RB_LABELS.length-1];
       for (let i = 0; i < 9; i++) {
         const lo = curF + (i - RB_I_DEC) * RB_BAND_WIDTH - RB_BAND_WIDTH;
