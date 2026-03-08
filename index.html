@@ -820,7 +820,7 @@
         <div class="site-sub">bitcoinintel.xyz</div>
         <div class="card-sub">Price vs long-term logarithmic regression bands</div>
       </div>
-      <div class="card-label" style="text-align:right;padding-top:10px;font-size:15px;font-weight:700;color:#ffffff;" id="rbZone">—</div>
+      <div class="card-label" style="text-align:right;padding-top:8px;font-size:12px;font-weight:700;color:#ffffff;" id="rbZone">—</div>
     </div>
     <div class="rb-legend" id="rbLegend"></div>
     <div class="chart-wrap" style="height:340px;"><canvas id="rainbowChart"></canvas></div>
@@ -2211,22 +2211,23 @@
             { d: new Date('2016-07-09'), label: 'Halving 2016' },
             { d: new Date('2020-05-11'), label: 'Halving 2020' },
             { d: new Date('2024-04-20'), label: 'Halving 2024' },
+            { d: new Date('2028-04-10'), label: 'Halving 2028 ~est.' },
           ];
           halvings.forEach(({ d, label }) => {
             const px = xs.getPixelForValue(d.getTime());
             if (px < xs.left || px > xs.right) return;
+            const isEst = label.includes('est');
             ctx.save();
-            ctx.strokeStyle = 'rgba(255,165,0,0.7)';
-            ctx.lineWidth = 2;
-            ctx.setLineDash([6, 4]);
+            ctx.strokeStyle = isEst ? 'rgba(255,165,0,0.45)' : 'rgba(255,165,0,0.7)';
+            ctx.lineWidth = isEst ? 1.5 : 2;
+            ctx.setLineDash(isEst ? [4, 6] : [6, 4]);
             ctx.beginPath();
             ctx.moveTo(px, ys.top);
             ctx.lineTo(px, ys.bottom);
             ctx.stroke();
             ctx.setLineDash([]);
-            // Label at bottom
-            ctx.fillStyle = 'rgba(255,165,0,0.85)';
-            ctx.font = 'bold 10px Inter, sans-serif';
+            ctx.fillStyle = isEst ? 'rgba(255,165,0,0.55)' : 'rgba(255,165,0,0.85)';
+            ctx.font = `bold 10px Inter, sans-serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'bottom';
             ctx.fillText(label, px, ys.bottom - 4);
