@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#080808; font-family:'Inter',system-ui,sans-serif; color:#fff; padding: 40px 0; }
+
+  .option-label { font-size:22px; font-weight:900; color:#fff; padding:0 40px 6px; letter-spacing:-.02em; }
+  .option-desc  { font-size:13px; color:#555; padding:0 40px 20px; }
+  .section-wrap { margin-bottom:60px; }
+
+  /* Fake last card above footer */
+  .fake-card {
+    background:#0f0f0f;
+    border:1px solid #1c1c1c;
+    border-radius:14px;
+    margin: 0 40px 0;
+    padding: 24px;
+    color:#333;
+    font-size:13px;
+    font-weight:600;
+    text-align:center;
+    height: 80px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  /* ─── OPTION A ─── */
+  .footer-a {
+    margin-top: 1px;
+    background: #080808;
+    border-top: 1px solid #1a1a1a;
+  }
+  .footer-a-banner {
+    text-align: center;
+    padding: 36px 40px 0;
+    background: #000;
+  }
+  .footer-a-banner img {
+    max-height: 130px;
+    width: auto;
+    opacity: 0.92;
+  }
+  .footer-a-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 40px;
+    border-top: 1px solid #131313;
+    margin-top: 28px;
+  }
+  .footer-a-copy {
+    font-size: 11px;
+    color: #333;
+    font-weight: 600;
+  }
+  .footer-a-links {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .footer-a-links a {
+    font-size: 11px;
+    font-weight: 700;
+    color: #444;
+    text-decoration: none;
+    letter-spacing: .04em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .footer-a-tagline {
+    font-size: 11px;
+    color: #2a2a2a;
+    font-weight: 600;
+    font-style: italic;
+  }
+
+  /* ─── OPTION B ─── */
+  .footer-b {
+    margin-top: 1px;
+    background: #000;
+    border-top: 1px solid #1a1a1a;
+  }
+  .footer-b-banner {
+    text-align: center;
+    padding: 48px 40px 40px;
+    border-bottom: 1px solid #111;
+  }
+  .footer-b-banner img {
+    max-height: 140px;
+    width: auto;
+    opacity: 0.92;
+  }
+  .footer-b-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 40px;
+    padding: 36px 48px;
+    border-bottom: 1px solid #111;
+  }
+  .footer-b-col-title {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #F7931A;
+    margin-bottom: 14px;
+  }
+  .footer-b-col p {
+    font-size: 12px;
+    color: #444;
+    line-height: 1.7;
+    font-weight: 500;
+  }
+  .footer-b-social {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .footer-b-social a {
+    font-size: 12px;
+    font-weight: 700;
+    color: #555;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: .02em;
+  }
+  .footer-b-social a:hover { color: #F7931A; }
+  .footer-b-sources {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .footer-b-sources span {
+    font-size: 11px;
+    color: #333;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .src-dot { width:6px; height:6px; border-radius:50%; background:#F7931A; flex-shrink:0; }
+  .footer-b-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 48px;
+  }
+  .footer-b-copy {
+    font-size: 11px;
+    color: #2a2a2a;
+    font-weight: 600;
+  }
+  .footer-b-disclaimer {
+    font-size: 10px;
+    color: #222;
+    font-weight: 500;
+    max-width: 500px;
+    text-align: right;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ OPTION A ═══ -->
+<div class="section-wrap">
+  <div class="option-label">Option A — Minimal Footer Bar</div>
+  <div class="option-desc">Banner stays centered, wrapped by a clean bottom bar with copyright, social links, and tagline.</div>
+  <div class="fake-card">↑ Last chart card above ↑</div>
+  <div class="footer-a">
+    <div class="footer-a-banner">
+      <img src="logo-banner-1.png" alt="Bitcoin Intel XYZ"/>
+    </div>
+    <div class="footer-a-bar">
+      <span class="footer-a-copy">© 2025 Bitcoin Intel XYZ · All rights reserved</span>
+      <div class="footer-a-links">
+        <a href="#">𝕏 Twitter</a>
+        <a href="#">Discord</a>
+        <a href="#">Telegram</a>
+      </div>
+      <span class="footer-a-tagline">Real-time Bitcoin intelligence.</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ OPTION B ═══ -->
+<div class="section-wrap">
+  <div class="option-label">Option B — Full Branded Footer</div>
+  <div class="option-desc">Banner as hero, surrounded by About blurb, social links, and data source credits.</div>
+  <div class="fake-card">↑ Last chart card above ↑</div>
+  <div class="footer-b">
+    <div class="footer-b-banner">
+      <img src="logo-banner-1.png" alt="Bitcoin Intel XYZ"/>
+    </div>
+    <div class="footer-b-cols">
+      <div class="footer-b-col">
+        <div class="footer-b-col-title">About</div>
+        <p>Real-time Bitcoin intelligence for serious traders. Live on-chain data, derivatives metrics, and market indicators — all in one place.</p>
+        <p style="margin-top:10px;">Built for those who want signal, not noise.</p>
+      </div>
+      <div class="footer-b-col">
+        <div class="footer-b-col-title">Follow Us</div>
+        <div class="footer-b-social">
+          <a href="#">𝕏 &nbsp;@BitcoinIntelXYZ</a>
+          <a href="#">💬 &nbsp;Discord Community</a>
+          <a href="#">✈️ &nbsp;Telegram Channel</a>
+        </div>
+      </div>
+      <div class="footer-b-col">
+        <div class="footer-b-col-title">Data Sources</div>
+        <div class="footer-b-sources">
+          <span><span class="src-dot"></span>CoinGecko — Price & Market Cap</span>
+          <span><span class="src-dot"></span>CoinMarketCap — BTC Dominance</span>
+          <span><span class="src-dot"></span>OKX — Liquidation Data</span>
+          <span><span class="src-dot"></span>CoinGlass — Open Interest & Funding</span>
+          <span><span class="src-dot"></span>Blockchain.com — Hash Rate</span>
+          <span><span class="src-dot"></span>Alternative.me — Fear & Greed</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-b-bottom">
+      <span class="footer-b-copy">© 2025 Bitcoin Intel XYZ · All rights reserved</span>
+      <span class="footer-b-disclaimer">Not financial advice. All data is provided for informational purposes only. DYOR.</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -447,7 +447,15 @@
       <a class="nav-link" href="#rainbow"><span class="nav-icon">🌈</span>Rainbow Chart<span class="live-badge"></span></a>
       <a class="nav-link" href="#mining-cost"><span class="nav-icon">💰</span>Mining Cost<span class="live-badge"></span></a>
       <a class="nav-link" href="#stock-to-flow"><span class="nav-icon">📉</span>Stock-to-Flow<span class="live-badge"></span></a>
+      <a class="nav-link" href="#mvrv"><span class="nav-icon">📐</span>MVRV Z-Score<span class="live-badge"></span></a>
+      <a class="nav-link" href="#exchange-reserves"><span class="nav-icon">🏦</span>Exchange Reserves<span class="live-badge"></span></a>
       <a class="nav-link nav-coming" href="#"><span class="nav-icon">🧠</span>ITC Risk Model<span class="soon-badge">Soon</span></a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Macro</div>
+      <a class="nav-link" href="#btc-gold"><span class="nav-icon">🥇</span>BTC/Gold Ratio<span class="live-badge"></span></a>
+      <a class="nav-link" href="#btc-m2"><span class="nav-icon">💵</span>BTC vs M2<span class="live-badge"></span></a>
     </div>
 
     <div class="nav-section">
@@ -1025,6 +1033,85 @@
   </div>
 
 </div><!-- /content -->
+
+<!-- ═══ MVRV Z-SCORE ═══ -->
+<div class="card section-anchor" id="mvrv">
+  <div class="card-header">
+    <div>
+      <div class="card-title">MVRV Z-Score</div>
+      <div class="site-sub">bitcoinintel.xyz</div>
+      <div class="card-sub">Market Value to Realized Value — cycle top/bottom indicator</div>
+    </div>
+    <div class="card-label" id="mvrvZLabel" style="text-align:right;">—</div>
+  </div>
+  <div class="chart-wrap" style="height:320px;"><canvas id="mvrvChart"></canvas></div>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-label">Current MVRV</div><div class="stat-value" id="mvrvCurrent">—</div></div>
+    <div class="stat"><div class="stat-label">Z-Score</div><div class="stat-value" id="mvrvZ">—</div></div>
+    <div class="stat"><div class="stat-label">Signal</div><div class="stat-value" id="mvrvSignal">—</div></div>
+    <div class="stat"><div class="stat-label">Source</div><div class="stat-value" style="color:#555;">CoinMetrics</div></div>
+  </div>
+  <div class="watermark">bitcoinintel.xyz</div>
+</div>
+
+<!-- ═══ EXCHANGE RESERVES ═══ -->
+<div class="card section-anchor" id="exchange-reserves">
+  <div class="card-header">
+    <div>
+      <div class="card-title">Exchange Reserves</div>
+      <div class="site-sub">bitcoinintel.xyz</div>
+      <div class="card-sub">BTC held on exchanges — declining = bullish (self-custody)</div>
+    </div>
+    <div class="card-label" id="exResLabel" style="text-align:right;">—</div>
+  </div>
+  <div class="chart-wrap" style="height:320px;"><canvas id="exResChart"></canvas></div>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-label">Current Reserves</div><div class="stat-value" id="exResCurrent">—</div></div>
+    <div class="stat"><div class="stat-label">1Y Change</div><div class="stat-value" id="exRes1Y">—</div></div>
+    <div class="stat"><div class="stat-label">All-Time Low</div><div class="stat-value" id="exResATL">—</div></div>
+    <div class="stat"><div class="stat-label">Source</div><div class="stat-value" style="color:#555;">CoinMetrics</div></div>
+  </div>
+  <div class="watermark">bitcoinintel.xyz</div>
+</div>
+
+<!-- ═══ BTC/GOLD RATIO ═══ -->
+<div class="card section-anchor" id="btc-gold">
+  <div class="card-header">
+    <div>
+      <div class="card-title">BTC / Gold Ratio</div>
+      <div class="site-sub">bitcoinintel.xyz</div>
+      <div class="card-sub">How many oz of gold = 1 BTC over time</div>
+    </div>
+    <div class="card-label" id="goldRatioLabel" style="text-align:right;">—</div>
+  </div>
+  <div class="chart-wrap" style="height:320px;"><canvas id="goldChart"></canvas></div>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-label">Current Ratio</div><div class="stat-value" id="goldRatioCur">—</div></div>
+    <div class="stat"><div class="stat-label">BTC Price</div><div class="stat-value" id="goldBTCPrice">—</div></div>
+    <div class="stat"><div class="stat-label">Gold Price</div><div class="stat-value" id="goldPrice">—</div></div>
+    <div class="stat"><div class="stat-label">ATH Ratio</div><div class="stat-value" id="goldRatioATH">—</div></div>
+  </div>
+  <div class="watermark">bitcoinintel.xyz</div>
+</div>
+
+<!-- ═══ BTC VS M2 ═══ -->
+<div class="card section-anchor" id="btc-m2">
+  <div class="card-header">
+    <div>
+      <div class="card-title">BTC vs US M2 Money Supply</div>
+      <div class="site-sub">bitcoinintel.xyz</div>
+      <div class="card-sub">BTC price overlaid on US M2 money supply — macro correlation</div>
+    </div>
+  </div>
+  <div class="chart-wrap" style="height:320px;"><canvas id="m2Chart"></canvas></div>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-label">Current M2</div><div class="stat-value" id="m2Current">—</div></div>
+    <div class="stat"><div class="stat-label">M2 1Y Change</div><div class="stat-value" id="m2Change">—</div></div>
+    <div class="stat"><div class="stat-label">BTC Price</div><div class="stat-value" id="m2BTCPrice">—</div></div>
+    <div class="stat"><div class="stat-label">Source</div><div class="stat-value" style="color:#555;">FRED / Blockchain.com</div></div>
+  </div>
+  <div class="watermark">bitcoinintel.xyz</div>
+</div>
 
 <!-- ═══ TEAM ═══ -->
 <div class="card section-anchor" id="team" style="max-width:760px;">
@@ -2504,7 +2591,226 @@
     loadHalfingSpiral();
     loadRainbow();
     loadLiqHeatmap();
+    loadMVRV();
+    loadExchangeReserves();
+    loadGoldRatio();
+    loadM2();
   };
+
+  // ════════════════════════════════════════
+  // MVRV Z-SCORE
+  // ════════════════════════════════════════
+  let mvrvChart = null;
+  async function loadMVRV() {
+    try {
+      const res = await fetch('/api/mvrv');
+      const { points } = await res.json();
+      const sample = points.filter((_,i) => i % 7 === 0); // weekly
+      const dates  = sample.map(p => new Date(p.t));
+      const zVals  = sample.map(p => p.z);
+      const last   = points[points.length - 1];
+
+      // Zone color per point
+      function zColor(z) {
+        if (z < 0)   return '#22c55e';
+        if (z < 2.4) return '#86efac';
+        if (z < 5)   return '#fbbf24';
+        if (z < 7)   return '#f97316';
+        return '#ef4444';
+      }
+      function zSignal(z) {
+        if (z < 0)   return { label: '🟢 Extreme Undervalue', color: '#22c55e' };
+        if (z < 2.4) return { label: '🟢 Undervalued', color: '#86efac' };
+        if (z < 5)   return { label: '🟡 Fair Value', color: '#fbbf24' };
+        if (z < 7)   return { label: '🟠 Overvalued', color: '#f97316' };
+        return { label: '🔴 Extreme Overvalue', color: '#ef4444' };
+      }
+
+      const sig = zSignal(last.z);
+      document.getElementById('mvrvCurrent').textContent = parseFloat(last.mvrv).toFixed(2);
+      document.getElementById('mvrvZ').textContent       = parseFloat(last.z).toFixed(2);
+      document.getElementById('mvrvSignal').textContent  = sig.label;
+      document.getElementById('mvrvSignal').style.color  = sig.color;
+      document.getElementById('mvrvZLabel').textContent  = 'Z: ' + parseFloat(last.z).toFixed(2);
+      document.getElementById('mvrvZLabel').style.color  = sig.color;
+
+      const ctx = document.getElementById('mvrvChart').getContext('2d');
+      if (mvrvChart) mvrvChart.destroy();
+      mvrvChart = new Chart(ctx, {
+        type: 'bar',
+        data: { datasets: [{
+          label: 'MVRV Z-Score',
+          data: dates.map((d,i) => ({ x: d, y: zVals[i] })),
+          backgroundColor: zVals.map(z => zColor(z) + 'bb'),
+          borderColor:     zVals.map(z => zColor(z)),
+          borderWidth: 0, borderRadius: 1,
+        }]},
+        options: {
+          responsive: true, maintainAspectRatio: false, animation: { duration: 400 },
+          parsing: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: {
+              title: i => new Date(i[0].raw.x).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }),
+              label: i => 'Z-Score: ' + i.raw.y.toFixed(2)
+            }}
+          },
+          scales: {
+            x: { type: 'time', time: { displayFormats: { year: 'yyyy' }}, grid: { color: '#1e1e1e' }, ticks: { color: '#555', maxTicksLimit: 8 }},
+            y: { grid: { color: '#1e1e1e' }, border: { color: '#2a2a2a' }, ticks: { color: '#555' },
+              afterBuildTicks: axis => { axis.ticks = [-2,0,2,4,6,8].map(v => ({ value: v })); }
+            }
+          }
+        }
+      });
+    } catch(e) { console.error('MVRV error:', e); }
+  }
+
+  // ════════════════════════════════════════
+  // EXCHANGE RESERVES
+  // ════════════════════════════════════════
+  let exResChart = null;
+  async function loadExchangeReserves() {
+    try {
+      const res    = await fetch('/api/exchange-reserves');
+      const { points } = await res.json();
+      const sample = points.filter((_,i) => i % 7 === 0);
+      const dates  = sample.map(p => new Date(p.t));
+      const btcVals = sample.map(p => p.btc / 1e6); // millions of BTC
+      const prices  = sample.map(p => p.price);
+      const last    = points[points.length - 1];
+      const yearAgo = points[Math.max(0, points.length - 365)];
+      const atl     = Math.min(...points.map(p => p.btc));
+
+      const chg1y = ((last.btc - yearAgo.btc) / yearAgo.btc * 100).toFixed(1);
+      const isDown = chg1y < 0;
+      document.getElementById('exResCurrent').textContent = (last.btc / 1e6).toFixed(3) + 'M BTC';
+      const c1y = document.getElementById('exRes1Y');
+      c1y.textContent  = (chg1y > 0 ? '+' : '') + chg1y + '%';
+      c1y.style.color  = isDown ? '#22c55e' : '#ef4444';
+      document.getElementById('exResATL').textContent  = (atl / 1e6).toFixed(3) + 'M BTC';
+      document.getElementById('exResLabel').textContent = (last.btc / 1e6).toFixed(2) + 'M BTC';
+      document.getElementById('exResLabel').style.color = isDown ? '#22c55e' : '#ef4444';
+
+      const ctx = document.getElementById('exResChart').getContext('2d');
+      if (exResChart) exResChart.destroy();
+      exResChart = new Chart(ctx, {
+        type: 'line',
+        data: { datasets: [
+          { label: 'BTC on Exchanges (M)', data: dates.map((d,i) => ({ x: d, y: btcVals[i] })),
+            borderColor: '#F7931A', borderWidth: 2, fill: true,
+            backgroundColor: 'rgba(247,147,26,0.08)', pointRadius: 0, tension: 0.2,
+            yAxisID: 'y', parsing: false },
+          { label: 'BTC Price', data: dates.map((d,i) => ({ x: d, y: prices[i] })),
+            borderColor: '#ffffff44', borderWidth: 1.5, fill: false,
+            pointRadius: 0, tension: 0.2, yAxisID: 'y2', parsing: false },
+        ]},
+        options: {
+          responsive: true, maintainAspectRatio: false, animation: { duration: 400 },
+          interaction: { mode: 'index', intersect: false },
+          plugins: { legend: { display: false }, tooltip: { callbacks: {
+            title: i => new Date(i[0].raw.x).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }),
+            label: i => i.dataset.label + ': ' + (i.datasetIndex === 0 ? i.raw.y.toFixed(2) + 'M BTC' : '$' + Math.round(i.raw.y).toLocaleString())
+          }}},
+          scales: {
+            x: { type: 'time', time: { displayFormats: { year: 'yyyy' }}, grid: { color: '#1e1e1e' }, ticks: { color: '#555', maxTicksLimit: 8 }},
+            y:  { position: 'left',  grid: { color: '#1e1e1e' }, ticks: { color: '#F7931A', callback: v => v.toFixed(1) + 'M' }},
+            y2: { position: 'right', grid: { display: false }, ticks: { color: '#555', callback: v => v >= 1e3 ? '$' + (v/1e3).toFixed(0) + 'K' : '$' + v }}
+          }
+        }
+      });
+    } catch(e) { console.error('Exchange reserves error:', e); }
+  }
+
+  // ════════════════════════════════════════
+  // BTC / GOLD RATIO
+  // ════════════════════════════════════════
+  let goldChart = null;
+  async function loadGoldRatio() {
+    try {
+      const res = await fetch('/api/gold');
+      const { points } = await res.json();
+      const last = points[points.length - 1];
+      const ath  = points.reduce((best, p) => p.ratio > best.ratio ? p : best, points[0]);
+
+      document.getElementById('goldRatioCur').textContent = last.ratio.toFixed(1) + ' oz';
+      document.getElementById('goldBTCPrice').textContent = fmt(last.btc);
+      document.getElementById('goldPrice').textContent    = '$' + Math.round(last.gold).toLocaleString();
+      document.getElementById('goldRatioATH').textContent = ath.ratio.toFixed(1) + ' oz (' + ath.t.substring(0,7) + ')';
+      document.getElementById('goldRatioLabel').textContent = last.ratio.toFixed(1) + ' oz/BTC';
+
+      const ctx = document.getElementById('goldChart').getContext('2d');
+      if (goldChart) goldChart.destroy();
+      goldChart = new Chart(ctx, {
+        type: 'line',
+        data: { datasets: [{
+          label: 'BTC/Gold Ratio (oz)',
+          data: points.map(p => ({ x: new Date(p.t), y: p.ratio })),
+          borderColor: '#fbbf24', borderWidth: 2.5, fill: true,
+          backgroundColor: 'rgba(251,191,36,0.08)', pointRadius: 0, tension: 0.3,
+        }]},
+        options: {
+          responsive: true, maintainAspectRatio: false, animation: { duration: 400 },
+          plugins: { legend: { display: false }, tooltip: { callbacks: {
+            title: i => new Date(i[0].raw.x).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }),
+            label: i => 'Ratio: ' + i.raw.y.toFixed(1) + ' oz gold per BTC'
+          }}},
+          scales: {
+            x: { type: 'time', time: { displayFormats: { year: 'yyyy' }}, grid: { color: '#1e1e1e' }, ticks: { color: '#555', maxTicksLimit: 8 }},
+            y: { position: 'right', grid: { color: '#1e1e1e' }, ticks: { color: '#fbbf24', callback: v => v.toFixed(0) + ' oz' }}
+          }
+        }
+      });
+    } catch(e) { console.error('Gold ratio error:', e); }
+  }
+
+  // ════════════════════════════════════════
+  // BTC VS M2
+  // ════════════════════════════════════════
+  let m2Chart = null;
+  async function loadM2() {
+    try {
+      const res = await fetch('/api/m2');
+      const { points } = await res.json();
+      const last    = points[points.length - 1];
+      const yearAgo = points[Math.max(0, points.length - 12)];
+      const m2chg   = ((last.m2 - yearAgo.m2) / yearAgo.m2 * 100).toFixed(1);
+
+      document.getElementById('m2Current').textContent  = '$' + (last.m2 / 1000).toFixed(1) + 'T';
+      const cm2 = document.getElementById('m2Change');
+      cm2.textContent = (m2chg > 0 ? '+' : '') + m2chg + '%'; cm2.style.color = m2chg > 0 ? '#ef4444' : '#22c55e';
+      document.getElementById('m2BTCPrice').textContent = fmt(last.price);
+
+      const ctx = document.getElementById('m2Chart').getContext('2d');
+      if (m2Chart) m2Chart.destroy();
+      m2Chart = new Chart(ctx, {
+        type: 'line',
+        data: { datasets: [
+          { label: 'US M2 ($B)', data: points.map(p => ({ x: new Date(p.t), y: p.m2 })),
+            borderColor: '#60a5fa', borderWidth: 2, fill: true,
+            backgroundColor: 'rgba(96,165,250,0.07)', pointRadius: 0, tension: 0.3,
+            yAxisID: 'y', parsing: false },
+          { label: 'BTC Price', data: points.map(p => ({ x: new Date(p.t), y: p.price })),
+            borderColor: '#F7931A', borderWidth: 2, fill: false,
+            pointRadius: 0, tension: 0.2, yAxisID: 'y2', parsing: false },
+        ]},
+        options: {
+          responsive: true, maintainAspectRatio: false, animation: { duration: 400 },
+          interaction: { mode: 'index', intersect: false },
+          plugins: { legend: { display: false }, tooltip: { callbacks: {
+            title: i => new Date(i[0].raw.x).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }),
+            label: i => i.datasetIndex === 0 ? 'M2: $' + (i.raw.y/1000).toFixed(1) + 'T' : 'BTC: ' + fmt(i.raw.y)
+          }}},
+          scales: {
+            x: { type: 'time', time: { displayFormats: { year: 'yyyy' }}, grid: { color: '#1e1e1e' }, ticks: { color: '#555', maxTicksLimit: 8 }},
+            y:  { position: 'left',  grid: { color: '#1e1e1e' }, ticks: { color: '#60a5fa', callback: v => '$' + (v/1000).toFixed(0) + 'T' }},
+            y2: { position: 'right', type: 'logarithmic', grid: { display: false },
+              ticks: { color: '#F7931A', callback: v => v >= 1e6 ? '$'+(v/1e6).toFixed(0)+'M' : v >= 1e3 ? '$'+(v/1e3).toFixed(0)+'K' : '' }}
+          }
+        }
+      });
+    } catch(e) { console.error('M2 error:', e); }
+  }
 
   function loadLiqHeatmap() {
     const img = document.getElementById('heatmapImg');

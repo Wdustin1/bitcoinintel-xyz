@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#080808; font-family:'Inter',system-ui,sans-serif; color:#fff; }
+  .label { font-size:11px; font-weight:700; color:#555; letter-spacing:.12em; text-transform:uppercase; padding:20px 28px 8px; }
+
+  /* ─── OPTION A: Sticky top bar ─── */
+  .opt-a {
+    width:100%; height:52px;
+    background:#0d0d0d;
+    border-bottom:1px solid #1c1c1c;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 24px;
+  }
+  .opt-a .logo { display:flex; align-items:center; gap:10px; }
+  .opt-a .logo img { width:36px; height:36px; border-radius:50%; }
+  .opt-a .logo-text { font-size:13px; font-weight:800; letter-spacing:.02em; color:#fff; }
+  .opt-a .price-center { display:flex; align-items:center; gap:14px; }
+  .opt-a .btc-price { font-size:18px; font-weight:900; color:#fff; letter-spacing:-.02em; }
+  .opt-a .btc-label { font-size:11px; font-weight:700; color:#F7931A; letter-spacing:.08em; }
+  .opt-a .pct { font-size:13px; font-weight:700; color:#ef4444; }
+  .opt-a .updated { font-size:11px; color:#333; font-weight:600; }
+  .opt-a .live-dot { width:7px; height:7px; background:#22c55e; border-radius:50%; display:inline-block; margin-right:6px; box-shadow:0 0 6px #22c55e; animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  /* ─── OPTION B: Hero banner ─── */
+  .opt-b {
+    width:100%;
+    background:linear-gradient(135deg, #0d0d0d 0%, #111 40%, #0f0a00 100%);
+    border-bottom:1px solid #1c1c1c;
+    padding:32px 40px 28px;
+    display:flex; align-items:center; justify-content:space-between;
+    position:relative; overflow:hidden;
+  }
+  .opt-b::before {
+    content:''; position:absolute; top:-60px; right:-60px;
+    width:340px; height:340px;
+    background:radial-gradient(circle, rgba(247,147,26,.08) 0%, transparent 70%);
+    border-radius:50%;
+  }
+  .opt-b .hero-left { display:flex; flex-direction:column; gap:6px; }
+  .opt-b .hero-tag { font-size:11px; font-weight:700; color:#F7931A; letter-spacing:.12em; text-transform:uppercase; display:flex; align-items:center; gap:8px; }
+  .opt-b .hero-price { font-size:52px; font-weight:900; letter-spacing:-.04em; line-height:1; color:#fff; }
+  .opt-b .hero-pct { font-size:18px; font-weight:700; color:#ef4444; }
+  .opt-b .hero-tagline { font-size:13px; color:#444; margin-top:4px; }
+  .opt-b .hero-stats { display:flex; gap:32px; align-items:flex-start; }
+  .opt-b .hstat { display:flex; flex-direction:column; gap:4px; align-items:flex-end; }
+  .opt-b .hstat-label { font-size:10px; font-weight:700; color:#444; text-transform:uppercase; letter-spacing:.08em; }
+  .opt-b .hstat-val { font-size:20px; font-weight:900; color:#fff; }
+  .opt-b .hstat-sub { font-size:11px; font-weight:700; }
+  .opt-b .fg-badge { display:inline-flex; align-items:center; gap:6px; padding:5px 14px; border-radius:20px; font-size:13px; font-weight:800; }
+
+  /* sidebar stub */
+  .page-wrap { display:flex; }
+  .sidebar-stub { width:240px; min-height:460px; background:#0a0a0a; border-right:1px solid #1c1c1c; flex-shrink:0; }
+  .main-stub { flex:1; padding:24px; }
+  .card-stub { background:#0f0f0f; border:1px solid #1c1c1c; border-radius:14px; height:120px; margin-bottom:12px; padding:16px 20px; }
+  .card-stub-title { font-size:13px; font-weight:700; color:#333; margin-bottom:8px; }
+  .card-stub-line { height:8px; background:#161616; border-radius:4px; margin-bottom:6px; }
+  .card-stub-line.w60 { width:60%; }
+  .card-stub-line.w40 { width:40%; }
+
+  .section-wrap { margin-bottom:48px; }
+  .option-label { font-size:22px; font-weight:900; color:#fff; padding:24px 28px 0; letter-spacing:-.02em; }
+  .option-desc { font-size:13px; color:#555; padding:6px 28px 14px; }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+<!-- ═══════════ OPTION A ═══════════ -->
+<div class="section-wrap" id="optA">
+  <div class="option-label">Option A — Minimal Sticky Top Bar</div>
+  <div class="option-desc">Thin 52px bar always visible at the top. Logo left, live price center, timestamp right.</div>
+  <div class="opt-a">
+    <div class="logo">
+      <img src="logo-profile.jpg" alt="logo"/>
+      <span class="logo-text">Bitcoin Intel XYZ</span>
+    </div>
+    <div class="price-center">
+      <span class="btc-label">BTC</span>
+      <span class="btc-price">$67,234</span>
+      <span class="pct">▼ 2.14%</span>
+    </div>
+    <div class="updated"><span class="live-dot"></span>Live · Updated just now</div>
+  </div>
+  <div class="page-wrap">
+    <div class="sidebar-stub"></div>
+    <div class="main-stub">
+      <div class="card-stub"><div class="card-stub-title">BTC Price Chart</div><div class="card-stub-line"></div><div class="card-stub-line w60"></div></div>
+      <div class="card-stub"><div class="card-stub-title">Fear & Greed Index</div><div class="card-stub-line w40"></div><div class="card-stub-line w60"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ OPTION B ═══════════ -->
+<div class="section-wrap" id="optB">
+  <div class="option-label">Option B — Hero Banner</div>
+  <div class="option-desc">Full-width hero section above the charts. Big price, key stats, tagline.</div>
+  <div class="page-wrap">
+    <div class="sidebar-stub"></div>
+    <div style="flex:1;">
+      <div class="opt-b">
+        <div class="hero-left">
+          <div class="hero-tag">
+            <span class="live-dot" style="width:8px;height:8px;"></span>
+            Bitcoin Intel XYZ · Live Data
+          </div>
+          <div style="display:flex;align-items:baseline;gap:16px;margin-top:4px;">
+            <span class="hero-price">$67,234</span>
+            <span class="hero-pct">▼ 2.14%</span>
+          </div>
+          <div class="hero-tagline">Real-time Bitcoin intelligence. Built for serious traders.</div>
+        </div>
+        <div class="hero-stats">
+          <div class="hstat">
+            <span class="hstat-label">Fear & Greed</span>
+            <span class="fg-badge" style="background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.25);">😨 32 · Fear</span>
+          </div>
+          <div class="hstat">
+            <span class="hstat-label">Market Cap</span>
+            <span class="hstat-val">$1.33T</span>
+            <span class="hstat-sub" style="color:#ef4444;">▼ 1.8%</span>
+          </div>
+          <div class="hstat">
+            <span class="hstat-label">BTC Dominance</span>
+            <span class="hstat-val">58.4%</span>
+            <span class="hstat-sub" style="color:#22c55e;">▲ 0.3%</span>
+          </div>
+        </div>
+      </div>
+      <div style="padding:24px;">
+        <div class="card-stub"><div class="card-stub-title">BTC Price Chart</div><div class="card-stub-line"></div><div class="card-stub-line w60"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ OPTION C ═══════════ -->
+<div class="section-wrap" id="optC">
+  <div class="option-label">Option C — No Header (Current)</div>
+  <div class="option-desc">No top bar at all. Logo in sidebar acts as the only brand anchor.</div>
+  <div class="page-wrap">
+    <div class="sidebar-stub" style="padding:20px 16px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;">
+        <img src="logo-profile.jpg" style="width:32px;height:32px;border-radius:50%;"/>
+        <span style="font-size:12px;font-weight:800;color:#fff;">Bitcoin<br/>Intel XYZ</span>
+      </div>
+      <div style="font-size:10px;color:#333;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Price & Market</div>
+      <div style="font-size:12px;color:#555;padding:6px 0;">📈 BTC Price</div>
+      <div style="font-size:12px;color:#555;padding:6px 0;">😰 Fear & Greed</div>
+      <div style="font-size:12px;color:#555;padding:6px 0;">👑 BTC Dominance</div>
+    </div>
+    <div class="main-stub">
+      <div class="card-stub"><div class="card-stub-title">BTC Price Chart</div><div class="card-stub-line"></div><div class="card-stub-line w60"></div></div>
+      <div class="card-stub"><div class="card-stub-title">Fear & Greed Index</div><div class="card-stub-line w40"></div><div class="card-stub-line w60"></div></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BTC Price — BitcoinAblaze</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #080808;
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      background: #0f0f0f;
+      border: 1px solid #1c1c1c;
+      border-radius: 20px;
+      width: 820px;
+      max-width: 100%;
+      padding: 32px 36px 28px;
+      position: relative;
+      box-shadow: 0 0 80px rgba(247, 147, 26, 0.05);
+    }
+
+    /* Header row */
+    .header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+    }
+
+    .brand-name {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #F7931A;
+    }
+
+    .price-block { }
+
+    .price-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #444;
+      margin-bottom: 6px;
+    }
+
+    .price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    .price-current {
+      font-size: 42px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .price-change {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .price-change.up   { color: #22c55e; }
+    .price-change.down { color: #ef4444; }
+
+    /* Tab bar */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: #161616;
+      border-radius: 10px;
+      padding: 4px;
+      align-self: flex-start;
+      margin-top: 4px;
+    }
+
+    .tab {
+      font-size: 12px;
+      font-weight: 600;
+      color: #555;
+      padding: 6px 14px;
+      border-radius: 7px;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: all 0.15s;
+      border: none;
+      background: none;
+    }
+
+    .tab:hover { color: #aaa; }
+    .tab.active {
+      background: #F7931A;
+      color: #000;
+    }
+
+    /* Chart wrapper */
+    .chart-wrapper {
+      position: relative;
+      height: 300px;
+      margin: 0 -8px;
+    }
+
+    /* Stats row */
+    .stats {
+      display: flex;
+      gap: 0;
+      margin-top: 20px;
+      border-top: 1px solid #1a1a1a;
+      padding-top: 20px;
+    }
+
+    .stat {
+      flex: 1;
+      padding: 0 20px;
+      border-right: 1px solid #1a1a1a;
+    }
+
+    .stat:first-child { padding-left: 0; }
+    .stat:last-child  { border-right: none; }
+
+    .stat-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #444;
+      margin-bottom: 5px;
+    }
+
+    .stat-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: #ddd;
+      letter-spacing: -0.01em;
+    }
+
+    /* Watermark */
+    .watermark {
+      position: absolute;
+      bottom: 16px;
+      right: 20px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #2a2a2a;
+      user-select: none;
+    }
+
+    /* Download button */
+    .download-btn {
+      margin-top: 20px;
+      background: #F7931A;
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 28px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .download-btn:hover { opacity: 0.85; }
+
+    /* Loading state */
+    .loading {
+      color: #333;
+      font-size: 14px;
+      text-align: center;
+      padding: 80px 0;
+    }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid #1a1a1a;
+      border-top-color: #F7931A;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div class="card" id="chartCard">
+
+  <div class="header">
+    <div>
+      <div class="price-label">Bitcoin</div>
+      <div class="price-row">
+        <div class="price-current" id="priceDisplay">—</div>
+        <div class="price-change" id="changeDisplay"></div>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:12px;">
+      <div class="brand">
+        <!-- Bitcoin ₿ SVG icon -->
+        <svg class="brand-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="16" cy="16" r="16" fill="#F7931A"/>
+          <path d="M22.2 13.8c.3-2-1.2-3.1-3.3-3.8l.7-2.7-1.6-.4-.7 2.7-1.3-.3.7-2.7-1.6-.4-.7 2.7-2.6-.6-.4 1.7s1.2.3 1.2.3c.6.2.7.6.7.9L12 18.2c-.1.2-.3.5-.7.4 0 0-1.2-.3-1.2-.3l-.8 1.8 2.5.6-.7 2.8 1.6.4.7-2.8 1.3.3-.7 2.8 1.6.4.7-2.8c2.8.5 4.9.3 5.8-2.2.7-2-.03-3.2-1.5-3.9.9-.2 1.6-.8 1.8-2.1zm-3.2 4.5c-.5 2-3.9.9-5 .6l.9-3.5c1.1.3 4.6.8 4.1 2.9zm.5-4.5c-.5 1.8-3.3.9-4.2.6l.8-3.2c.9.2 3.9.7 3.4 2.6z" fill="#fff"/>
+        </svg>
+        <span class="brand-name">BitcoinAblaze</span>
+      </div>
+
+      <div class="tabs" id="tabBar">
+        <button class="tab" onclick="loadData(1)">1D</button>
+        <button class="tab active" onclick="loadData(7)">1W</button>
+        <button class="tab" onclick="loadData(30)">1M</button>
+        <button class="tab" onclick="loadData(90)">3M</button>
+        <button class="tab" onclick="loadData(365)">1Y</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <div class="chart-wrapper" id="chartWrapper">
+    <div class="loading" id="loadingState">
+      <div class="spinner"></div>
+      Fetching price data…
+    </div>
+    <canvas id="priceChart" style="display:none;"></canvas>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label">Period High</div>
+      <div class="stat-value" id="statHigh">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Period Low</div>
+      <div class="stat-value" id="statLow">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Open</div>
+      <div class="stat-value" id="statOpen">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Updated</div>
+      <div class="stat-value" id="statTime">—</div>
+    </div>
+  </div>
+
+  <div class="watermark">bitcoinablaze.com</div>
+</div>
+
+<button class="download-btn" onclick="downloadChart()">⬇ Download Chart</button>
+
+<script>
+  let chart = null;
+  let currentDays = 7;
+
+  const fmt = (n) => '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  const fmtChange = (pct) => (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
+
+  async function loadData(days) {
+    currentDays = days;
+
+    // Update active tab
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    const labels = { 1: '1D', 7: '1W', 30: '1M', 90: '3M', 365: '1Y' };
+    document.querySelectorAll('.tab').forEach(t => {
+      if (t.textContent === labels[days]) t.classList.add('active');
+    });
+
+    document.getElementById('loadingState').style.display = 'block';
+    document.getElementById('priceChart').style.display = 'none';
+
+    try {
+      const interval = days <= 1 ? 'hourly' : days <= 90 ? 'daily' : 'daily';
+      const url = `https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=${days}&interval=${interval}`;
+      const res = await fetch(url);
+      const data = await res.json();
+
+      const prices = data.prices; // [[timestamp, price], ...]
+      const times  = prices.map(p => new Date(p[0]));
+      const values = prices.map(p => p[1]);
+
+      const first = values[0];
+      const last  = values[values.length - 1];
+      const high  = Math.max(...values);
+      const low   = Math.min(...values);
+      const pct   = ((last - first) / first) * 100;
+      const isUp  = pct >= 0;
+
+      document.getElementById('priceDisplay').textContent = fmt(last);
+      const changeEl = document.getElementById('changeDisplay');
+      changeEl.textContent = fmtChange(pct);
+      changeEl.className = 'price-change ' + (isUp ? 'up' : 'down');
+
+      document.getElementById('statHigh').textContent = fmt(high);
+      document.getElementById('statLow').textContent  = fmt(low);
+      document.getElementById('statOpen').textContent  = fmt(first);
+      document.getElementById('statTime').textContent  = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+      renderChart(times, values, isUp);
+
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('priceChart').style.display = 'block';
+
+    } catch (err) {
+      document.getElementById('loadingState').innerHTML = '<span style="color:#ef4444">Failed to load data. Try again.</span>';
+    }
+  }
+
+  function renderChart(times, values, isUp) {
+    const color = isUp ? '#22c55e' : '#ef4444';
+    const colorTransparent = isUp ? 'rgba(34,197,94,0)' : 'rgba(239,68,68,0)';
+    const colorFade = isUp ? 'rgba(34,197,94,0.18)' : 'rgba(239,68,68,0.18)';
+
+    const ctx = document.getElementById('priceChart').getContext('2d');
+
+    // Gradient
+    const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, colorFade);
+    gradient.addColorStop(1, colorTransparent);
+
+    if (chart) chart.destroy();
+
+    chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: times,
+        datasets: [{
+          data: values,
+          borderColor: color,
+          borderWidth: 2,
+          backgroundColor: gradient,
+          fill: true,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: color,
+          pointHoverBorderColor: '#fff',
+          pointHoverBorderWidth: 2,
+          tension: 0.4,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 600, easing: 'easeInOutQuart' },
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1a1a1a',
+            titleColor: '#666',
+            bodyColor: '#fff',
+            borderColor: '#2a2a2a',
+            borderWidth: 1,
+            padding: 12,
+            displayColors: false,
+            callbacks: {
+              title: (items) => {
+                const d = new Date(items[0].label);
+                return d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+              },
+              label: (item) => fmt(item.raw),
+            }
+          }
+        },
+        scales: {
+          x: {
+            type: 'time',
+            time: {
+              displayFormats: {
+                hour:  'ha',
+                day:   'MMM d',
+                week:  'MMM d',
+                month: 'MMM',
+              }
+            },
+            grid: { color: '#141414' },
+            border: { color: '#1a1a1a' },
+            ticks: {
+              color: '#444',
+              font: { family: 'Inter', size: 11, weight: '500' },
+              maxTicksLimit: 7,
+            }
+          },
+          y: {
+            position: 'right',
+            grid: { color: '#141414' },
+            border: { color: '#1a1a1a', dash: [4, 4] },
+            ticks: {
+              color: '#444',
+              font: { family: 'Inter', size: 11, weight: '500' },
+              callback: (v) => '$' + (v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v),
+              maxTicksLimit: 6,
+            }
+          }
+        }
+      }
+    });
+  }
+
+  async function downloadChart() {
+    // Use html2canvas to snapshot the card
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+    script.onload = async () => {
+      const card = document.getElementById('chartCard');
+      const canvas = await html2canvas(card, {
+        backgroundColor: '#0f0f0f',
+        scale: 2,
+        useCORS: true,
+        logging: false,
+      });
+      const link = document.createElement('a');
+      link.download = `btc-price-bitcoinablaze-${Date.now()}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    };
+    document.head.appendChild(script);
+  }
+
+  // Boot
+  // Chart.js time adapter needed for time scale
+  const adapter = document.createElement('script');
+  adapter.src = 'https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js';
+  adapter.onload = () => loadData(7);
+  document.head.appendChild(adapter);
+</script>
+
+</body>
+</html>
