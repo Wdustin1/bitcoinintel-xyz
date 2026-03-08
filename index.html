@@ -770,13 +770,11 @@
     <div class="card-header">
       <div>
         <div class="card-label">On-Chain &amp; Models</div>
-        <div style="font-size:36px;font-weight:900;color:var(--orange);letter-spacing:-.03em;line-height:1;" id="s2fRatio">—</div>
-        <div style="font-size:11px;font-weight:600;color:#555;margin-top:4px;">Stock-to-Flow Ratio</div>
+        <div class="card-title">Stock-to-Flow S2F</div>
         <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#2e2e2e;margin-top:6px;">bitcoinintel.xyz</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
-        <div class="card-label" style="text-align:right;">Stock-to-Flow Model</div>
-        <div style="font-size:11px;color:#555;font-weight:600;">PlanB Model Price</div>
+        <div class="card-label" style="text-align:right;">PlanB Model Price</div>
         <div style="font-size:22px;font-weight:900;color:#fff;" id="s2fModelPrice">—</div>
         <div style="font-size:11px;font-weight:700;" id="s2fVsModel">—</div>
       </div>
@@ -1637,7 +1635,6 @@
       const lastBtcPx  = scatterPts[scatterPts.length-1].y;
       const pctVsModel = ((lastBtcPx - lastModPx) / lastModPx) * 100;
 
-      document.getElementById('s2fRatio').textContent     = lastSF.toFixed(1);
       document.getElementById('s2fModelPrice').textContent= '$' + Math.round(lastModPx).toLocaleString();
       document.getElementById('s2fSupply').textContent    = (lastSupply/1e6).toFixed(3) + 'M BTC';
       document.getElementById('s2fFlow').textContent      = Math.round(lastFlow).toLocaleString() + ' BTC/yr';
@@ -1681,10 +1678,16 @@
                  grid: { color: '#131313' }, border: { color: '#1c1c1c' },
                  ticks: { color: '#444', font: { family: 'Inter', size: 11, weight: '600' }, maxTicksLimit: 8 } },
             y: { type: 'logarithmic', position: 'right',
+                 min: 0.01,
                  grid: { color: '#131313' }, border: { color: '#1c1c1c' },
                  ticks: { color: '#444', font: { family: 'Inter', size: 11, weight: '600' },
-                   callback: v => [0.01,0.1,1,10,100,1000,10000,100000,1000000].includes(v)
-                     ? '$'+(v>=1000?(v/1000)+'K':v) : '' } }
+                   callback: v => {
+                     const labels = {0.01:'$0.01', 0.1:'$0.1', 1:'$1', 10:'$10', 100:'$100',
+                       1000:'$1K', 10000:'$10K', 100000:'$100K', 1000000:'$1M', 10000000:'$10M'};
+                     return labels[v] || '';
+                   }
+                 }
+               }
           }
         }
       });
