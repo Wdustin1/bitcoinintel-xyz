@@ -1009,12 +1009,18 @@
   // ════════════════════════════════════════
   // FEAR & GREED
   // ════════════════════════════════════════
-  const FG_COLORS = {'Extreme Fear':'#ef4444','Fear':'#f97316','Neutral':'#eab308','Greed':'#84cc16','Extreme Greed':'#22c55e'};
-
-  function fgColor(cls) { return FG_COLORS[cls] || '#888'; }
+  // Smooth color by numeric value (0=red, 50=yellow, 100=green) via HSL
+  function fgColorVal(val) {
+    const hue = Math.round((val / 100) * 120); // 0→0°(red), 50→60°(yellow), 100→120°(green)
+    return `hsl(${hue}, 90%, 50%)`;
+  }
+  function fgColor(cls) {
+    const map = {'Extreme Fear':5,'Fear':25,'Neutral':50,'Greed':75,'Extreme Greed':95};
+    return fgColorVal(map[cls] ?? 50);
+  }
 
   function setFgRow(period, cls, val) {
-    const color = fgColor(cls);
+    const color = fgColorVal(parseInt(val));
     document.getElementById('fgClass'+period).textContent = cls;
     document.getElementById('fgClass'+period).style.color = color;
     document.getElementById('fgBadge'+period).textContent = val;
@@ -1031,7 +1037,7 @@
       document.getElementById('fgValue').textContent = now.value;
       const el = document.getElementById('fgMood');
       el.textContent = now.value_classification.toUpperCase();
-      el.style.color = fgColor(now.value_classification);
+      el.style.color = fgColorVal(parseInt(now.value));
       document.getElementById('fgSub').textContent = 'Updated '+new Date(now.timestamp*1000).toLocaleDateString('en-US',{month:'short',day:'numeric'});
 
       setFgRow('Now',       now.value_classification,       now.value);
@@ -1047,14 +1053,17 @@
     const cx=130, cy=138, r=108;
     ctx.clearRect(0,0,260,155);
 
-    // Color arc zones
-    const zones=[{from:0,to:25,color:'#ef4444'},{from:25,to:45,color:'#f97316'},{from:45,to:55,color:'#eab308'},{from:55,to:75,color:'#84cc16'},{from:75,to:100,color:'#22c55e'}];
-    zones.forEach(z=>{
-      ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI+(z.from/100)*Math.PI,Math.PI+(z.to/100)*Math.PI);
-      ctx.lineWidth=22; ctx.strokeStyle=z.color; ctx.lineCap='butt'; ctx.stroke();
-    });
-    // Inner gap
-    ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI,2*Math.PI); ctx.lineWidth=8; ctx.strokeStyle='#0f0f0f'; ctx.stroke();
+    // Smooth gradient arc — draw many small segments blending red→yellow→green
+    const segments = 100;
+    for (let i = 0; i < segments; i++) {
+      const from = Math.PI + (i / segments) * Math.PI;
+      const to   = Math.PI + ((i + 1) / segments) * Math.PI;
+      const hue  = Math.round((i / segments) * 120); // 0=red, 60=yellow, 120=green
+      ctx.beginPath(); ctx.arc(cx, cy, r, from, to);
+      ctx.lineWidth = 22; ctx.strokeStyle = `hsl(${hue},90%,48%)`; ctx.lineCap = 'butt'; ctx.stroke();
+    }
+    // Inner clean gap to hide segment joints
+    ctx.beginPath(); ctx.arc(cx, cy, r, Math.PI, 2*Math.PI); ctx.lineWidth = 4; ctx.strokeStyle = '#0f0f0f'; ctx.stroke();
 
     // Needle
     const angle = Math.PI+(val/100)*Math.PI;
