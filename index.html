@@ -212,8 +212,8 @@
     .fr-exch     { font-weight: 700; color: #ccc; }
     .fr-next     { color: #555; font-size: 12px; }
     .fr-rate     { font-weight: 800; font-size: 14px; text-align: right; }
-    .fr-pos      { color: #ef4444; }
-    .fr-neg      { color: #22c55e; }
+    .fr-pos      { color: #22c55e; }
+    .fr-neg      { color: #ef4444; }
     .fr-zero     { color: #888; }
     .fr-summary  { display: flex; gap: 24px; margin-bottom: 18px; }
     .fr-sum-item { display: flex; flex-direction: column; gap: 3px; }
@@ -1353,11 +1353,11 @@
       const avgPct = avg * 100;
       const frAvgEl = document.getElementById('frAvg');
       frAvgEl.textContent = (avgPct >= 0 ? '+' : '') + avgPct.toFixed(4) + '%';
-      frAvgEl.style.color = avgPct > 0 ? '#ef4444' : '#22c55e';
+      frAvgEl.style.color = avgPct > 0 ? '#22c55e' : '#ef4444';
 
       const sentEl = document.getElementById('frSentiment');
-      if (avgPct > 0.01)       { sentEl.textContent = 'LONGS PAYING'; sentEl.style.color = '#ef4444'; }
-      else if (avgPct < -0.01) { sentEl.textContent = 'SHORTS PAYING'; sentEl.style.color = '#22c55e'; }
+      if (avgPct > 0.01)       { sentEl.textContent = 'LONGS PAYING'; sentEl.style.color = '#22c55e'; }
+      else if (avgPct < -0.01) { sentEl.textContent = 'SHORTS PAYING'; sentEl.style.color = '#ef4444'; }
       else                     { sentEl.textContent = 'NEUTRAL'; sentEl.style.color = '#888'; }
 
       const tbody = document.getElementById('frTableBody');
