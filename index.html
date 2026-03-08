@@ -161,7 +161,8 @@
     }
 
     .card-label { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--sub); margin-bottom: 4px; }
-    .card-title { font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
+    .card-title { font-size: 22px; font-weight: 800; letter-spacing: -.02em; margin-bottom: 1px; }
+    .site-sub  { font-size: 10px; font-weight: 600; letter-spacing: .08em; color: #2a2a2a; margin-top: 1px; margin-bottom: 0; }
     .card-sub   { font-size: 12px; color: var(--sub); font-weight: 500; margin-top: 4px; }
 
     .card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 22px; }
@@ -399,8 +400,8 @@
 
   <!-- ── FEAR & GREED (full width) ── -->
   <div class="card section-anchor" id="fear-greed">
-    <div class="card-title" style="margin-bottom:18px;">Fear &amp; Greed Index</div>
-        <div style="font-size:10px;font-weight:600;letter-spacing:.08em;color:#2a2a2a;margin-top:1px;">bitcoinintel.xyz</div>
+    <div class="card-title">Fear &amp; Greed Index</div>
+        <div class="site-sub" style="margin-bottom:18px;">bitcoinintel.xyz</div>
     <div class="fg-inner">
       <div class="gauge-wrap">
         <canvas id="gaugeCanvas" width="260" height="155"></canvas>
@@ -435,8 +436,8 @@
   <div class="grid-2">
 
     <div class="card section-anchor" id="dominance">
-      <div class="card-title" style="margin-bottom:18px;">Dominance</div>
-      <div style="font-size:10px;font-weight:600;letter-spacing:.08em;color:#2a2a2a;margin-top:1px;">bitcoinintel.xyz</div>
+      <div class="card-title">Dominance</div>
+      <div class="site-sub" style="margin-bottom:18px;">bitcoinintel.xyz</div>
 
       <!-- BTC Dominance -->
       <div style="margin-bottom:20px;">
@@ -472,8 +473,8 @@
     </div>
 
     <div class="card section-anchor" id="market-overview">
-      <div class="card-title" style="margin-bottom:14px;">Market Stats</div>
-      <div style="font-size:10px;font-weight:600;letter-spacing:.08em;color:#2a2a2a;margin-top:1px;">bitcoinintel.xyz</div>
+      <div class="card-title">Market Stats</div>
+      <div class="site-sub" style="margin-bottom:14px;">bitcoinintel.xyz</div>
       <div class="mstat"><span class="mstat-label">Market Cap</span><span class="mstat-value" id="mMcap">—</span></div>
       <div class="mstat"><span class="mstat-label">24h Volume</span><span class="mstat-value" id="mVol">—</span></div>
       <div class="mstat"><span class="mstat-label">Supply</span><span class="mstat-value" id="mSupply">—</span></div>
@@ -488,8 +489,8 @@
   <div class="grid-2">
 
     <div class="card section-anchor" id="open-interest">
-      <div class="card-title" style="margin-bottom:18px;">BTC Open Interest</div>
-      <div style="font-size:10px;font-weight:600;letter-spacing:.08em;color:#2a2a2a;margin-top:1px;">bitcoinintel.xyz</div>
+      <div class="card-title">BTC Open Interest</div>
+      <div class="site-sub" style="margin-bottom:18px;">bitcoinintel.xyz</div>
       <div class="oi-grid">
         <div class="oi-stat">
           <div class="oi-stat-label">Total OI</div>
@@ -528,8 +529,8 @@
     </div>
 
     <div class="card section-anchor" id="funding-rate">
-      <div class="card-title" style="margin-bottom:6px;">BTC Funding Rate</div>
-      <div style="font-size:10px;font-weight:600;letter-spacing:.08em;color:#2a2a2a;margin-top:1px;">bitcoinintel.xyz</div>
+      <div class="card-title">BTC Funding Rate</div>
+      <div class="site-sub" style="margin-bottom:6px;">bitcoinintel.xyz</div>
       <div class="fr-summary" style="margin-bottom:16px;">
         <div class="fr-sum-item">
           <span class="fr-sum-label">Avg Rate</span>
@@ -556,8 +557,8 @@
 
   <!-- ── LIQUIDATIONS ── -->
   <div class="card section-anchor" id="liquidations">
-    <div class="card-title" style="margin-bottom:20px;">Total Liquidations Rekt</div>
-      <div style="font-size:10px;font-weight:600;letter-spacing:.08em;color:#2a2a2a;margin-top:1px;">bitcoinintel.xyz</div>
+    <div class="card-title">Total Liquidations Rekt</div>
+      <div class="site-sub" style="margin-bottom:20px;">bitcoinintel.xyz</div>
     <div class="rekt-grid">
       <div class="rekt-card">
         <div class="rekt-header"><span class="rekt-period">1h Rekt</span><span class="rekt-total" id="rektTotal1h">—</span></div>
@@ -585,8 +586,8 @@
 
   <!-- ── LIQUIDATION MAP ── -->
   <div class="card section-anchor" id="liq-map">
-    <div class="card-title" style="margin-bottom:14px;">Bitcoin Liquidation Map</div>
-      <div style="font-size:10px;font-weight:600;letter-spacing:.08em;color:#2a2a2a;margin-top:1px;">bitcoinintel.xyz</div>
+    <div class="card-title">Bitcoin Liquidation Map</div>
+      <div class="site-sub" style="margin-bottom:14px;">bitcoinintel.xyz</div>
     <div class="legend" style="flex-wrap:wrap;gap:16px;margin-bottom:14px;">
       <div class="leg-item"><div class="leg-dot" style="background:#F7931A"></div>Long Liq Zone (price below current)</div>
       <div class="leg-item"><div class="leg-dot" style="background:#14b8a6"></div>Short Liq Zone (price above current)</div>
@@ -635,7 +636,7 @@
     <div class="card-header">
       <div>
         <div class="card-title">Bitcoin Mining Production Cost</div>
-        <div style="font-size:10px;font-weight:600;letter-spacing:.08em;color:#2a2a2a;margin-top:1px;">bitcoinintel.xyz</div>
+        <div class="site-sub">bitcoinintel.xyz</div>
         <div class="card-sub">Capriole methodology — three cost tiers vs. current price</div>
       </div>
     </div>
@@ -712,7 +713,7 @@
     <div class="card-header" style="margin-bottom:28px;">
       <div>
         <div class="card-title">Bitcoin Halving Countdown</div>
-        <div style="font-size:10px;font-weight:600;letter-spacing:.08em;color:#2a2a2a;margin-top:1px;">bitcoinintel.xyz</div>
+        <div class="site-sub">bitcoinintel.xyz</div>
         <div class="card-sub">Block reward halves from 3.125 → 1.5625 BTC</div>
       </div>
     </div>
@@ -764,7 +765,7 @@
     <div class="card-header">
       <div>
         <div class="card-title">Stock-to-Flow S2F</div>
-        <div style="font-size:10px;font-weight:600;letter-spacing:.08em;color:#2a2a2a;margin-top:1px;">bitcoinintel.xyz</div>
+        <div class="site-sub">bitcoinintel.xyz</div>
       </div>
     </div>
     <div class="chart-wrap" style="height:420px;"><canvas id="s2fChart"></canvas></div>
@@ -787,7 +788,7 @@
     <div class="card-header">
       <div>
         <div class="card-title">Rainbow Chart</div>
-        <div style="font-size:10px;font-weight:600;letter-spacing:.08em;color:#2a2a2a;margin-top:1px;">bitcoinintel.xyz</div>
+        <div class="site-sub">bitcoinintel.xyz</div>
         <div class="card-sub">Price vs long-term logarithmic regression bands</div>
       </div>
       <div class="card-label" style="text-align:right;padding-top:4px;" id="rbZone">—</div>
@@ -808,7 +809,7 @@
     <div class="card-header">
       <div>
         <div class="card-title">Crypto Market Heatmap</div>
-        <div style="font-size:10px;font-weight:600;letter-spacing:.08em;color:#2a2a2a;margin-top:1px;">bitcoinintel.xyz</div>
+        <div class="site-sub">bitcoinintel.xyz</div>
         <div class="card-sub">Market cap weighted — size = market cap, color = 24h % change</div>
       </div>
     </div>
@@ -842,7 +843,7 @@
     <div class="card-header">
       <div>
         <div class="card-title">Bitcoin Liquidation Heatmap</div>
-        <div style="font-size:10px;font-weight:600;letter-spacing:.08em;color:#2a2a2a;margin-top:1px;">bitcoinintel.xyz</div>
+        <div class="site-sub">bitcoinintel.xyz</div>
         <div class="card-sub">Price zones where over-leveraged traders are at risk of liquidation</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
