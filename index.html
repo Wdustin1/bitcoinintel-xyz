@@ -2146,25 +2146,24 @@
       // Lower bound of band 0 (one step below band 0)
       function band0Lower(x) { return Math.exp(fittedLog(x) + (-1 - RB_I_DEC) * RB_BAND_WIDTH); }
 
-      // Project bands to Jan 2029 (well past 2028 halving)
-      const CHART_END_MS   = new Date('2029-01-01').getTime();
-      const lastActualMs   = pts[n-1].x * 1000; // last weekly sample's timestamp
+      // Continuous time→index mapping: index = weeks since first data point + 1
+      // This gives a smooth function for ALL timestamps (historical and future)
+      const T0_MS    = allPts[0].x * 1000;
+      const WEEK_MS  = 7 * 86400000;
+      function idxForTime(tMs) { return (tMs - T0_MS) / WEEK_MS + 1; }
+
+      // Generate band data at uniform 2-week steps from data start to 2029
+      // No split between historical/projected — one seamless curve
+      const CHART_END_MS = new Date('2029-01-01').getTime();
+      const BAND_STEP_MS = 14 * 86400000; // every 2 weeks — smooth but not too many points
       const bandData = [];
-      pts.forEach((p, j) => {
-        const idx = j + 1;
-        bandData.push({ xMs: p.x * 1000, uppers: Array.from({length:9}, (_,i) => bandUpper(idx, i)), b0lower: band0Lower(idx) });
-      });
-      // Projection: start from right after last weekly sample (no gap)
-      let projMs  = lastActualMs + 7 * 86400000;
-      let projIdx = n + 1;
-      while (projMs <= CHART_END_MS) {
+      for (let tMs = T0_MS; tMs <= CHART_END_MS; tMs += BAND_STEP_MS) {
+        const idx = idxForTime(tMs);
         bandData.push({
-          xMs:    projMs,
-          uppers: Array.from({length:9}, (_,i) => bandUpper(projIdx, i)),
-          b0lower: band0Lower(projIdx)
+          xMs:    tMs,
+          uppers: Array.from({length:9}, (_,i) => bandUpper(idx, i)),
+          b0lower: band0Lower(idx)
         });
-        projMs  += 7 * 86400000;
-        projIdx += 1;
       }
 
       // Custom plugin: draws rainbow bands on canvas before Chart.js datasets
