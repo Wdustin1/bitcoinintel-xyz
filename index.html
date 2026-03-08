@@ -522,7 +522,7 @@
           <div class="oi-stat-sub" style="color:#555;font-size:11px;">leverage indicator</div>
         </div>
       </div>
-      <div class="oi-grid" style="grid-template-columns:1fr 1fr;margin-bottom:0;">
+      <div class="oi-grid" style="grid-template-columns:1fr 1fr;margin-bottom:16px;">
         <div class="oi-stat">
           <div class="oi-stat-label">24H Volume</div>
           <div class="oi-stat-val" id="oiVol">—</div>
@@ -534,6 +534,26 @@
           <div class="oi-stat-sub" style="color:#555;font-size:11px;">across exchanges</div>
         </div>
       </div>
+
+      <!-- OI % Market Cap -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#0a0a0a;border-radius:8px;margin-bottom:10px;">
+        <div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#555;margin-bottom:3px;">OI as % of Market Cap</div>
+          <div style="font-size:11px;color:#444;font-weight:600;">Higher = more leveraged market</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:26px;font-weight:900;color:#F7931A;letter-spacing:-.02em;" id="oiMcapPct">—</div>
+          <div style="font-size:10px;font-weight:600;color:#444;" id="oiMcapNote">of BTC market cap in futures</div>
+        </div>
+      </div>
+
+      <!-- Market Signal -->
+      <div style="padding:12px 14px;background:#0a0a0a;border-radius:8px;border-left:3px solid #222;" id="oiSignalWrap">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#555;margin-bottom:6px;">Market Signal</div>
+        <div style="font-size:15px;font-weight:800;letter-spacing:-.01em;" id="oiSignalLabel">—</div>
+        <div style="font-size:11px;color:#555;font-weight:600;margin-top:4px;line-height:1.5;" id="oiSignalDesc">—</div>
+      </div>
+
       <div class="watermark">bitcoinintel.xyz</div>
     </div>
 
@@ -1323,12 +1343,62 @@
       const avgFr = (d.avgFundingRate * 100);
       const frEl  = document.getElementById('oiAvgFunding');
       frEl.textContent  = (avgFr >= 0 ? '+' : '') + avgFr.toFixed(4) + '%';
-      frEl.style.color  = avgFr > 0 ? '#ef4444' : '#22c55e';
+      frEl.style.color  = avgFr > 0 ? '#22c55e' : '#ef4444';
 
       fmtPctStat(d.oichangePercent,    'oiChange24');
       fmtPctStat(d.h1OIChangePercent,  'oiChange1h');
       fmtPctStat(d.h4OIChangePercent,  'oiChange4h');
       fmtPctStat(d.volChangePercent,   'oiVolChange');
+
+      // ── OI as % of Market Cap ──
+      try {
+        const priceRes  = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_market_cap=true');
+        const priceData = await priceRes.json();
+        const mcap      = priceData?.bitcoin?.usd_market_cap;
+        if (mcap && d.openInterest) {
+          const pct = (d.openInterest / mcap) * 100;
+          document.getElementById('oiMcapPct').textContent = pct.toFixed(1) + '%';
+          // Color: <2% low leverage, 2-4% moderate, >4% high
+          const pctEl = document.getElementById('oiMcapPct');
+          pctEl.style.color = pct < 2 ? '#22c55e' : pct < 4 ? '#F7931A' : '#ef4444';
+        }
+      } catch(_) {}
+
+      // ── Market Signal ──
+      const oiDir     = d.oichangePercent;   // 24h OI change %
+      const fundDir   = d.avgFundingRate;    // positive = longs paying
+      const signalEl  = document.getElementById('oiSignalLabel');
+      const descEl    = document.getElementById('oiSignalDesc');
+      const wrapEl    = document.getElementById('oiSignalWrap');
+      let signal, desc, color, border;
+
+      if (oiDir > 1 && fundDir > 0) {
+        signal = '⚠️ Leveraged Long Bias';
+        desc   = 'OI rising + longs paying. Bullish momentum but elevated squeeze risk if price reverses.';
+        color  = '#f59e0b'; border = '#f59e0b';
+      } else if (oiDir > 1 && fundDir < 0) {
+        signal = '🔴 Short Squeeze Setup';
+        desc   = 'OI rising + shorts paying into strength. Crowded short — watch for a rapid squeeze.';
+        color  = '#ef4444'; border = '#ef4444';
+      } else if (oiDir < -1 && fundDir > 0) {
+        signal = '🟢 Long Deleveraging';
+        desc   = 'OI falling + longs paying. Longs exiting orderly — healthy reset, reduces liquidation risk.';
+        color  = '#22c55e'; border = '#22c55e';
+      } else if (oiDir < -1 && fundDir < 0) {
+        signal = '🟢 Bear Capitulation';
+        desc   = 'OI falling + shorts paying. Shorts closing — potential exhaustion of selling pressure.';
+        color  = '#22c55e'; border = '#22c55e';
+      } else {
+        signal = '⚪ Neutral / Balanced';
+        desc   = 'OI and funding rate both near neutral. No strong directional leverage signal.';
+        color  = '#555'; border = '#333';
+      }
+
+      signalEl.textContent        = signal;
+      signalEl.style.color        = color;
+      descEl.textContent          = desc;
+      wrapEl.style.borderLeftColor = border;
+
     } catch(e) { console.error(e); }
   }
 
