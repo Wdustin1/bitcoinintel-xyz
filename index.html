@@ -352,7 +352,7 @@
       <a class="nav-link" href="#rainbow"><span class="nav-icon">🌈</span>Rainbow Chart<span class="live-badge"></span></a>
       <a class="nav-link" href="#mining-cost"><span class="nav-icon">💰</span>Mining Cost<span class="live-badge"></span></a>
       <a class="nav-link nav-coming" href="#"><span class="nav-icon">🧮</span>Rational Root<span class="soon-badge">Soon</span></a>
-      <a class="nav-link nav-coming" href="#"><span class="nav-icon">📉</span>Stock-to-Flow<span class="soon-badge">Soon</span></a>
+      <a class="nav-link" href="#stock-to-flow"><span class="nav-icon">📉</span>Stock-to-Flow<span class="live-badge"></span></a>
       <a class="nav-link nav-coming" href="#"><span class="nav-icon">🧠</span>ITC Risk Model<span class="soon-badge">Soon</span></a>
     </div>
 
@@ -765,6 +765,32 @@
     <div class="watermark">bitcoinintel.xyz</div>
   </div>
 
+  <!-- ── STOCK-TO-FLOW ── -->
+  <div class="card section-anchor" id="stock-to-flow">
+    <div class="card-header">
+      <div>
+        <div class="card-label">On-Chain &amp; Models</div>
+        <div style="font-size:36px;font-weight:900;color:var(--orange);letter-spacing:-.03em;line-height:1;" id="s2fRatio">—</div>
+        <div style="font-size:11px;font-weight:600;color:#555;margin-top:4px;">Stock-to-Flow Ratio</div>
+        <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#2e2e2e;margin-top:6px;">bitcoinintel.xyz</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+        <div class="card-label" style="text-align:right;">Stock-to-Flow Model</div>
+        <div style="font-size:11px;color:#555;font-weight:600;">PlanB Model Price</div>
+        <div style="font-size:22px;font-weight:900;color:#fff;" id="s2fModelPrice">—</div>
+        <div style="font-size:11px;font-weight:700;" id="s2fVsModel">—</div>
+      </div>
+    </div>
+    <div class="chart-wrap" style="height:260px;"><canvas id="s2fChart"></canvas></div>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-label">Current Supply</div><div class="stat-value" id="s2fSupply">—</div></div>
+      <div class="stat"><div class="stat-label">Annual Flow</div><div class="stat-value" id="s2fFlow">—</div></div>
+      <div class="stat"><div class="stat-label">Block Reward</div><div class="stat-value" id="s2fReward">—</div></div>
+      <div class="stat"><div class="stat-label">Model by</div><div class="stat-value" style="color:#555;">PlanB (@100trillionusd)</div></div>
+    </div>
+    <div class="watermark">bitcoinintel.xyz</div>
+  </div>
+
   <!-- ── RAINBOW CHART ── -->
   <div class="card section-anchor" id="rainbow">
     <div class="card-header">
@@ -893,7 +919,7 @@
   const fmtPct = n => (n >= 0 ? '+' : '') + n.toFixed(2) + '%';
   const pad    = (n, w) => String(n).padStart(w, '0');
 
-  let priceChart = null, mapChart = null, hrChart = null, rbChart = null;
+  let priceChart = null, mapChart = null, hrChart = null, rbChart = null, s2fChart = null;
   let rawOrders  = [];
 
   let halvingTarget = null;
@@ -1525,6 +1551,121 @@
     {mult:11.5, color:'#6c3483', label:'Max Bubble'},
   ];
 
+  // ════════════════════════════════════════
+  // STOCK-TO-FLOW
+  // ════════════════════════════════════════
+  async function loadS2F() {
+    try {
+      const [supplyRes, priceRes] = await Promise.all([
+        fetch('https://api.blockchain.info/charts/total-bitcoins?timespan=5years&format=json&cors=true'),
+        fetch('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1825')
+      ]);
+      const supplyData = await supplyRes.json();
+      const priceData  = await priceRes.json();
+
+      const supplyPts = supplyData.values; // [{x: unix_sec, y: btc}]
+      const pricePts  = priceData.prices;  // [[ms, usd], ...]
+
+      // Build price lookup map (by day)
+      const priceMap = {};
+      pricePts.forEach(([ms, p]) => {
+        const day = Math.floor(ms / 86400000);
+        priceMap[day] = p;
+      });
+
+      // Block reward by supply level (halving thresholds)
+      function blockReward(supply) {
+        if (supply < 10500000)  return 50;
+        if (supply < 15750000)  return 25;
+        if (supply < 18375000)  return 12.5;
+        if (supply < 19687500)  return 6.25;
+        return 3.125;
+      }
+
+      const BLOCKS_PER_YEAR = 144 * 365;
+
+      const times      = [];
+      const prices     = [];
+      const modelPrices= [];
+      const s2fRatios  = [];
+
+      supplyPts.forEach(pt => {
+        const supply   = pt.y;
+        const reward   = blockReward(supply);
+        const flow     = BLOCKS_PER_YEAR * reward;
+        const sf       = supply / flow;
+        const marketCap= Math.exp(3.3 * Math.log(sf) + 14.6);
+        const modPx    = marketCap / supply;
+        const day      = Math.floor(pt.x * 1000 / 86400000);
+        const btcPx    = priceMap[day] || priceMap[day-1] || priceMap[day+1] || null;
+
+        if (btcPx) {
+          times.push(new Date(pt.x * 1000));
+          prices.push(btcPx);
+          modelPrices.push(modPx);
+          s2fRatios.push(sf);
+        }
+      });
+
+      // Current values (last point)
+      const lastSupply = supplyPts[supplyPts.length-1].y;
+      const lastReward = blockReward(lastSupply);
+      const lastFlow   = BLOCKS_PER_YEAR * lastReward;
+      const lastSF     = lastSupply / lastFlow;
+      const lastMktCap = Math.exp(3.3 * Math.log(lastSF) + 14.6);
+      const lastModPx  = lastMktCap / lastSupply;
+      const lastBtcPx  = prices[prices.length-1];
+      const pctVsModel = ((lastBtcPx - lastModPx) / lastModPx) * 100;
+
+      document.getElementById('s2fRatio').textContent     = lastSF.toFixed(1);
+      document.getElementById('s2fModelPrice').textContent= '$' + Math.round(lastModPx).toLocaleString();
+      document.getElementById('s2fSupply').textContent    = (lastSupply/1e6).toFixed(3) + 'M BTC';
+      document.getElementById('s2fFlow').textContent      = Math.round(lastFlow).toLocaleString() + ' BTC/yr';
+      document.getElementById('s2fReward').textContent    = lastReward + ' BTC';
+      const vmEl = document.getElementById('s2fVsModel');
+      vmEl.textContent = (pctVsModel >= 0 ? '+' : '') + pctVsModel.toFixed(1) + '% vs model';
+      vmEl.style.color  = pctVsModel >= 0 ? '#22c55e' : '#ef4444';
+
+      const ctx = document.getElementById('s2fChart').getContext('2d');
+      if (s2fChart) s2fChart.destroy();
+      s2fChart = new Chart(ctx, {
+        type: 'line',
+        data: { labels: times, datasets: [
+          { label: 'S2F Model Price', data: modelPrices, borderColor: 'rgba(255,255,255,0.5)',
+            borderWidth: 1.5, borderDash: [4,4], pointRadius: 0, fill: false, tension: 0.2, yAxisID: 'y' },
+          { label: 'BTC Price', data: prices, borderColor: '#F7931A', borderWidth: 2,
+            pointRadius: 0, fill: false, tension: 0.2, yAxisID: 'y' },
+        ]},
+        options: {
+          responsive: true, maintainAspectRatio: false, animation: { duration: 600 },
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1a1a1a', titleColor: '#555', bodyColor: '#fff',
+              borderColor: '#2a2a2a', borderWidth: 1, padding: 12,
+              callbacks: {
+                title: i => new Date(i[0].label).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}),
+                label: i => i.dataset.label === 'BTC Price'
+                  ? ` BTC: $${Math.round(i.raw).toLocaleString()}`
+                  : ` Model: $${Math.round(i.raw).toLocaleString()}`
+              }
+            }
+          },
+          scales: {
+            x: { type: 'time', time: { displayFormats: { month: 'MMM yy' } },
+                 grid: { color: '#131313' }, border: { color: '#1c1c1c' },
+                 ticks: { color: '#444', font: { family: 'Inter', size: 11, weight: '600' }, maxTicksLimit: 8 } },
+            y: { type: 'logarithmic', position: 'right',
+                 grid: { color: '#131313' }, border: { color: '#1c1c1c' },
+                 ticks: { color: '#444', font: { family: 'Inter', size: 11, weight: '600' },
+                   callback: v => '$' + (v >= 1000 ? Math.round(v/1000)+'K' : v) } }
+          }
+        }
+      });
+    } catch(e) { console.error('S2F error:', e); }
+  }
+
   async function loadRainbow() {
     try {
       const res  = await fetch('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=max');
@@ -1575,6 +1716,7 @@
     loadHashRate('1year');
     loadMiningCost();
     loadHalving();
+    loadS2F();
     loadRainbow();
     loadLiqHeatmap();
   };
