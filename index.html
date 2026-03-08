@@ -50,9 +50,9 @@
       display: flex;
       align-items: center;
       gap: 9px;
-      padding: 22px 20px;
+      padding: 0 20px;
+      height: 60px;
       text-decoration: none;
-      border-bottom: 1px solid var(--border);
       flex-shrink: 0;
     }
 
@@ -183,6 +183,14 @@
     }
     .header-btc-icon { font-size: 15px; }
     .header-btc-change { font-size: 12px; font-weight: 600; }
+    .header-x-link {
+      display: flex; align-items: center; justify-content: center;
+      width: 38px; height: 38px;
+      background: #111; border: 1px solid #1e1e1e; border-radius: 999px;
+      color: #888; text-decoration: none;
+      transition: color .15s, border-color .15s;
+    }
+    .header-x-link:hover { color: #fff; border-color: #333; }
 
     /* ═══════════════════════════════════════
        MAIN CONTENT
@@ -442,11 +450,9 @@
     <a href="#hash-rate">On-Chain</a>
     <a href="#halving-spiral">Advanced</a>
   </nav>
-  <div class="header-btc">
-    <span class="header-btc-icon">₿</span>
-    <span id="hdrPrice">—</span>
-    <span class="header-btc-change" id="hdrChange">—</span>
-  </div>
+  <a href="https://x.com/BitcoinIntelXYZ" target="_blank" rel="noopener" class="header-x-link" title="@BitcoinIntelXYZ on X">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.261 5.632zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+  </a>
 </header>
 
 <div class="content">
