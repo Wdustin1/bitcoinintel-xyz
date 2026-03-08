@@ -1139,9 +1139,18 @@
       const data = await res.json();
       const pts  = data.values;
       const times = pts.map(p=>new Date(p.x*1000));
-      const vals  = pts.map(p=>p.y/1e9);
-      const current = vals[vals.length-1], ath = Math.max(...vals), low = Math.min(...vals);
-      const change = ((current-vals[0])/vals[0])*100;
+      const raw   = pts.map(p=>p.y/1e9);
+
+      // 7-day rolling average to smooth out choppy mining pool variance
+      const WINDOW = 7;
+      const vals = raw.map((_, i) => {
+        const start = Math.max(0, i - WINDOW + 1);
+        const slice = raw.slice(start, i + 1);
+        return slice.reduce((s, v) => s + v, 0) / slice.length;
+      });
+
+      const current = raw[raw.length-1], ath = Math.max(...raw), low = Math.min(...raw);
+      const change = ((current-raw[0])/raw[0])*100;
       document.getElementById('hrCurrent').textContent = current.toFixed(0)+' EH/s';
       document.getElementById('hrATH').textContent     = ath.toFixed(0)+' EH/s';
       document.getElementById('hrLow').textContent     = low.toFixed(0)+' EH/s';
@@ -1153,9 +1162,9 @@
       grad.addColorStop(0,'rgba(247,147,26,.25)'); grad.addColorStop(1,'rgba(247,147,26,0)');
       if (hrChart) hrChart.destroy();
       hrChart = new Chart(ctx, {
-        type:'line', data:{ labels:times, datasets:[{data:vals,borderColor:'#F7931A',borderWidth:2.5,backgroundColor:grad,fill:true,pointRadius:0,pointHoverRadius:5,pointHoverBackgroundColor:'#F7931A',pointHoverBorderColor:'#fff',pointHoverBorderWidth:2,tension:.3}]},
+        type:'line', data:{ labels:times, datasets:[{data:vals,borderColor:'#F7931A',borderWidth:2.5,backgroundColor:grad,fill:true,pointRadius:0,pointHoverRadius:5,pointHoverBackgroundColor:'#F7931A',pointHoverBorderColor:'#fff',pointHoverBorderWidth:2,tension:.2}]},
         options:{ responsive:true, maintainAspectRatio:false, animation:{duration:600}, interaction:{mode:'index',intersect:false},
-          plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#1a1a1a', titleColor:'#555', bodyColor:'#fff', borderColor:'#2a2a2a', borderWidth:1, padding:12, displayColors:false, callbacks:{ title:i=>new Date(i[0].label).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}), label:i=>`Hash Rate: ${i.raw.toFixed(1)} EH/s`}}},
+          plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#1a1a1a', titleColor:'#555', bodyColor:'#fff', borderColor:'#2a2a2a', borderWidth:1, padding:12, displayColors:false, callbacks:{ title:i=>new Date(i[0].label).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}), label:i=>`Hash Rate: ${i.raw.toFixed(1)} EH/s (7d MA)`}}},
           scales:{ x:{type:'time',time:{displayFormats:{month:'MMM yy',week:'MMM d'}},grid:{color:'#131313'},border:{color:'#1c1c1c'},ticks:{color:'#444',font:{family:'Inter',size:11,weight:'600'},maxTicksLimit:8}},
             y:{position:'right',grid:{color:'#131313'},border:{color:'#1c1c1c'},ticks:{color:'#444',font:{family:'Inter',size:11,weight:'600'},callback:v=>Math.round(v)+' EH/s',maxTicksLimit:6}}}}
       });
