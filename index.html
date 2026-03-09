@@ -2694,7 +2694,7 @@
       const c1y = document.getElementById('exRes1Y');
       c1y.textContent  = (chg1y > 0 ? '+' : '') + chg1y + '%';
       c1y.style.color  = isDown ? '#22c55e' : '#ef4444';
-      document.getElementById('exResATL').textContent  = (atl / 1e6).toFixed(3) + 'M BTC';
+      // exResATL element removed from HTML — stat replaced with source labels
       document.getElementById('exResLabel').textContent = (displayBTC / 1e6).toFixed(2) + 'M BTC';
       document.getElementById('exResLabel').style.color = isDown ? '#22c55e' : '#ef4444';
       if (updatedDate) document.getElementById('exResSource').textContent = 'CoinGlass · ' + updatedDate;
