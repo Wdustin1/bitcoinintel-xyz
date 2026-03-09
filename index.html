@@ -2672,71 +2672,69 @@
   let exResChart = null;
   async function loadExchangeReserves() {
     try {
-      const res    = await fetch('/api/exchange-reserves');
-      const { points, cgCurrent } = await res.json();
-      const cutoff3y = Date.now() - 3 * 365.25 * 86400 * 1000;
-      const filtered = points.filter(p => new Date(p.t).getTime() >= cutoff3y);
-      const sample = filtered.filter((_,i) => i % 3 === 0);
-      const dates  = sample.map(p => new Date(p.t));
-      const btcVals = sample.map(p => p.btc / 1e6); // millions of BTC
-      const prices  = sample.map(p => p.price);
+      const res  = await fetch('/api/exchange-reserves');
+      const json = await res.json();
+      const points = json.points || [];
+      const cgCurrent = json.cgCurrent || null;
+
+      if (!points.length) return;
+
+      // Filter to last 3 years
+      const cutoff = Date.now() - 3 * 365.25 * 86400000;
+      const filtered = points.filter(p => new Date(p.t).getTime() >= cutoff);
+      const sample   = filtered.filter((_,i) => i % 3 === 0);
+      if (!sample.length) return;
+
       const last    = filtered[filtered.length - 1];
       const yearAgo = filtered[Math.max(0, filtered.length - 365)];
-      const atl     = Math.min(...filtered.map(p => p.btc));
+      const chg1y   = ((last.btc - yearAgo.btc) / yearAgo.btc * 100);
+      const isDown  = chg1y < 0;
+      const displayBTC = cgCurrent ? cgCurrent.totalBTC : last.btc;
+      const updatedDate = cgCurrent?.updatedAt
+        ? new Date(cgCurrent.updatedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})
+        : null;
 
-      const chg1y = ((last.btc - yearAgo.btc) / yearAgo.btc * 100).toFixed(1);
-      const isDown = chg1y < 0;
-      // Use CoinGlass total if available, else fall back to CoinMetrics
-      const displayBTC = cgCurrent?.totalBTC || last.btc;
-      const updatedDate = cgCurrent?.updatedAt ? new Date(cgCurrent.updatedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : null;
-      document.getElementById('exResCurrent').textContent = (displayBTC / 1e6).toFixed(3) + 'M BTC' + (updatedDate ? '' : '');
-      document.getElementById('exResCurrent').title = cgCurrent ? `Source: CoinGlass (updated ${updatedDate})` : 'Source: CoinMetrics';
+      document.getElementById('exResCurrent').textContent = (displayBTC / 1e6).toFixed(3) + 'M BTC';
       const c1y = document.getElementById('exRes1Y');
-      c1y.textContent  = (chg1y > 0 ? '+' : '') + chg1y + '%';
-      c1y.style.color  = isDown ? '#22c55e' : '#ef4444';
-      // exResATL element removed from HTML — stat replaced with source labels
+      c1y.textContent = (chg1y > 0 ? '+' : '') + chg1y.toFixed(1) + '%';
+      c1y.style.color = isDown ? '#22c55e' : '#ef4444';
       document.getElementById('exResLabel').textContent = (displayBTC / 1e6).toFixed(2) + 'M BTC';
       document.getElementById('exResLabel').style.color = isDown ? '#22c55e' : '#ef4444';
       if (updatedDate) document.getElementById('exResSource').textContent = 'CoinGlass · ' + updatedDate;
 
+      const btcData   = sample.map(p => ({ x: p.t, y: +(p.btc / 1e6).toFixed(4) }));
+      const priceData = sample.filter(p => p.price).map(p => ({ x: p.t, y: p.price }));
+
       const ctx = document.getElementById('exResChart').getContext('2d');
       if (exResChart) exResChart.destroy();
 
-      // Gradient fill — green top to transparent bottom (CoinGlass style)
       const grad = ctx.createLinearGradient(0, 0, 0, 320);
-      grad.addColorStop(0,   'rgba(34,197,94,0.45)');
-      grad.addColorStop(0.5, 'rgba(34,197,94,0.15)');
+      grad.addColorStop(0,   'rgba(34,197,94,0.5)');
       grad.addColorStop(1,   'rgba(34,197,94,0.0)');
-
-      // Tight y-axis: pad 5% above/below the data range
-      const minBtc = Math.min(...btcVals.filter(v=>v));
-      const maxBtc = Math.max(...btcVals.filter(v=>v));
-      const pad    = (maxBtc - minBtc) * 0.08;
 
       exResChart = new Chart(ctx, {
         type: 'line',
         data: { datasets: [
-          { label: 'BTC on Exchanges (M)', data: dates.map((d,i) => ({ x: d, y: btcVals[i] })),
-            borderColor: '#22c55e', borderWidth: 2.5, fill: true,
-            backgroundColor: grad, pointRadius: 0, tension: 0.35,
-            yAxisID: 'y' },
-          { label: 'BTC Price', data: dates.map((d,i) => ({ x: d, y: prices[i] || null })),
+          { label: 'BTC on Exchanges (M)',
+            data: btcData,
+            borderColor: '#22c55e', borderWidth: 2, fill: true,
+            backgroundColor: grad, pointRadius: 0, tension: 0.3, yAxisID: 'y' },
+          { label: 'BTC Price',
+            data: priceData,
             borderColor: '#F7931A', borderWidth: 2, fill: false,
-            pointRadius: 0, tension: 0.35, yAxisID: 'y2', spanGaps: true },
+            pointRadius: 0, tension: 0.3, yAxisID: 'y2' },
         ]},
         options: {
-          responsive: true, maintainAspectRatio: false, animation: { duration: 400 },
+          responsive: true, maintainAspectRatio: false,
           interaction: { mode: 'index', intersect: false },
-          plugins: { legend: { display: false }, tooltip: { callbacks: {
-            title: i => new Date(i[0].raw.x).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
-            label: i => i.datasetIndex === 0 ? '🟢 Reserves: ' + i.raw.y.toFixed(3) + 'M BTC' : '🟠 BTC Price: $' + Math.round(i.raw.y).toLocaleString()
-          }}},
+          plugins: { legend: { display: false } },
           scales: {
-            x: { type: 'time', time: { displayFormats: { month: 'MMM yy', year: 'yyyy' }}, grid: { color: '#1e1e1e' }, ticks: { color: '#555', maxTicksLimit: 8 }},
-            y:  { position: 'left',  min: minBtc - pad, max: maxBtc + pad,
-                  grid: { color: '#1e1e1e' }, ticks: { color: '#22c55e', callback: v => v.toFixed(2) + 'M' }},
+            x: { type: 'time', time: { displayFormats: { month: 'MMM yy' }},
+                 grid: { color: '#1e1e1e' }, ticks: { color: '#555', maxTicksLimit: 8 }},
+            y:  { position: 'left',  grid: { color: '#1e1e1e' },
+                  ticks: { color: '#22c55e', callback: v => v.toFixed(2) + 'M' }},
             y2: { position: 'right', grid: { display: false },
-                  ticks: { color: '#F7931A', callback: v => v >= 1e6 ? '$'+(v/1e6).toFixed(2)+'M' : v >= 1e3 ? '$'+(v/1e3).toFixed(0)+'K' : '$'+v }}
+                  ticks: { color: '#F7931A', callback: v => '$' + (v/1e3).toFixed(0) + 'K' }}
           }
         }
       });
