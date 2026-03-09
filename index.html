@@ -458,6 +458,7 @@
       <div class="nav-section-label">Advanced</div>
       <a class="nav-link" href="#crypto-heatmap"><span class="nav-icon">🌐</span>Crypto Heatmap<span class="live-badge"></span></a>
       <a class="nav-link" href="#halving-spiral"><span class="nav-icon">🌀</span>Halving Spiral<span class="live-badge"></span></a>
+      <a class="nav-link" href="#debt-clock"><span class="nav-icon">💸</span>US Debt Clock<span class="live-badge"></span></a>
     </div>
 
   </nav>
@@ -1055,6 +1056,39 @@
     </div>
     <div class="watermark">bitcoinintel.xyz</div>
   </div>
+
+<!-- ═══ US DEBT CLOCK ═══ -->
+<div class="card section-anchor" id="debt-clock">
+  <div class="card-header">
+    <div>
+      <div class="card-title">US National Debt</div>
+      <div class="site-sub">bitcoinintel.xyz</div>
+      <div class="card-sub">Total public debt outstanding — live ticker</div>
+    </div>
+    <div class="card-label" style="text-align:right;font-size:11px;color:#555;" id="debtDate">—</div>
+  </div>
+
+  <div style="text-align:center; padding: 36px 0 28px;">
+    <div style="font-size:11px;font-weight:600;letter-spacing:.15em;color:#555;text-transform:uppercase;margin-bottom:12px;">Total US Debt</div>
+    <div id="debtCounter" style="font-size:clamp(28px,4vw,52px);font-weight:800;color:#ef4444;font-variant-numeric:tabular-nums;letter-spacing:-.01em;font-family:monospace;">$—</div>
+    <div style="margin-top:18px;display:flex;justify-content:center;gap:40px;flex-wrap:wrap;">
+      <div style="text-align:center;">
+        <div style="font-size:11px;font-weight:600;color:#555;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;">Per Second</div>
+        <div id="debtPerSec" style="font-size:20px;font-weight:700;color:#f97316;">$—</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:11px;font-weight:600;color:#555;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;">Per Day</div>
+        <div id="debtPerDay" style="font-size:20px;font-weight:700;color:#f97316;">$—</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:11px;font-weight:600;color:#555;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;">Per Year (est.)</div>
+        <div id="debtPerYear" style="font-size:20px;font-weight:700;color:#f97316;">$—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="watermark">bitcoinintel.xyz</div>
+</div>
 
 <!-- ═══ TEAM ═══ -->
 <div class="card section-anchor" id="team" style="max-width:760px; margin: 60px auto 0;">
@@ -2534,6 +2568,7 @@
     loadHalfingSpiral();
     loadRainbow();
     loadLiqHeatmap();
+    loadDebtClock();
     loadMVRV();
     loadExchangeReserves();
     loadGoldRatio();
@@ -2786,6 +2821,37 @@
         }
       });
     } catch(e) { console.error('M2 error:', e); }
+  }
+
+  // ════════════════════════════════════════
+  // US DEBT CLOCK
+  // ════════════════════════════════════════
+  let debtInterval = null;
+  async function loadDebtClock() {
+    try {
+      const res  = await fetch('/api/debt');
+      const data = await res.json();
+      if (data.error) return;
+
+      const { debt, recordDate, perSecond, dailyIncrease } = data;
+      const fmt3 = n => '$' + Math.round(n).toLocaleString('en-US');
+
+      document.getElementById('debtDate').textContent    = 'As of ' + recordDate;
+      document.getElementById('debtPerSec').textContent  = '+' + fmt3(perSecond);
+      document.getElementById('debtPerDay').textContent  = '+' + fmt3(dailyIncrease);
+      document.getElementById('debtPerYear').textContent = '+' + fmt3(dailyIncrease * 365);
+
+      // Live counter: tick up from recorded debt based on seconds elapsed since record date
+      const recordMs = new Date(recordDate + 'T00:00:00Z').getTime();
+      function tick() {
+        const secElapsed = (Date.now() - recordMs) / 1000;
+        const live = debt + perSecond * secElapsed;
+        document.getElementById('debtCounter').textContent = '$' + Math.round(live).toLocaleString('en-US');
+      }
+      tick();
+      if (debtInterval) clearInterval(debtInterval);
+      debtInterval = setInterval(tick, 100);
+    } catch(e) { console.error('Debt clock error:', e); }
   }
 
   function loadLiqHeatmap() {
