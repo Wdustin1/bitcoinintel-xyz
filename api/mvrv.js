@@ -6,7 +6,7 @@ export default async function handler(req, res) {
       { headers: { 'Accept': 'application/json' } }
     );
     const d = await r.json();
-    const rows = (d.data || []).filter(p => p.CapMVRVCur && p.SplyExNtv !== undefined);
+    const rows = (d.data || []).filter(p => p.CapMVRVCur);
 
     // Compute Z-score from MVRV series
     const vals = rows.map(p => parseFloat(p.CapMVRVCur));
