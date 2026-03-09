@@ -2602,14 +2602,13 @@
         type: 'bar',
         data: { datasets: [{
           label: 'MVRV Z-Score',
-          data: dates.map((d,i) => ({ x: d, y: zVals[i] })),
+          data: dates.map((d,i) => ({ x: d.getTime(), y: zVals[i] })),
           backgroundColor: zVals.map(z => zColor(z) + 'bb'),
           borderColor:     zVals.map(z => zColor(z)),
           borderWidth: 0, borderRadius: 1,
         }]},
         options: {
           responsive: true, maintainAspectRatio: false, animation: { duration: 400 },
-          parsing: false,
           plugins: {
             legend: { display: false },
             tooltip: { callbacks: {
