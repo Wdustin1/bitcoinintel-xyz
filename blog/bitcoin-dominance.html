@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bitcoin Dominance Chart Explained: What BTC.D Tells You About the Market | Bitcoin Intel XYZ</title>
+  <meta name="description" content="Bitcoin dominance (BTC.D) measures Bitcoin's share of the total crypto market cap. Learn how to read the dominance chart and use it to understand altcoin cycles and market rotation." />
+  <link rel="canonical" href="https://www.bitcoinintel.xyz/blog/bitcoin-dominance" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://www.bitcoinintel.xyz/blog/bitcoin-dominance" />
+  <meta property="og:title" content="Bitcoin Dominance Chart Explained: What BTC.D Tells You About the Market | Bitcoin Intel XYZ" />
+  <meta property="og:description" content="Bitcoin dominance (BTC.D) measures Bitcoin's share of the total crypto market cap. Learn how to read the dominance chart and use it to understand altcoin cycles and market rotation." />
+  <meta property="og:image" content="https://www.bitcoinintel.xyz/logo-banner-1.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@BitcoinIntelXYZ" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #080808; color: #e0e0e0; font-family: 'Inter', sans-serif; line-height: 1.7; }
+    a { color: #F7931A; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .site-header { background: #0a0a0a; border-bottom: 1px solid #1a1a1a; padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .site-header-logo { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 800; color: #fff; text-decoration: none; }
+    .site-header-logo svg { width: 28px; height: 28px; }
+    .site-header-back { font-size: 13px; color: #555; font-weight: 500; }
+    .site-header-back:hover { color: #F7931A; text-decoration: none; }
+
+    .article-wrap { max-width: 760px; margin: 0 auto; padding: 60px 24px 100px; }
+    .article-label { font-size: 11px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: #F7931A; margin-bottom: 16px; }
+    h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 900; letter-spacing: -.03em; line-height: 1.15; color: #fff; margin-bottom: 16px; }
+    .article-meta { font-size: 13px; color: #444; margin-bottom: 40px; padding-bottom: 32px; border-bottom: 1px solid #181818; }
+    h2 { font-size: 22px; font-weight: 800; color: #fff; margin: 48px 0 16px; letter-spacing: -.02em; }
+    h3 { font-size: 17px; font-weight: 700; color: #ccc; margin: 32px 0 10px; }
+    p { font-size: 16px; color: #aaa; margin-bottom: 20px; }
+    ul, ol { padding-left: 24px; margin-bottom: 20px; }
+    li { font-size: 16px; color: #aaa; margin-bottom: 8px; }
+    strong { color: #e0e0e0; font-weight: 600; }
+    .highlight { background: #111; border-left: 3px solid #F7931A; padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 28px 0; }
+    .highlight p { margin: 0; color: #ccc; }
+
+    .cta-box { background: #0f0f0f; border: 1px solid #222; border-radius: 16px; padding: 36px; text-align: center; margin: 60px 0 0; }
+    .cta-box h3 { margin: 0 0 10px; font-size: 20px; color: #fff; }
+    .cta-box p { margin: 0 0 24px; color: #555; font-size: 15px; }
+    .cta-btn { display: inline-block; background: #F7931A; color: #000; font-weight: 800; font-size: 15px; padding: 14px 32px; border-radius: 999px; letter-spacing: -.01em; }
+    .cta-btn:hover { background: #e07d0e; text-decoration: none; }
+
+    .related { margin-top: 60px; }
+    .related h2 { font-size: 18px; margin-bottom: 20px; }
+    .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+    .related-card { background: #0f0f0f; border: 1px solid #1a1a1a; border-radius: 12px; padding: 16px; }
+    .related-card a { color: #fff; font-weight: 600; font-size: 14px; }
+    .related-card p { font-size: 12px; color: #444; margin: 4px 0 0; }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="site-header-logo" href="/">
+    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="16" r="16" fill="#F7931A"/>
+      <path d="M21.5 13.5c.3-2-1.2-3.1-3.3-3.8l.7-2.7-1.6-.4-.7 2.6-1.3-.3.7-2.7-1.6-.4-.7 2.7-2.6-.6-.4 1.7s1.2.3 1.1.3c.6.2.7.6.7.9l-1.7 6.8c-.1.2-.3.5-.8.4 0 0-1.1-.3-1.1-.3l-.8 1.8 2.5.6.9.2-.7 2.8 1.6.4.7-2.8 1.3.3-.7 2.8 1.6.4.7-2.8c2.8.5 4.9.3 5.8-2.2.7-2-.03-3.1-1.5-3.9 1.1-.2 1.9-1 2.1-2.5zm-3.8 5.3c-.5 2-3.9.9-5 .6l.9-3.5c1.1.3 4.6.8 4.1 2.9zm.5-5.3c-.5 1.8-3.3.9-4.3.7l.8-3.2c1 .2 4.1.7 3.5 2.5z" fill="white"/>
+    </svg>
+    Bitcoin Intel XYZ
+  </a>
+  <a class="site-header-back" href="/">← Back to Dashboard</a>
+</header>
+
+<article class="article-wrap">
+  <div class="article-label">Bitcoin Education</div>
+  <h1>Bitcoin Dominance Chart Explained: What BTC.D Tells You About the Market</h1>
+  <div class="article-meta">By Bitcoin Intel XYZ &nbsp;·&nbsp; 4 min read &nbsp;·&nbsp; <a href="https://www.bitcoinintel.xyz">bitcoinintel.xyz</a></div>
+
+  <p><strong>Bitcoin dominance (BTC.D)</strong> is one of the most useful — and most misunderstood — metrics in crypto. It measures Bitcoin's market capitalization as a percentage of the total cryptocurrency market cap. Tracked on the Bitcoin dominance chart, it reveals how capital is flowing between Bitcoin and altcoins at any point in the market cycle.</p>
+
+  <p>If you want to understand whether it's "Bitcoin season" or "altcoin season," BTC.D is the chart to watch.</p>
+
+  <h2>What Is Bitcoin Dominance?</h2>
+
+  <p>The formula is simple:</p>
+
+  <p><strong>BTC Dominance = Bitcoin Market Cap ÷ Total Crypto Market Cap × 100</strong></p>
+
+  <p>When Bitcoin's market cap is $1 trillion and the total crypto market is $2 trillion, BTC.D is 50%. When Bitcoin's value grows faster than altcoins, dominance rises. When altcoins outperform Bitcoin, dominance falls.</p>
+
+  <p>Historically, Bitcoin's dominance has ranged from roughly 35% (during peak altcoin seasons like mid-2018 and late 2021) to over 70% (during bear markets and Bitcoin-led early bull phases). In Bitcoin's earliest days (2013), before most altcoins existed, BTC.D was above 95%.</p>
+
+  <div class="highlight">
+    <p>💡 <strong>Key insight:</strong> Bitcoin dominance doesn't measure whether Bitcoin is going up or down in price — it measures Bitcoin's <em>relative strength</em> compared to the rest of crypto. BTC.D can fall even as Bitcoin's price rises, simply because altcoins are rising faster.</p>
+  </div>
+
+  <h2>How to Read the Bitcoin Dominance Chart</h2>
+
+  <p>Understanding the directional trend of BTC.D is more useful than the absolute level. Here's what different scenarios typically signal:</p>
+
+  <h3>Rising BTC Dominance</h3>
+  <p>When BTC.D is trending upward, it generally indicates one of two things:</p>
+  <ul>
+    <li><strong>Early bull market:</strong> Bitcoin tends to lead every market cycle. When fresh capital enters crypto, it flows into Bitcoin first — the most liquid, most recognized asset. Rising dominance in a rising total market is a healthy, early bull signal.</li>
+    <li><strong>Bear market / risk-off:</strong> During downturns, investors flee altcoins (which are perceived as riskier) into Bitcoin as a relative safe haven within crypto. Dominance rises as altcoins bleed harder than BTC.</li>
+  </ul>
+
+  <h3>Falling BTC Dominance</h3>
+  <p>When BTC.D is trending downward in a rising total market, it's often the beginning of what traders call <strong>"altcoin season"</strong> — the phase of the bull market where capital rotates out of Bitcoin and into higher-beta altcoins (Ethereum, layer-1s, meme coins, etc.) chasing larger percentage gains.</p>
+
+  <ul>
+    <li>A falling BTC.D in a rising market = altcoins outperforming Bitcoin</li>
+    <li>A falling BTC.D in a falling market = altcoins crashing harder than Bitcoin</li>
+  </ul>
+
+  <p>This is why context matters enormously when interpreting BTC.D — you always need to look at whether the total market cap is rising or falling simultaneously.</p>
+
+  <h2>Bitcoin Dominance and the Market Cycle</h2>
+
+  <p>The typical playbook for a Bitcoin market cycle looks something like this:</p>
+
+  <ol>
+    <li><strong>Bear market / accumulation:</strong> BTC.D is elevated (60–70%+). Altcoins have been decimated. Most capital is either in Bitcoin or out of crypto entirely.</li>
+    <li><strong>Early bull market:</strong> Bitcoin leads. BTC.D holds steady or continues rising as new money flows primarily into BTC. This is when indicators like the <a href="/blog/bitcoin-halving-explained">post-halving cycle</a> and <a href="/blog/bitcoin-rainbow-chart">Rainbow Chart</a> start moving into favorable zones.</li>
+    <li><strong>Mid bull market:</strong> Bitcoin makes significant gains. Ethereum and large-cap altcoins start to outperform. BTC.D begins to fall from its peak.</li>
+    <li><strong>Late bull market / altcoin season:</strong> BTC.D drops sharply. Speculative altcoins — including meme coins — experience massive percentage gains. The <a href="/blog/bitcoin-fear-greed-index">Fear &amp; Greed Index</a> sits at Extreme Greed. This is often the final, most euphoric phase before a major top.</li>
+    <li><strong>Bear market begins:</strong> Altcoins crash first and hardest. BTC.D recovers. The cycle resets.</li>
+  </ol>
+
+  <p>This pattern isn't guaranteed to repeat identically — each cycle differs in duration and magnitude — but Bitcoin dominance has been a reliable leading indicator of phase transitions across multiple cycles.</p>
+
+  <p>You can track live Bitcoin dominance on <a href="https://www.bitcoinintel.xyz">bitcoinintel.xyz</a>'s <a href="/#dominance">BTC.D dashboard section</a>, updated in real time. Pair it with the <a href="/blog/mvrv-z-score">MVRV Z-Score</a> and overall market structure to get a clearer picture of where we are in the current cycle.</p>
+
+  <div class="cta-box">
+    <h3>See it live on the dashboard</h3>
+    <p>Track this and 20+ other Bitcoin charts in real-time — free, no signup.</p>
+    <a class="cta-btn" href="https://www.bitcoinintel.xyz">Open Dashboard →</a>
+  </div>
+
+  <div class="related">
+    <h2>More Bitcoin Charts</h2>
+    <div class="related-grid">
+      <div class="related-card">
+        <a href="/#dominance">Live BTC Dominance</a>
+        <p>Real-time BTC.D chart</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/bitcoin-rainbow-chart">Rainbow Chart</a>
+        <p>Long-term cycle valuation</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/bitcoin-fear-greed-index">Fear &amp; Greed Index</a>
+        <p>Daily sentiment gauge</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/mvrv-z-score">MVRV Z-Score</a>
+        <p>On-chain cycle top indicator</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/bitcoin-halving-explained">Bitcoin Halving</a>
+        <p>The 4-year cycle driver</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/bitcoin-stock-to-flow">Stock-to-Flow Model</a>
+        <p>Scarcity-based price model</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+</body>
+</html>

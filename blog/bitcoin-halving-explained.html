@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bitcoin Halving Explained: What It Is, Why It Matters, and When Is the Next One | Bitcoin Intel XYZ</title>
+  <meta name="description" content="Bitcoin halving cuts the block reward in half roughly every 4 years, reducing new BTC supply. Learn what halving is, its historical impact on price, and when the next Bitcoin halving will occur." />
+  <link rel="canonical" href="https://www.bitcoinintel.xyz/blog/bitcoin-halving-explained" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://www.bitcoinintel.xyz/blog/bitcoin-halving-explained" />
+  <meta property="og:title" content="Bitcoin Halving Explained: What It Is, Why It Matters, and When Is the Next One | Bitcoin Intel XYZ" />
+  <meta property="og:description" content="Bitcoin halving cuts the block reward in half roughly every 4 years, reducing new BTC supply. Learn what halving is, its historical impact on price, and when the next Bitcoin halving will occur." />
+  <meta property="og:image" content="https://www.bitcoinintel.xyz/logo-banner-1.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@BitcoinIntelXYZ" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #080808; color: #e0e0e0; font-family: 'Inter', sans-serif; line-height: 1.7; }
+    a { color: #F7931A; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .site-header { background: #0a0a0a; border-bottom: 1px solid #1a1a1a; padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .site-header-logo { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 800; color: #fff; text-decoration: none; }
+    .site-header-logo svg { width: 28px; height: 28px; }
+    .site-header-back { font-size: 13px; color: #555; font-weight: 500; }
+    .site-header-back:hover { color: #F7931A; text-decoration: none; }
+
+    .article-wrap { max-width: 760px; margin: 0 auto; padding: 60px 24px 100px; }
+    .article-label { font-size: 11px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: #F7931A; margin-bottom: 16px; }
+    h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 900; letter-spacing: -.03em; line-height: 1.15; color: #fff; margin-bottom: 16px; }
+    .article-meta { font-size: 13px; color: #444; margin-bottom: 40px; padding-bottom: 32px; border-bottom: 1px solid #181818; }
+    h2 { font-size: 22px; font-weight: 800; color: #fff; margin: 48px 0 16px; letter-spacing: -.02em; }
+    h3 { font-size: 17px; font-weight: 700; color: #ccc; margin: 32px 0 10px; }
+    p { font-size: 16px; color: #aaa; margin-bottom: 20px; }
+    ul, ol { padding-left: 24px; margin-bottom: 20px; }
+    li { font-size: 16px; color: #aaa; margin-bottom: 8px; }
+    strong { color: #e0e0e0; font-weight: 600; }
+    .highlight { background: #111; border-left: 3px solid #F7931A; padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 28px 0; }
+    .highlight p { margin: 0; color: #ccc; }
+
+    .cta-box { background: #0f0f0f; border: 1px solid #222; border-radius: 16px; padding: 36px; text-align: center; margin: 60px 0 0; }
+    .cta-box h3 { margin: 0 0 10px; font-size: 20px; color: #fff; }
+    .cta-box p { margin: 0 0 24px; color: #555; font-size: 15px; }
+    .cta-btn { display: inline-block; background: #F7931A; color: #000; font-weight: 800; font-size: 15px; padding: 14px 32px; border-radius: 999px; letter-spacing: -.01em; }
+    .cta-btn:hover { background: #e07d0e; text-decoration: none; }
+
+    .related { margin-top: 60px; }
+    .related h2 { font-size: 18px; margin-bottom: 20px; }
+    .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+    .related-card { background: #0f0f0f; border: 1px solid #1a1a1a; border-radius: 12px; padding: 16px; }
+    .related-card a { color: #fff; font-weight: 600; font-size: 14px; }
+    .related-card p { font-size: 12px; color: #444; margin: 4px 0 0; }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="site-header-logo" href="/">
+    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="16" r="16" fill="#F7931A"/>
+      <path d="M21.5 13.5c.3-2-1.2-3.1-3.3-3.8l.7-2.7-1.6-.4-.7 2.6-1.3-.3.7-2.7-1.6-.4-.7 2.7-2.6-.6-.4 1.7s1.2.3 1.1.3c.6.2.7.6.7.9l-1.7 6.8c-.1.2-.3.5-.8.4 0 0-1.1-.3-1.1-.3l-.8 1.8 2.5.6.9.2-.7 2.8 1.6.4.7-2.8 1.3.3-.7 2.8 1.6.4.7-2.8c2.8.5 4.9.3 5.8-2.2.7-2-.03-3.1-1.5-3.9 1.1-.2 1.9-1 2.1-2.5zm-3.8 5.3c-.5 2-3.9.9-5 .6l.9-3.5c1.1.3 4.6.8 4.1 2.9zm.5-5.3c-.5 1.8-3.3.9-4.3.7l.8-3.2c1 .2 4.1.7 3.5 2.5z" fill="white"/>
+    </svg>
+    Bitcoin Intel XYZ
+  </a>
+  <a class="site-header-back" href="/">← Back to Dashboard</a>
+</header>
+
+<article class="article-wrap">
+  <div class="article-label">Bitcoin Education</div>
+  <h1>Bitcoin Halving Explained: What It Is, Why It Matters, and When Is the Next One</h1>
+  <div class="article-meta">By Bitcoin Intel XYZ &nbsp;·&nbsp; 6 min read &nbsp;·&nbsp; <a href="https://www.bitcoinintel.xyz">bitcoinintel.xyz</a></div>
+
+  <p>Every four years or so, something remarkable happens to Bitcoin: the rate at which new coins are created gets cut in half. This event — called the <strong>Bitcoin halving</strong> (or "halvening") — is baked directly into Bitcoin's code and is one of the most important scheduled events in all of cryptocurrency. It's the mechanism that makes Bitcoin inherently deflationary, and it has preceded every major Bitcoin bull market in history.</p>
+
+  <p>Whether you're new to Bitcoin or a seasoned holder, understanding the halving is fundamental to understanding Bitcoin's long-term value proposition and market cycle behavior.</p>
+
+  <h2>What Is the Bitcoin Halving?</h2>
+
+  <p>To understand the halving, you first need to understand how Bitcoin is created. New BTC enters circulation as a <strong>block reward</strong> — a fixed amount of bitcoin paid to miners every time they successfully add a new block of transactions to the blockchain. Miners compete to solve a computationally intensive puzzle, and the winner earns the block reward plus any transaction fees.</p>
+
+  <p>When Satoshi Nakamoto launched Bitcoin in January 2009, the block reward was <strong>50 BTC per block</strong>. Blocks are added approximately every 10 minutes, so roughly 7,200 BTC was being created every day in Bitcoin's earliest years.</p>
+
+  <p>The halving is a rule written into Bitcoin's protocol: <strong>every 210,000 blocks</strong> (approximately every 4 years), the block reward is cut in half. This process continues until the block reward reaches zero — expected around the year 2140 — at which point all 21 million Bitcoin will have been mined.</p>
+
+  <div class="highlight">
+    <p>💡 <strong>Key insight:</strong> Bitcoin's total supply is capped at exactly 21 million coins. The halving schedule ensures that roughly 94% of all Bitcoin was mined in the first 12 years, with the remaining supply being released increasingly slowly over the next ~100 years. This predictable scarcity is unlike any other monetary asset in history.</p>
+  </div>
+
+  <h2>Bitcoin Halving History</h2>
+
+  <p>There have been four halvings to date, each dramatically reducing the daily supply of new BTC entering the market:</p>
+
+  <ul>
+    <li><strong>Genesis (January 2009):</strong> Block reward = 50 BTC. ~900 BTC per day entering circulation (after difficulty adjustments settled).</li>
+    <li><strong>1st Halving — November 28, 2012:</strong> Block reward dropped to 25 BTC. Bitcoin price went from ~$12 to over $1,100 in the following year.</li>
+    <li><strong>2nd Halving — July 9, 2016:</strong> Block reward dropped to 12.5 BTC. Bitcoin subsequently rallied from ~$650 to ~$20,000 by December 2017.</li>
+    <li><strong>3rd Halving — May 11, 2020:</strong> Block reward dropped to 6.25 BTC. Bitcoin subsequently rallied from ~$9,000 to ~$69,000 by November 2021.</li>
+    <li><strong>4th Halving — April 20, 2024:</strong> Block reward dropped to 3.125 BTC. This is the most recent halving. Approximately 450 BTC is now created per day, down from 900 before the halving.</li>
+  </ul>
+
+  <h3>When Is the Next Bitcoin Halving?</h3>
+
+  <p>The 5th halving is expected around <strong>early 2028</strong>, at which point the block reward will drop to 1.5625 BTC. The exact date depends on Bitcoin's block production rate — if blocks come slightly faster than 10 minutes on average, the halving arrives earlier; if slower, it arrives later. Tools on <a href="https://www.bitcoinintel.xyz">bitcoinintel.xyz</a> track the <a href="/#halving">live halving countdown</a> with the current estimated date based on real-time block data.</p>
+
+  <h2>Why Does the Halving Matter for Bitcoin's Price?</h2>
+
+  <p>The economic case for the halving's impact on price is rooted in supply and demand. When the daily supply of new Bitcoin is cut in half while demand stays the same (or grows), simple economics suggests the price should rise. But there are several more nuanced reasons why halvings matter:</p>
+
+  <h3>1. Miner Economics and Sell Pressure</h3>
+  <p>Miners are the primary source of new BTC entering the market. They receive block rewards and must sell a portion to cover operating costs (electricity, hardware, staff). After each halving, miners receive half as much BTC for the same amount of work. If the price doesn't adjust upward, many miners become unprofitable. This dynamic creates strong upward price pressure post-halving as the supply of "forced sellers" drops dramatically.</p>
+
+  <h3>2. The Stock-to-Flow Effect</h3>
+  <p>Each halving doubles Bitcoin's <a href="/blog/bitcoin-stock-to-flow">Stock-to-Flow ratio</a> — the relationship between existing supply and new supply entering the market. After the 2024 halving, Bitcoin's S2F ratio exceeds 100, making it the scarcest asset ever measured by this metric. Historically, a higher S2F has correlated strongly with higher valuations.</p>
+
+  <h3>3. Psychological and Media Attention</h3>
+  <p>The halving is a known, scheduled event, which makes it a natural focal point for media coverage and market attention. Each halving has brought new waves of investors into Bitcoin, increasing demand precisely when new supply is shrinking.</p>
+
+  <h3>4. Cycle Timing</h3>
+  <p>Bitcoin's four-year market cycles — periods of accumulation, bull run, peak, and bear market — align almost perfectly with the halving schedule. Many analysts believe the halving is the primary catalyst that drives these cycles, though the relationship is correlative and not perfectly causal.</p>
+
+  <p>Whether you're tracking the countdown to the next halving or analyzing how the 2024 halving is affecting miner economics and market dynamics, <a href="https://www.bitcoinintel.xyz">bitcoinintel.xyz</a> keeps you informed with real-time data and charts. Combine the halving cycle view with indicators like the <a href="/blog/mvrv-z-score">MVRV Z-Score</a> and <a href="/blog/bitcoin-rainbow-chart">Rainbow Chart</a> for a comprehensive picture of where Bitcoin is in its current cycle.</p>
+
+  <div class="cta-box">
+    <h3>See it live on the dashboard</h3>
+    <p>Track this and 20+ other Bitcoin charts in real-time — free, no signup.</p>
+    <a class="cta-btn" href="https://www.bitcoinintel.xyz">Open Dashboard →</a>
+  </div>
+
+  <div class="related">
+    <h2>More Bitcoin Charts</h2>
+    <div class="related-grid">
+      <div class="related-card">
+        <a href="/#halving">Live Halving Countdown</a>
+        <p>Days until the next halving</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/bitcoin-stock-to-flow">Stock-to-Flow Model</a>
+        <p>How halvings drive S2F scarcity</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/bitcoin-rainbow-chart">Rainbow Chart</a>
+        <p>Long-term cycle valuation</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/mvrv-z-score">MVRV Z-Score</a>
+        <p>On-chain cycle top indicator</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/bitcoin-fear-greed-index">Fear &amp; Greed Index</a>
+        <p>Market sentiment gauge</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/bitcoin-dominance">Bitcoin Dominance</a>
+        <p>BTC.D and altcoin cycles</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+</body>
+</html>

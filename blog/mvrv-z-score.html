@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MVRV Z-Score: The On-Chain Indicator That Called Every Bitcoin Top | Bitcoin Intel XYZ</title>
+  <meta name="description" content="The MVRV Z-Score uses on-chain data to identify Bitcoin market tops and bottoms. Learn how it works, what the signal zones mean, and how it has predicted every major BTC cycle." />
+  <link rel="canonical" href="https://www.bitcoinintel.xyz/blog/mvrv-z-score" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://www.bitcoinintel.xyz/blog/mvrv-z-score" />
+  <meta property="og:title" content="MVRV Z-Score: The On-Chain Indicator That Called Every Bitcoin Top | Bitcoin Intel XYZ" />
+  <meta property="og:description" content="The MVRV Z-Score uses on-chain data to identify Bitcoin market tops and bottoms. Learn how it works, what the signal zones mean, and how it has predicted every major BTC cycle." />
+  <meta property="og:image" content="https://www.bitcoinintel.xyz/logo-banner-1.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@BitcoinIntelXYZ" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #080808; color: #e0e0e0; font-family: 'Inter', sans-serif; line-height: 1.7; }
+    a { color: #F7931A; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .site-header { background: #0a0a0a; border-bottom: 1px solid #1a1a1a; padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .site-header-logo { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 800; color: #fff; text-decoration: none; }
+    .site-header-logo svg { width: 28px; height: 28px; }
+    .site-header-back { font-size: 13px; color: #555; font-weight: 500; }
+    .site-header-back:hover { color: #F7931A; text-decoration: none; }
+
+    .article-wrap { max-width: 760px; margin: 0 auto; padding: 60px 24px 100px; }
+    .article-label { font-size: 11px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: #F7931A; margin-bottom: 16px; }
+    h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 900; letter-spacing: -.03em; line-height: 1.15; color: #fff; margin-bottom: 16px; }
+    .article-meta { font-size: 13px; color: #444; margin-bottom: 40px; padding-bottom: 32px; border-bottom: 1px solid #181818; }
+    h2 { font-size: 22px; font-weight: 800; color: #fff; margin: 48px 0 16px; letter-spacing: -.02em; }
+    h3 { font-size: 17px; font-weight: 700; color: #ccc; margin: 32px 0 10px; }
+    p { font-size: 16px; color: #aaa; margin-bottom: 20px; }
+    ul, ol { padding-left: 24px; margin-bottom: 20px; }
+    li { font-size: 16px; color: #aaa; margin-bottom: 8px; }
+    strong { color: #e0e0e0; font-weight: 600; }
+    .highlight { background: #111; border-left: 3px solid #F7931A; padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 28px 0; }
+    .highlight p { margin: 0; color: #ccc; }
+
+    .cta-box { background: #0f0f0f; border: 1px solid #222; border-radius: 16px; padding: 36px; text-align: center; margin: 60px 0 0; }
+    .cta-box h3 { margin: 0 0 10px; font-size: 20px; color: #fff; }
+    .cta-box p { margin: 0 0 24px; color: #555; font-size: 15px; }
+    .cta-btn { display: inline-block; background: #F7931A; color: #000; font-weight: 800; font-size: 15px; padding: 14px 32px; border-radius: 999px; letter-spacing: -.01em; }
+    .cta-btn:hover { background: #e07d0e; text-decoration: none; }
+
+    .related { margin-top: 60px; }
+    .related h2 { font-size: 18px; margin-bottom: 20px; }
+    .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+    .related-card { background: #0f0f0f; border: 1px solid #1a1a1a; border-radius: 12px; padding: 16px; }
+    .related-card a { color: #fff; font-weight: 600; font-size: 14px; }
+    .related-card p { font-size: 12px; color: #444; margin: 4px 0 0; }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="site-header-logo" href="/">
+    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="16" r="16" fill="#F7931A"/>
+      <path d="M21.5 13.5c.3-2-1.2-3.1-3.3-3.8l.7-2.7-1.6-.4-.7 2.6-1.3-.3.7-2.7-1.6-.4-.7 2.7-2.6-.6-.4 1.7s1.2.3 1.1.3c.6.2.7.6.7.9l-1.7 6.8c-.1.2-.3.5-.8.4 0 0-1.1-.3-1.1-.3l-.8 1.8 2.5.6.9.2-.7 2.8 1.6.4.7-2.8 1.3.3-.7 2.8 1.6.4.7-2.8c2.8.5 4.9.3 5.8-2.2.7-2-.03-3.1-1.5-3.9 1.1-.2 1.9-1 2.1-2.5zm-3.8 5.3c-.5 2-3.9.9-5 .6l.9-3.5c1.1.3 4.6.8 4.1 2.9zm.5-5.3c-.5 1.8-3.3.9-4.3.7l.8-3.2c1 .2 4.1.7 3.5 2.5z" fill="white"/>
+    </svg>
+    Bitcoin Intel XYZ
+  </a>
+  <a class="site-header-back" href="/">← Back to Dashboard</a>
+</header>
+
+<article class="article-wrap">
+  <div class="article-label">Bitcoin Education</div>
+  <h1>MVRV Z-Score: The On-Chain Indicator That Called Every Bitcoin Top</h1>
+  <div class="article-meta">By Bitcoin Intel XYZ &nbsp;·&nbsp; 5 min read &nbsp;·&nbsp; <a href="https://www.bitcoinintel.xyz">bitcoinintel.xyz</a></div>
+
+  <p>If you had to pick one on-chain indicator with the most impressive track record for calling Bitcoin market tops and bottoms, the <strong>MVRV Z-Score</strong> would be a strong contender. Unlike sentiment gauges or price-based models, MVRV is grounded in blockchain data — specifically, it measures the difference between what the market values Bitcoin at versus what all holders actually paid for it.</p>
+
+  <p>The result is an indicator that has identified every major Bitcoin cycle peak and trough since 2011. Here's how it works and why it matters.</p>
+
+  <h2>Understanding MVRV: Market Value vs. Realized Value</h2>
+
+  <p>The MVRV Z-Score starts with two fundamental metrics:</p>
+
+  <ul>
+    <li><strong>Market Value (MV):</strong> This is simply Bitcoin's market capitalization — total supply multiplied by the current price. It reflects what the market collectively says all BTC is worth right now.</li>
+    <li><strong>Realized Value (RV):</strong> This is Bitcoin's "realized cap" — the total value of all BTC based on the price each coin last moved on-chain. If a coin last moved when BTC was at $10,000, it contributes $10,000 to the realized cap regardless of the current price. This approximates the aggregate cost basis of all Bitcoin holders.</li>
+  </ul>
+
+  <p>The <strong>MVRV ratio</strong> is simply Market Value ÷ Realized Value. When this ratio is high, it means the market price is far above what holders paid on average — indicating significant unrealized profit across the network. When it's low (or below 1), most holders are underwater.</p>
+
+  <p>The <strong>MVRV Z-Score</strong> takes this a step further by calculating how many standard deviations the current MVRV ratio is from its historical mean. This normalizes the data and makes it easier to identify statistically extreme readings — the kind that historically mark cycle tops and bottoms.</p>
+
+  <div class="highlight">
+    <p>💡 <strong>Key insight:</strong> When the MVRV Z-Score enters the red zone (roughly above 7), the average Bitcoin holder is sitting on massive unrealized profits — and the incentive to sell becomes overwhelming. Every major Bitcoin top in history has occurred when the Z-Score reached these extreme levels.</p>
+  </div>
+
+  <h2>How to Read the MVRV Z-Score Signal Zones</h2>
+
+  <p>The MVRV Z-Score is typically displayed with three colored zones that serve as market signals:</p>
+
+  <ul>
+    <li><strong>Red zone (Z-Score above ~7):</strong> Market top territory. The network is collectively in extreme unrealized profit. Historically, entering this zone has preceded significant price corrections. The 2013, 2017, and 2021 peaks all registered in this zone.</li>
+    <li><strong>Green zone (Z-Score below ~0):</strong> Market bottom territory. The network is collectively near or below the aggregate cost basis. Holders are underwater or barely profitable. This zone has marked the best long-term buying opportunities in BTC history, including the 2015, 2018–2019, and 2022 bottoms.</li>
+    <li><strong>White/grey zone (between ~0 and ~7):</strong> Normal market conditions. The score oscillates here during most of a bull or bear cycle. No strong signal either way.</li>
+  </ul>
+
+  <h3>Historical Performance</h3>
+
+  <p>The track record is compelling:</p>
+
+  <ul>
+    <li><strong>2013 peak (~$1,100):</strong> MVRV Z-Score reached extreme red zone levels just before the crash.</li>
+    <li><strong>2015 bottom (~$200):</strong> Score dropped into the green zone — one of the best BTC buying opportunities ever.</li>
+    <li><strong>2017 peak (~$20,000):</strong> Score hit approximately 9–10 before the dramatic correction.</li>
+    <li><strong>2018–2019 bottom (~$3,200):</strong> Score returned to the green zone during the bear market trough.</li>
+    <li><strong>2021 peaks (~$64K and ~$69K):</strong> Both peaks registered in the red zone, with the April 2021 peak showing a higher reading than November 2021.</li>
+    <li><strong>2022 bottom (~$15,500):</strong> Score entered deeply negative green zone territory — a historically strong accumulation signal.</li>
+  </ul>
+
+  <h2>Using MVRV Z-Score Alongside Other Indicators</h2>
+
+  <p>The MVRV Z-Score is powerful but not infallible. Here's how to maximize its usefulness:</p>
+
+  <ul>
+    <li><strong>Combine with the Rainbow Chart:</strong> If both the <a href="/blog/bitcoin-rainbow-chart">Rainbow Chart</a> and MVRV Z-Score are in caution zones simultaneously, the signal is much stronger than either alone.</li>
+    <li><strong>Watch for divergence:</strong> If price makes new highs but the MVRV Z-Score fails to reach the red zone, it may indicate the cycle is maturing but not yet at peak euphoria.</li>
+    <li><strong>Use with the Fear &amp; Greed Index:</strong> MVRV gives you the on-chain data; the <a href="/blog/bitcoin-fear-greed-index">Fear &amp; Greed Index</a> gives you the sentiment data. When both are extreme in the same direction, conviction is higher.</li>
+    <li><strong>Don't use it for short-term trades:</strong> The MVRV Z-Score is a macro, cycle-level indicator. It can stay in any zone for months. It's a guide for long-term positioning, not a day-trading tool.</li>
+  </ul>
+
+  <p>You can track the live MVRV Z-Score on <a href="https://www.bitcoinintel.xyz">bitcoinintel.xyz</a> in the <a href="/#mvrv">MVRV dashboard section</a>, updated daily with the latest on-chain data.</p>
+
+  <div class="cta-box">
+    <h3>See it live on the dashboard</h3>
+    <p>Track this and 20+ other Bitcoin charts in real-time — free, no signup.</p>
+    <a class="cta-btn" href="https://www.bitcoinintel.xyz">Open Dashboard →</a>
+  </div>
+
+  <div class="related">
+    <h2>More Bitcoin Charts</h2>
+    <div class="related-grid">
+      <div class="related-card">
+        <a href="/#mvrv">Live MVRV Z-Score</a>
+        <p>View the current on-chain reading</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/bitcoin-rainbow-chart">Rainbow Chart</a>
+        <p>Log regression valuation bands</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/bitcoin-stock-to-flow">Stock-to-Flow Model</a>
+        <p>Scarcity-based price model</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/bitcoin-fear-greed-index">Fear &amp; Greed Index</a>
+        <p>Daily sentiment gauge</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/bitcoin-halving-explained">Bitcoin Halving</a>
+        <p>How halvings reset the cycle</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/bitcoin-dominance">Bitcoin Dominance</a>
+        <p>BTC.D and the altcoin cycle</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+</body>
+</html>

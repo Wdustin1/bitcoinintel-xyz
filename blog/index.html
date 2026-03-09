@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bitcoin Blog | Bitcoin Intel XYZ</title>
+  <meta name="description" content="Free Bitcoin education — learn how to read the Rainbow Chart, Stock-to-Flow, MVRV Z-Score, Fear & Greed Index, halving countdown, and more. From the team at bitcoinintel.xyz." />
+  <link rel="canonical" href="https://www.bitcoinintel.xyz/blog/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.bitcoinintel.xyz/blog/" />
+  <meta property="og:title" content="Bitcoin Blog | Bitcoin Intel XYZ" />
+  <meta property="og:description" content="Free Bitcoin education — learn how to read the Rainbow Chart, Stock-to-Flow, MVRV Z-Score, and more." />
+  <meta property="og:image" content="https://www.bitcoinintel.xyz/logo-banner-1.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@BitcoinIntelXYZ" />
+  <meta name="google-site-verification" content="L6jtfWbJJVLXxeBEKXBK-VYvdteT73pN6df6zQaFmyE" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #080808; color: #e0e0e0; font-family: 'Inter', sans-serif; line-height: 1.6; }
+    a { color: #F7931A; text-decoration: none; }
+
+    /* Header */
+    .site-header { background: #0a0a0a; border-bottom: 1px solid #1a1a1a; padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .header-logo { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 800; color: #fff; text-decoration: none; }
+    .header-logo svg { width: 28px; height: 28px; }
+    .header-nav { display: flex; align-items: center; gap: 6px; }
+    .header-nav a { font-size: 13px; font-weight: 600; color: #666; padding: 6px 14px; border-radius: 999px; transition: all .15s; }
+    .header-nav a:hover { color: #fff; background: #161616; }
+    .header-nav a.active { color: #fff; background: #1a1a1a; }
+
+    /* Hero */
+    .hero { max-width: 900px; margin: 0 auto; padding: 64px 24px 40px; }
+    .hero-label { font-size: 11px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: #F7931A; margin-bottom: 14px; }
+    .hero h1 { font-size: clamp(32px, 5vw, 48px); font-weight: 900; letter-spacing: -.03em; color: #fff; margin-bottom: 14px; }
+    .hero p { font-size: 17px; color: #555; max-width: 560px; }
+
+    /* Grid */
+    .blog-grid { max-width: 900px; margin: 0 auto; padding: 0 24px 80px; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+    .blog-card { background: #0f0f0f; border: 1px solid #1a1a1a; border-radius: 16px; padding: 28px; display: flex; flex-direction: column; gap: 10px; transition: border-color .2s; }
+    .blog-card:hover { border-color: #F7931A; }
+    .blog-card-emoji { font-size: 28px; }
+    .blog-card-label { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #F7931A; }
+    .blog-card h2 { font-size: 17px; font-weight: 800; color: #fff; letter-spacing: -.02em; line-height: 1.3; }
+    .blog-card p { font-size: 13px; color: #555; flex: 1; }
+    .blog-card-link { font-size: 13px; font-weight: 700; color: #F7931A; margin-top: 4px; }
+    .blog-card-link:hover { text-decoration: underline; }
+    .read-time { font-size: 11px; color: #333; font-weight: 600; }
+
+    /* Back to dashboard CTA */
+    .cta-strip { background: #0f0f0f; border-top: 1px solid #1a1a1a; padding: 40px 24px; text-align: center; }
+    .cta-strip h3 { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+    .cta-strip p { font-size: 14px; color: #555; margin-bottom: 20px; }
+    .cta-btn { display: inline-block; background: #F7931A; color: #000; font-weight: 800; font-size: 14px; padding: 12px 28px; border-radius: 999px; }
+    .cta-btn:hover { background: #e07d0e; }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="header-logo" href="/">
+    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="16" r="16" fill="#F7931A"/>
+      <path d="M21.5 13.5c.3-2-1.2-3.1-3.3-3.8l.7-2.7-1.6-.4-.7 2.6-1.3-.3.7-2.7-1.6-.4-.7 2.7-2.6-.6-.4 1.7s1.2.3 1.1.3c.6.2.7.6.7.9l-1.7 6.8c-.1.2-.3.5-.8.4 0 0-1.1-.3-1.1-.3l-.8 1.8 2.5.6.9.2-.7 2.8 1.6.4.7-2.8 1.3.3-.7 2.8 1.6.4.7-2.8c2.8.5 4.9.3 5.8-2.2.7-2-.03-3.1-1.5-3.9 1.1-.2 1.9-1 2.1-2.5zm-3.8 5.3c-.5 2-3.9.9-5 .6l.9-3.5c1.1.3 4.6.8 4.1 2.9zm.5-5.3c-.5 1.8-3.3.9-4.3.7l.8-3.2c1 .2 4.1.7 3.5 2.5z" fill="white"/>
+    </svg>
+    Bitcoin Intel XYZ
+  </a>
+  <nav class="header-nav">
+    <a href="/">Dashboard</a>
+    <a href="/blog/" class="active">Blog</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <div class="hero-label">Bitcoin Education</div>
+  <h1>Bitcoin Intel Blog</h1>
+  <p>Plain-English guides to every chart on the dashboard — so you know what you're looking at and why it matters.</p>
+</div>
+
+<div class="blog-grid">
+
+  <div class="blog-card">
+    <div class="blog-card-emoji">🌈</div>
+    <div class="blog-card-label">Price Models</div>
+    <h2>Bitcoin Rainbow Chart Explained</h2>
+    <p>What the color bands mean, how the log regression works, and how to use it to gauge market cycles.</p>
+    <div class="read-time">5 min read</div>
+    <a class="blog-card-link" href="/blog/bitcoin-rainbow-chart">Read article →</a>
+  </div>
+
+  <div class="blog-card">
+    <div class="blog-card-emoji">📉</div>
+    <div class="blog-card-label">Price Models</div>
+    <h2>Bitcoin Stock-to-Flow (S2F) Explained</h2>
+    <p>The scarcity model that predicted Bitcoin's price cycles — what it is, how it works, and its limitations.</p>
+    <div class="read-time">5 min read</div>
+    <a class="blog-card-link" href="/blog/bitcoin-stock-to-flow">Read article →</a>
+  </div>
+
+  <div class="blog-card">
+    <div class="blog-card-emoji">😨</div>
+    <div class="blog-card-label">Sentiment</div>
+    <h2>Bitcoin Fear &amp; Greed Index</h2>
+    <p>How market sentiment is measured, what extreme fear and greed signal, and how to use it as a contrarian indicator.</p>
+    <div class="read-time">4 min read</div>
+    <a class="blog-card-link" href="/blog/bitcoin-fear-greed-index">Read article →</a>
+  </div>
+
+  <div class="blog-card">
+    <div class="blog-card-emoji">📐</div>
+    <div class="blog-card-label">On-Chain</div>
+    <h2>MVRV Z-Score Explained</h2>
+    <p>The on-chain metric that has called every major Bitcoin top and bottom — and what it's saying right now.</p>
+    <div class="read-time">5 min read</div>
+    <a class="blog-card-link" href="/blog/mvrv-z-score">Read article →</a>
+  </div>
+
+  <div class="blog-card">
+    <div class="blog-card-emoji">⏳</div>
+    <div class="blog-card-label">Fundamentals</div>
+    <h2>Bitcoin Halving Explained</h2>
+    <p>What the halving is, why it matters for price, when the next one is, and what history tells us about what comes next.</p>
+    <div class="read-time">6 min read</div>
+    <a class="blog-card-link" href="/blog/bitcoin-halving-explained">Read article →</a>
+  </div>
+
+  <div class="blog-card">
+    <div class="blog-card-emoji">👑</div>
+    <div class="blog-card-label">Market Structure</div>
+    <h2>Bitcoin Dominance (BTC.D) Explained</h2>
+    <p>What BTC dominance measures, why traders watch it, and what rising or falling dominance means for altcoins.</p>
+    <div class="read-time">4 min read</div>
+    <a class="blog-card-link" href="/blog/bitcoin-dominance">Read article →</a>
+  </div>
+
+</div>
+
+<div class="cta-strip">
+  <h3>See all charts live</h3>
+  <p>20+ real-time Bitcoin charts in one place. Free, no signup.</p>
+  <a class="cta-btn" href="/">Open Dashboard →</a>
+</div>
+
+</body>
+</html>
