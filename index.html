@@ -953,7 +953,67 @@
   </div>
 
   <!-- ── CRYPTO HEATMAP ── -->
-  <div class="card section-anchor" id="crypto-heatmap">
+  <div class="card section-anchor" id="mvrv">
+  <div class="card-header">
+    <div>
+      <div class="card-title">MVRV Z-Score</div>
+      <div class="site-sub">bitcoinintel.xyz</div>
+      <div class="card-sub">Market Value to Realized Value — cycle top/bottom indicator</div>
+    </div>
+    <div class="card-label" id="mvrvZLabel" style="text-align:right;">—</div>
+  </div>
+  <div class="chart-wrap" style="height:320px;"><canvas id="mvrvChart"></canvas></div>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-label">Current MVRV</div><div class="stat-value" id="mvrvCurrent">—</div></div>
+    <div class="stat"><div class="stat-label">Z-Score</div><div class="stat-value" id="mvrvZ">—</div></div>
+    <div class="stat"><div class="stat-label">Signal</div><div class="stat-value" id="mvrvSignal">—</div></div>
+    <div class="stat"><div class="stat-label">Source</div><div class="stat-value" style="color:#555;">CoinMetrics</div></div>
+  </div>
+  <div class="watermark">bitcoinintel.xyz</div>
+</div>
+
+<div class="card section-anchor" id="btc-m2">
+  <div class="card-header">
+    <div>
+      <div class="card-title">BTC vs M2 Money Supply</div>
+      <div class="site-sub">bitcoinintel.xyz</div>
+      <div class="card-sub">BTC price overlaid on US M2 money supply — macro correlation</div>
+    </div>
+  </div>
+  <div class="chart-wrap" style="height:320px;"><canvas id="m2Chart"></canvas></div>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-label">Current M2</div><div class="stat-value" id="m2Current">—</div></div>
+    <div class="stat"><div class="stat-label">M2 1Y Change</div><div class="stat-value" id="m2Change">—</div></div>
+    <div class="stat"><div class="stat-label">BTC Price</div><div class="stat-value" id="m2BTCPrice">—</div></div>
+    <div class="stat"><div class="stat-label">Source</div><div class="stat-value" style="color:#555;">FRED / Blockchain.com</div></div>
+  </div>
+  <div class="watermark">bitcoinintel.xyz</div>
+</div>
+
+<div class="card section-anchor" id="liq-heatmap">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Bitcoin Liquidation Heatmap</div>
+        <div class="site-sub">bitcoinintel.xyz</div>
+        <div class="card-sub">Price zones where over-leveraged traders are at risk of liquidation</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+        <div style="font-size:11px;font-weight:600;color:#333;" id="heatmapUpdated">—</div>
+      </div>
+    </div>
+    <div style="position:relative;width:100%;background:#000;border-radius:10px;overflow:hidden;min-height:200px;display:flex;align-items:center;justify-content:center;">
+      <img id="heatmapImg" src="" alt="Liquidation Heatmap"
+           style="width:100%;height:auto;display:block;border-radius:10px;"
+           onerror="this.style.display='none';document.getElementById('heatmapErr').style.display='flex'"/>
+      <div id="heatmapErr" style="display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px;gap:10px;color:#333;">
+        <div style="font-size:28px;">🔥</div>
+        <div style="font-size:13px;font-weight:600;">Heatmap loading…</div>
+      </div>
+    </div>
+    <div class="watermark">bitcoinintel.xyz</div>
+  </div>
+
+<div class="card section-anchor" id="crypto-heatmap">
     <div class="card-header">
       <div>
         <div class="card-title">Crypto Market Heatmap</div>
@@ -986,33 +1046,7 @@
     <div class="watermark">bitcoinintel.xyz</div>
   </div>
 
-  <!-- ── LIQUIDATION HEATMAP ── -->
-  <div class="card section-anchor" id="liq-heatmap">
-    <div class="card-header">
-      <div>
-        <div class="card-title">Bitcoin Liquidation Heatmap</div>
-        <div class="site-sub">bitcoinintel.xyz</div>
-        <div class="card-sub">Price zones where over-leveraged traders are at risk of liquidation</div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
-        <div style="font-size:11px;font-weight:600;color:#333;" id="heatmapUpdated">—</div>
-      </div>
-    </div>
-    <div style="position:relative;width:100%;background:#000;border-radius:10px;overflow:hidden;min-height:200px;display:flex;align-items:center;justify-content:center;">
-      <img id="heatmapImg" src="" alt="Liquidation Heatmap"
-           style="width:100%;height:auto;display:block;border-radius:10px;"
-           onerror="this.style.display='none';document.getElementById('heatmapErr').style.display='flex'"/>
-      <div id="heatmapErr" style="display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px;gap:10px;color:#333;">
-        <div style="font-size:28px;">🔥</div>
-        <div style="font-size:13px;font-weight:600;">Heatmap loading…</div>
-      </div>
-    </div>
-    <div class="watermark">bitcoinintel.xyz</div>
-  </div>
-
-
-  <!-- ── HALVING SPIRAL ── -->
-  <div class="card section-anchor" id="halving-spiral">
+<div class="card section-anchor" id="halving-spiral">
     <div class="card-header">
       <div>
         <div class="card-title">Halving Spiral Chart</div>
@@ -1031,49 +1065,6 @@
     </div>
     <div class="watermark">bitcoinintel.xyz</div>
   </div>
-
-</div><!-- /content -->
-
-<!-- ═══ MVRV Z-SCORE ═══ -->
-<div class="card section-anchor" id="mvrv">
-  <div class="card-header">
-    <div>
-      <div class="card-title">MVRV Z-Score</div>
-      <div class="site-sub">bitcoinintel.xyz</div>
-      <div class="card-sub">Market Value to Realized Value — cycle top/bottom indicator</div>
-    </div>
-    <div class="card-label" id="mvrvZLabel" style="text-align:right;">—</div>
-  </div>
-  <div class="chart-wrap" style="height:320px;"><canvas id="mvrvChart"></canvas></div>
-  <div class="stats-row">
-    <div class="stat"><div class="stat-label">Current MVRV</div><div class="stat-value" id="mvrvCurrent">—</div></div>
-    <div class="stat"><div class="stat-label">Z-Score</div><div class="stat-value" id="mvrvZ">—</div></div>
-    <div class="stat"><div class="stat-label">Signal</div><div class="stat-value" id="mvrvSignal">—</div></div>
-    <div class="stat"><div class="stat-label">Source</div><div class="stat-value" style="color:#555;">CoinMetrics</div></div>
-  </div>
-  <div class="watermark">bitcoinintel.xyz</div>
-</div>
-
-<!-- ═══ EXCHANGE RESERVES ═══ -->
-<!-- ═══ BTC/GOLD RATIO ═══ -->
-<!-- ═══ BTC VS M2 ═══ -->
-<div class="card section-anchor" id="btc-m2">
-  <div class="card-header">
-    <div>
-      <div class="card-title">BTC vs M2 Money Supply</div>
-      <div class="site-sub">bitcoinintel.xyz</div>
-      <div class="card-sub">BTC price overlaid on US M2 money supply — macro correlation</div>
-    </div>
-  </div>
-  <div class="chart-wrap" style="height:320px;"><canvas id="m2Chart"></canvas></div>
-  <div class="stats-row">
-    <div class="stat"><div class="stat-label">Current M2</div><div class="stat-value" id="m2Current">—</div></div>
-    <div class="stat"><div class="stat-label">M2 1Y Change</div><div class="stat-value" id="m2Change">—</div></div>
-    <div class="stat"><div class="stat-label">BTC Price</div><div class="stat-value" id="m2BTCPrice">—</div></div>
-    <div class="stat"><div class="stat-label">Source</div><div class="stat-value" style="color:#555;">FRED / Blockchain.com</div></div>
-  </div>
-  <div class="watermark">bitcoinintel.xyz</div>
-</div>
 
 <!-- ═══ TEAM ═══ -->
 <div class="card section-anchor" id="team" style="max-width:760px;">
