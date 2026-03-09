@@ -2674,13 +2674,15 @@
     try {
       const res    = await fetch('/api/exchange-reserves');
       const { points } = await res.json();
-      const sample = points.filter((_,i) => i % 7 === 0);
+      const cutoff3y = Date.now() - 3 * 365.25 * 86400 * 1000;
+      const filtered = points.filter(p => new Date(p.t).getTime() >= cutoff3y);
+      const sample = filtered.filter((_,i) => i % 3 === 0);
       const dates  = sample.map(p => new Date(p.t));
       const btcVals = sample.map(p => p.btc / 1e6); // millions of BTC
       const prices  = sample.map(p => p.price);
-      const last    = points[points.length - 1];
-      const yearAgo = points[Math.max(0, points.length - 365)];
-      const atl     = Math.min(...points.map(p => p.btc));
+      const last    = filtered[filtered.length - 1];
+      const yearAgo = filtered[Math.max(0, filtered.length - 365)];
+      const atl     = Math.min(...filtered.map(p => p.btc));
 
       const chg1y = ((last.btc - yearAgo.btc) / yearAgo.btc * 100).toFixed(1);
       const isDown = chg1y < 0;

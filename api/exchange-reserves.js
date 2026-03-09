@@ -4,7 +4,7 @@ export default async function handler(req, res) {
     // Exchange reserves + price for dual-axis
     const [cmRes, priceRes] = await Promise.all([
       fetch('https://community-api.coinmetrics.io/v4/timeseries/asset-metrics?assets=btc&metrics=SplyExNtv&start_time=2021-01-01&page_size=10000'),
-      fetch('https://api.blockchain.info/charts/market-price?timespan=all&format=json&cors=true')
+      fetch('https://api.blockchain.info/charts/market-price?timespan=5years&format=json&cors=true')
     ]);
     const cm    = await cmRes.json();
     const price = await priceRes.json();
