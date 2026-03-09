@@ -1,32 +1,35 @@
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   try {
+    // Fetch M2 and BTC monthly price in parallel
+    // Use CoinGecko market_chart for BTC — returns daily data, lightweight JSON
     const [m2Res, priceRes] = await Promise.all([
       fetch('https://fred.stlouisfed.org/graph/fredgraph.csv?id=M2SL'),
-      fetch('https://api.blockchain.info/charts/market-price?timespan=all&format=json&cors=true')
+      fetch('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=3650&interval=monthly')
     ]);
-    const m2Text = await m2Res.text();
-    const price  = await priceRes.json();
 
-    // Parse FRED CSV
-    const m2Points = [];
+    const m2Text   = await m2Res.text();
+    const priceJson = await priceRes.json();
+
+    // Parse FRED CSV → { YYYY-MM: value }
+    const m2Map = {};
     m2Text.split('\n').slice(1).forEach(line => {
       const [date, val] = line.trim().split(',');
-      if (date && val && !isNaN(val)) m2Points.push({ t: date, m2: parseFloat(val) });
+      if (date && val && !isNaN(val)) m2Map[date.substring(0, 7)] = parseFloat(val);
     });
 
-    // Monthly BTC prices (first point of each month)
-    const btcMonthly = {};
-    (price.values || []).forEach(p => {
-      const ym = new Date(p.x * 1000).toISOString().substring(0, 7);
-      if (!btcMonthly[ym]) btcMonthly[ym] = p.y;
+    // CoinGecko monthly prices → { YYYY-MM: price }
+    const btcMap = {};
+    (priceJson.prices || []).forEach(([ts, price]) => {
+      const ym = new Date(ts).toISOString().substring(0, 7);
+      if (!btcMap[ym]) btcMap[ym] = price;
     });
 
-    const points = m2Points.map(p => ({
-      t:     p.t,
-      m2:    p.m2,
-      price: btcMonthly[p.t.substring(0, 7)] || null
-    })).filter(p => p.price);
+    // Join on YYYY-MM
+    const points = Object.keys(m2Map)
+      .filter(ym => btcMap[ym])
+      .sort()
+      .map(ym => ({ t: ym + '-01', m2: m2Map[ym], price: btcMap[ym] }));
 
     res.json({ points });
   } catch (e) {
