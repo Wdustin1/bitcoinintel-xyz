@@ -2813,12 +2813,12 @@
             y2: { position: 'right', type: 'logarithmic', grid: { display: false },
                   ticks: { color: '#F7931A',
                     callback: v => {
-                      const vals = [100,500,1000,5000,10000,25000,50000,75000,100000];
+                      const vals = [100,500,1000,5000,10000,25000,50000,75000,100000,150000];
                       return vals.includes(v) ? (v >= 1000 ? '$'+(v/1000).toFixed(0)+'K' : '$'+v) : '';
                     }
                   },
                   afterBuildTicks: axis => {
-                    axis.ticks = [100,500,1000,5000,10000,25000,50000,75000,100000].map(v => ({ value: v }));
+                    axis.ticks = [100,500,1000,5000,10000,25000,50000,75000,100000,150000].map(v => ({ value: v }));
                   }
             }
           }
