@@ -2696,28 +2696,42 @@
 
       const ctx = document.getElementById('exResChart').getContext('2d');
       if (exResChart) exResChart.destroy();
+
+      // Gradient fill — green top to transparent bottom (CoinGlass style)
+      const grad = ctx.createLinearGradient(0, 0, 0, 320);
+      grad.addColorStop(0,   'rgba(34,197,94,0.45)');
+      grad.addColorStop(0.5, 'rgba(34,197,94,0.15)');
+      grad.addColorStop(1,   'rgba(34,197,94,0.0)');
+
+      // Tight y-axis: pad 5% above/below the data range
+      const minBtc = Math.min(...btcVals.filter(v=>v));
+      const maxBtc = Math.max(...btcVals.filter(v=>v));
+      const pad    = (maxBtc - minBtc) * 0.08;
+
       exResChart = new Chart(ctx, {
         type: 'line',
         data: { datasets: [
           { label: 'BTC on Exchanges (M)', data: dates.map((d,i) => ({ x: d, y: btcVals[i] })),
-            borderColor: '#22c55e', borderWidth: 2, fill: true,
-            backgroundColor: 'rgba(34,197,94,0.15)', pointRadius: 0, tension: 0.3,
+            borderColor: '#22c55e', borderWidth: 2.5, fill: true,
+            backgroundColor: grad, pointRadius: 0, tension: 0.35,
             yAxisID: 'y' },
-          { label: 'BTC Price', data: dates.map((d,i) => ({ x: d, y: prices[i] })),
+          { label: 'BTC Price', data: dates.map((d,i) => ({ x: d, y: prices[i] || null })),
             borderColor: '#F7931A', borderWidth: 2, fill: false,
-            pointRadius: 0, tension: 0.3, yAxisID: 'y2' },
+            pointRadius: 0, tension: 0.35, yAxisID: 'y2', spanGaps: true },
         ]},
         options: {
           responsive: true, maintainAspectRatio: false, animation: { duration: 400 },
           interaction: { mode: 'index', intersect: false },
           plugins: { legend: { display: false }, tooltip: { callbacks: {
-            title: i => new Date(i[0].raw.x).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }),
-            label: i => i.dataset.label + ': ' + (i.datasetIndex === 0 ? i.raw.y.toFixed(2) + 'M BTC' : '$' + Math.round(i.raw.y).toLocaleString())
+            title: i => new Date(i[0].raw.x).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+            label: i => i.datasetIndex === 0 ? '🟢 Reserves: ' + i.raw.y.toFixed(3) + 'M BTC' : '🟠 BTC Price: $' + Math.round(i.raw.y).toLocaleString()
           }}},
           scales: {
-            x: { type: 'time', time: { displayFormats: { year: 'yyyy' }}, grid: { color: '#1e1e1e' }, ticks: { color: '#555', maxTicksLimit: 8 }},
-            y:  { position: 'left',  grid: { color: '#1e1e1e' }, ticks: { color: '#22c55e', callback: v => v.toFixed(1) + 'M' }},
-            y2: { position: 'right', grid: { display: false }, ticks: { color: '#F7931A', callback: v => v >= 1e3 ? '$' + (v/1e3).toFixed(0) + 'K' : '$' + v }}
+            x: { type: 'time', time: { displayFormats: { month: 'MMM yy', year: 'yyyy' }}, grid: { color: '#1e1e1e' }, ticks: { color: '#555', maxTicksLimit: 8 }},
+            y:  { position: 'left',  min: minBtc - pad, max: maxBtc + pad,
+                  grid: { color: '#1e1e1e' }, ticks: { color: '#22c55e', callback: v => v.toFixed(2) + 'M' }},
+            y2: { position: 'right', grid: { display: false },
+                  ticks: { color: '#F7931A', callback: v => v >= 1e6 ? '$'+(v/1e6).toFixed(2)+'M' : v >= 1e3 ? '$'+(v/1e3).toFixed(0)+'K' : '$'+v }}
           }
         }
       });
