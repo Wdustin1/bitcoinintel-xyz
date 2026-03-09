@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bitcoin Fear &amp; Greed Index: What It Means and How to Use It | Bitcoin Intel XYZ</title>
+  <meta name="description" content="The Bitcoin Fear & Greed Index measures market sentiment on a 0–100 scale. Learn what drives it, how to read it, and how contrarian investors use it to time entries and exits." />
+  <link rel="canonical" href="https://www.bitcoinintel.xyz/blog/bitcoin-fear-greed-index" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://www.bitcoinintel.xyz/blog/bitcoin-fear-greed-index" />
+  <meta property="og:title" content="Bitcoin Fear &amp; Greed Index: What It Means and How to Use It | Bitcoin Intel XYZ" />
+  <meta property="og:description" content="The Bitcoin Fear & Greed Index measures market sentiment on a 0–100 scale. Learn what drives it, how to read it, and how contrarian investors use it to time entries and exits." />
+  <meta property="og:image" content="https://www.bitcoinintel.xyz/logo-banner-1.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@BitcoinIntelXYZ" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #080808; color: #e0e0e0; font-family: 'Inter', sans-serif; line-height: 1.7; }
+    a { color: #F7931A; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .site-header { background: #0a0a0a; border-bottom: 1px solid #1a1a1a; padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .site-header-logo { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 800; color: #fff; text-decoration: none; }
+    .site-header-logo svg { width: 28px; height: 28px; }
+    .site-header-back { font-size: 13px; color: #555; font-weight: 500; }
+    .site-header-back:hover { color: #F7931A; text-decoration: none; }
+
+    .article-wrap { max-width: 760px; margin: 0 auto; padding: 60px 24px 100px; }
+    .article-label { font-size: 11px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: #F7931A; margin-bottom: 16px; }
+    h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 900; letter-spacing: -.03em; line-height: 1.15; color: #fff; margin-bottom: 16px; }
+    .article-meta { font-size: 13px; color: #444; margin-bottom: 40px; padding-bottom: 32px; border-bottom: 1px solid #181818; }
+    h2 { font-size: 22px; font-weight: 800; color: #fff; margin: 48px 0 16px; letter-spacing: -.02em; }
+    h3 { font-size: 17px; font-weight: 700; color: #ccc; margin: 32px 0 10px; }
+    p { font-size: 16px; color: #aaa; margin-bottom: 20px; }
+    ul, ol { padding-left: 24px; margin-bottom: 20px; }
+    li { font-size: 16px; color: #aaa; margin-bottom: 8px; }
+    strong { color: #e0e0e0; font-weight: 600; }
+    .highlight { background: #111; border-left: 3px solid #F7931A; padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 28px 0; }
+    .highlight p { margin: 0; color: #ccc; }
+
+    .cta-box { background: #0f0f0f; border: 1px solid #222; border-radius: 16px; padding: 36px; text-align: center; margin: 60px 0 0; }
+    .cta-box h3 { margin: 0 0 10px; font-size: 20px; color: #fff; }
+    .cta-box p { margin: 0 0 24px; color: #555; font-size: 15px; }
+    .cta-btn { display: inline-block; background: #F7931A; color: #000; font-weight: 800; font-size: 15px; padding: 14px 32px; border-radius: 999px; letter-spacing: -.01em; }
+    .cta-btn:hover { background: #e07d0e; text-decoration: none; }
+
+    .related { margin-top: 60px; }
+    .related h2 { font-size: 18px; margin-bottom: 20px; }
+    .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+    .related-card { background: #0f0f0f; border: 1px solid #1a1a1a; border-radius: 12px; padding: 16px; }
+    .related-card a { color: #fff; font-weight: 600; font-size: 14px; }
+    .related-card p { font-size: 12px; color: #444; margin: 4px 0 0; }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="site-header-logo" href="/">
+    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="16" r="16" fill="#F7931A"/>
+      <path d="M21.5 13.5c.3-2-1.2-3.1-3.3-3.8l.7-2.7-1.6-.4-.7 2.6-1.3-.3.7-2.7-1.6-.4-.7 2.7-2.6-.6-.4 1.7s1.2.3 1.1.3c.6.2.7.6.7.9l-1.7 6.8c-.1.2-.3.5-.8.4 0 0-1.1-.3-1.1-.3l-.8 1.8 2.5.6.9.2-.7 2.8 1.6.4.7-2.8 1.3.3-.7 2.8 1.6.4.7-2.8c2.8.5 4.9.3 5.8-2.2.7-2-.03-3.1-1.5-3.9 1.1-.2 1.9-1 2.1-2.5zm-3.8 5.3c-.5 2-3.9.9-5 .6l.9-3.5c1.1.3 4.6.8 4.1 2.9zm.5-5.3c-.5 1.8-3.3.9-4.3.7l.8-3.2c1 .2 4.1.7 3.5 2.5z" fill="white"/>
+    </svg>
+    Bitcoin Intel XYZ
+  </a>
+  <a class="site-header-back" href="/">← Back to Dashboard</a>
+</header>
+
+<article class="article-wrap">
+  <div class="article-label">Bitcoin Education</div>
+  <h1>Bitcoin Fear &amp; Greed Index: What It Means and How to Use It</h1>
+  <div class="article-meta">By Bitcoin Intel XYZ &nbsp;·&nbsp; 4 min read &nbsp;·&nbsp; <a href="https://www.bitcoinintel.xyz">bitcoinintel.xyz</a></div>
+
+  <p>Warren Buffett famously said: "Be fearful when others are greedy, and greedy when others are fearful." The <strong>Bitcoin Fear &amp; Greed Index</strong> turns that philosophy into a daily number. It's one of the most widely followed sentiment gauges in crypto — and for good reason. Understanding where the market sits emotionally can be just as important as understanding where it sits technically.</p>
+
+  <p>This guide explains how the index is calculated, what the different score ranges mean, and how to use it wisely as part of your Bitcoin analysis toolkit.</p>
+
+  <h2>How the Fear &amp; Greed Index Is Calculated</h2>
+
+  <p>The Bitcoin Fear &amp; Greed Index is a composite score from 0 to 100, updated daily. A score of 0 represents <strong>Extreme Fear</strong>, while 100 represents <strong>Extreme Greed</strong>. The index is maintained by Alternative.me and aggregates data from several sources:</p>
+
+  <ul>
+    <li><strong>Volatility (25%):</strong> Unusually high volatility — especially to the downside — increases fear. The metric compares current volatility to 30-day and 90-day averages.</li>
+    <li><strong>Market Momentum &amp; Volume (25%):</strong> High buying volume relative to a 30-day/90-day average signals greed. Selling dominance signals fear.</li>
+    <li><strong>Social Media Sentiment (15%):</strong> Analyzes hashtag usage and engagement rates on Twitter/X related to Bitcoin. Unusually high positive engagement pushes toward greed.</li>
+    <li><strong>Bitcoin Dominance (10%):</strong> A rising BTC dominance can signal fear — investors retreating from altcoins into Bitcoin's relative safety. Falling dominance often means greed spilling into altcoins.</li>
+    <li><strong>Google Trends (10%):</strong> Spikes in "Bitcoin" search volume often precede or coincide with greed. Searches for terms like "Bitcoin crash" indicate fear.</li>
+    <li><strong>Surveys (15%):</strong> Weekly polls of the crypto community (periodically deprioritized in the methodology).</li>
+  </ul>
+
+  <div class="highlight">
+    <p>💡 <strong>Key insight:</strong> Extreme Fear readings (0–25) have historically coincided with some of the best long-term Bitcoin buying opportunities. Extreme Greed (75–100) has often preceded sharp corrections. Use it as a contrarian signal, not a timing tool.</p>
+  </div>
+
+  <h2>What Each Score Range Means</h2>
+
+  <p>Here's how to interpret the five zones of the index:</p>
+
+  <ul>
+    <li><strong>0–24: Extreme Fear</strong> — The market is panicking. Sellers are dominant, negative news is amplified, and many investors are exiting positions. Historically, this is when long-term buyers accumulate.</li>
+    <li><strong>25–49: Fear</strong> — Below-average sentiment. The market is cautious, recovering from a downturn, or in a period of uncertainty. Not necessarily a buy or sell signal on its own.</li>
+    <li><strong>50: Neutral</strong> — Balanced market sentiment. Neither fear nor greed is dominant.</li>
+    <li><strong>51–74: Greed</strong> — Positive momentum. Buyers are active, prices are rising, and media coverage is favorable. Can persist for extended periods during bull markets.</li>
+    <li><strong>75–100: Extreme Greed</strong> — Market euphoria. FOMO is driving purchases, leverage is high, and the market may be overextended. Previous Bitcoin peaks have occurred during sustained Extreme Greed.</li>
+  </ul>
+
+  <h2>How to Use the Fear &amp; Greed Index Strategically</h2>
+
+  <p>The index is most powerful as a <strong>contrarian sentiment indicator</strong>, not a precise timing tool. Here's how experienced Bitcoin investors incorporate it into their strategy:</p>
+
+  <h3>As a Dollar-Cost Averaging Signal</h3>
+  <p>Some investors increase their regular BTC purchases when the index dips into Fear or Extreme Fear territory, and reduce or pause purchases during Extreme Greed. This doesn't require predicting exact bottoms — it simply means buying more when sentiment is worst and less when everyone is euphoric.</p>
+
+  <h3>As a Risk Management Tool</h3>
+  <p>When the Fear &amp; Greed Index sustains readings above 85–90, it's historically been a reasonable time to consider taking partial profits or reducing leverage. The 2017 peak, the April 2021 top, and the November 2021 peak all featured sustained Extreme Greed readings.</p>
+
+  <h3>Combined with Other Indicators</h3>
+  <p>The index works best when combined with on-chain data. For example, if the Fear &amp; Greed Index shows Extreme Fear <em>and</em> the <a href="/blog/mvrv-z-score">MVRV Z-Score</a> is in the green accumulation zone, that's a much stronger buy signal than either alone. Similarly, if both the index and the <a href="/blog/bitcoin-rainbow-chart">Rainbow Chart</a> are flashing caution simultaneously, risk is clearly elevated.</p>
+
+  <p>You can track the live Fear &amp; Greed Index at <a href="https://www.bitcoinintel.xyz">bitcoinintel.xyz</a> alongside all the other major Bitcoin market indicators on the <a href="/#fear-greed">dashboard</a> — updated daily.</p>
+
+  <div class="cta-box">
+    <h3>See it live on the dashboard</h3>
+    <p>Track this and 20+ other Bitcoin charts in real-time — free, no signup.</p>
+    <a class="cta-btn" href="https://www.bitcoinintel.xyz">Open Dashboard →</a>
+  </div>
+
+  <div class="related">
+    <h2>More Bitcoin Charts</h2>
+    <div class="related-grid">
+      <div class="related-card">
+        <a href="/#fear-greed">Live Fear &amp; Greed</a>
+        <p>View today's sentiment score</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/bitcoin-rainbow-chart">Rainbow Chart</a>
+        <p>Long-term valuation bands</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/mvrv-z-score">MVRV Z-Score</a>
+        <p>On-chain cycle top indicator</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/bitcoin-stock-to-flow">Stock-to-Flow Model</a>
+        <p>Scarcity-based price model</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/bitcoin-dominance">Bitcoin Dominance</a>
+        <p>BTC.D and market cycle phases</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/bitcoin-halving-explained">Bitcoin Halving</a>
+        <p>How halvings affect sentiment</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+</body>
+</html>

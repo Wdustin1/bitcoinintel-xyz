@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bitcoin Stock-to-Flow Model (S2F) Explained | Bitcoin Intel XYZ</title>
+  <meta name="description" content="The Bitcoin Stock-to-Flow model predicts BTC price based on its scarcity. Learn how S2F works, its track record, and how to use it alongside other indicators." />
+  <link rel="canonical" href="https://www.bitcoinintel.xyz/blog/bitcoin-stock-to-flow" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://www.bitcoinintel.xyz/blog/bitcoin-stock-to-flow" />
+  <meta property="og:title" content="Bitcoin Stock-to-Flow Model (S2F) Explained | Bitcoin Intel XYZ" />
+  <meta property="og:description" content="The Bitcoin Stock-to-Flow model predicts BTC price based on its scarcity. Learn how S2F works, its track record, and how to use it alongside other indicators." />
+  <meta property="og:image" content="https://www.bitcoinintel.xyz/logo-banner-1.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@BitcoinIntelXYZ" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #080808; color: #e0e0e0; font-family: 'Inter', sans-serif; line-height: 1.7; }
+    a { color: #F7931A; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .site-header { background: #0a0a0a; border-bottom: 1px solid #1a1a1a; padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .site-header-logo { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 800; color: #fff; text-decoration: none; }
+    .site-header-logo svg { width: 28px; height: 28px; }
+    .site-header-back { font-size: 13px; color: #555; font-weight: 500; }
+    .site-header-back:hover { color: #F7931A; text-decoration: none; }
+
+    .article-wrap { max-width: 760px; margin: 0 auto; padding: 60px 24px 100px; }
+    .article-label { font-size: 11px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: #F7931A; margin-bottom: 16px; }
+    h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 900; letter-spacing: -.03em; line-height: 1.15; color: #fff; margin-bottom: 16px; }
+    .article-meta { font-size: 13px; color: #444; margin-bottom: 40px; padding-bottom: 32px; border-bottom: 1px solid #181818; }
+    h2 { font-size: 22px; font-weight: 800; color: #fff; margin: 48px 0 16px; letter-spacing: -.02em; }
+    h3 { font-size: 17px; font-weight: 700; color: #ccc; margin: 32px 0 10px; }
+    p { font-size: 16px; color: #aaa; margin-bottom: 20px; }
+    ul, ol { padding-left: 24px; margin-bottom: 20px; }
+    li { font-size: 16px; color: #aaa; margin-bottom: 8px; }
+    strong { color: #e0e0e0; font-weight: 600; }
+    .highlight { background: #111; border-left: 3px solid #F7931A; padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 28px 0; }
+    .highlight p { margin: 0; color: #ccc; }
+
+    .cta-box { background: #0f0f0f; border: 1px solid #222; border-radius: 16px; padding: 36px; text-align: center; margin: 60px 0 0; }
+    .cta-box h3 { margin: 0 0 10px; font-size: 20px; color: #fff; }
+    .cta-box p { margin: 0 0 24px; color: #555; font-size: 15px; }
+    .cta-btn { display: inline-block; background: #F7931A; color: #000; font-weight: 800; font-size: 15px; padding: 14px 32px; border-radius: 999px; letter-spacing: -.01em; }
+    .cta-btn:hover { background: #e07d0e; text-decoration: none; }
+
+    .related { margin-top: 60px; }
+    .related h2 { font-size: 18px; margin-bottom: 20px; }
+    .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+    .related-card { background: #0f0f0f; border: 1px solid #1a1a1a; border-radius: 12px; padding: 16px; }
+    .related-card a { color: #fff; font-weight: 600; font-size: 14px; }
+    .related-card p { font-size: 12px; color: #444; margin: 4px 0 0; }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="site-header-logo" href="/">
+    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="16" r="16" fill="#F7931A"/>
+      <path d="M21.5 13.5c.3-2-1.2-3.1-3.3-3.8l.7-2.7-1.6-.4-.7 2.6-1.3-.3.7-2.7-1.6-.4-.7 2.7-2.6-.6-.4 1.7s1.2.3 1.1.3c.6.2.7.6.7.9l-1.7 6.8c-.1.2-.3.5-.8.4 0 0-1.1-.3-1.1-.3l-.8 1.8 2.5.6.9.2-.7 2.8 1.6.4.7-2.8 1.3.3-.7 2.8 1.6.4.7-2.8c2.8.5 4.9.3 5.8-2.2.7-2-.03-3.1-1.5-3.9 1.1-.2 1.9-1 2.1-2.5zm-3.8 5.3c-.5 2-3.9.9-5 .6l.9-3.5c1.1.3 4.6.8 4.1 2.9zm.5-5.3c-.5 1.8-3.3.9-4.3.7l.8-3.2c1 .2 4.1.7 3.5 2.5z" fill="white"/>
+    </svg>
+    Bitcoin Intel XYZ
+  </a>
+  <a class="site-header-back" href="/">← Back to Dashboard</a>
+</header>
+
+<article class="article-wrap">
+  <div class="article-label">Bitcoin Education</div>
+  <h1>Bitcoin Stock-to-Flow Model (S2F) Explained</h1>
+  <div class="article-meta">By Bitcoin Intel XYZ &nbsp;·&nbsp; 5 min read &nbsp;·&nbsp; <a href="https://www.bitcoinintel.xyz">bitcoinintel.xyz</a></div>
+
+  <p>Few Bitcoin price models have generated as much debate — or as much fascination — as the <strong>Stock-to-Flow (S2F) model</strong>. Proposed pseudonymously by analyst "Plan B" in 2019, the model frames Bitcoin's price through the lens of scarcity, drawing a direct comparison to gold and other precious metals. It generated enormous buzz when Bitcoin tracked its predictions closely across two full market cycles.</p>
+
+  <p>Whether you're a believer, a skeptic, or somewhere in between, understanding Stock-to-Flow is essential for any serious Bitcoin analyst. Here's everything you need to know.</p>
+
+  <h2>What Is Stock-to-Flow?</h2>
+
+  <p>Stock-to-Flow is a ratio used in commodity markets to measure scarcity. It's calculated as:</p>
+
+  <p><strong>S2F = Stock (total existing supply) ÷ Flow (annual new production)</strong></p>
+
+  <p>For gold, which has a very large existing stock and relatively low annual mining output, the S2F ratio is around 60. Silver sits around 22. The higher the ratio, the scarcer the asset relative to its production rate.</p>
+
+  <p>Bitcoin's S2F ratio increases over time and roughly doubles with each <a href="/blog/bitcoin-halving-explained">halving event</a>. Before the 2020 halving, Bitcoin's S2F was around 27. After the 2020 halving, it jumped to approximately 56 — nearly matching gold. After the 2024 halving, Bitcoin's S2F exceeded 100, making it the scarcest asset ever created by that measure.</p>
+
+  <div class="highlight">
+    <p>💡 <strong>Key insight:</strong> Bitcoin is the only asset in history where scarcity is <em>mathematically guaranteed and publicly verifiable</em>. The halving schedule is written into the protocol and cannot be changed without consensus of the entire network.</p>
+  </div>
+
+  <h2>How the S2F Model Predicts Price</h2>
+
+  <p>Plan B's original S2F model found a statistically strong relationship between Bitcoin's stock-to-flow ratio and its market capitalization. By fitting a power law regression to historical data, the model produced a price prediction curve.</p>
+
+  <p>The key claim: as Bitcoin's S2F ratio increases (driven by halvings), its price has historically followed in a predictable pattern. The model is plotted on a log scale, and Bitcoin's price has tracked remarkably close to the model line through multiple cycles.</p>
+
+  <p>Plan B later extended the model to <strong>S2F Cross (S2FX)</strong>, which clusters Bitcoin into distinct phases (similar to phase transitions in physics) and produces higher price targets for each phase.</p>
+
+  <h3>What the Model Predicts for Each Phase</h3>
+
+  <ul>
+    <li><strong>Phase 1 (proof of concept):</strong> Bitcoin valued in cents to single dollars</li>
+    <li><strong>Phase 2 (payments):</strong> $5–$10 range</li>
+    <li><strong>Phase 3 (digital gold emergence):</strong> $100–$1,000 range</li>
+    <li><strong>Phase 4 (financial asset):</strong> $10,000–$50,000 range (2020–2024 cycle)</li>
+    <li><strong>Phase 5 (reserve asset):</strong> Six-figure territory</li>
+  </ul>
+
+  <p>Bitcoin has historically moved through these phases in alignment with halving cycles, though with significant volatility around the model line.</p>
+
+  <h2>The Debate: Does S2F Still Work?</h2>
+
+  <p>The S2F model had an impressive run from 2019 through 2021. Bitcoin's price closely tracked model predictions during the 2020–2021 bull market. However, the 2021–2022 cycle saw Bitcoin fail to reach the model's upper targets (~$100K+) before entering a severe bear market, which led many analysts to declare the model "broken."</p>
+
+  <p>Critics of S2F raise several important points:</p>
+
+  <ul>
+    <li><strong>Demand is not modeled.</strong> S2F only looks at supply. Price is determined by both supply and demand, and demand can collapse regardless of scarcity.</li>
+    <li><strong>The regression may be overfitted.</strong> With limited data points (only 4 halvings), finding a strong correlation may be partially coincidental.</li>
+    <li><strong>Diminishing returns are likely.</strong> As Bitcoin's market cap grows, the magnitude of each cycle's gains tends to shrink. The model doesn't account for this.</li>
+  </ul>
+
+  <p>Defenders argue the model was never meant to be precise, only directionally correct over long timeframes. Viewed that way — Bitcoin trending toward six-figure valuations over the next decade — the S2F thesis is far from dead.</p>
+
+  <p>On <a href="https://www.bitcoinintel.xyz">bitcoinintel.xyz</a>, you can view the <a href="/#s2f">live S2F chart</a> and compare Bitcoin's current price to the model value in real time, alongside complementary indicators like the <a href="/blog/bitcoin-rainbow-chart">Rainbow Chart</a> and <a href="/blog/mvrv-z-score">MVRV Z-Score</a>.</p>
+
+  <div class="cta-box">
+    <h3>See it live on the dashboard</h3>
+    <p>Track this and 20+ other Bitcoin charts in real-time — free, no signup.</p>
+    <a class="cta-btn" href="https://www.bitcoinintel.xyz">Open Dashboard →</a>
+  </div>
+
+  <div class="related">
+    <h2>More Bitcoin Charts</h2>
+    <div class="related-grid">
+      <div class="related-card">
+        <a href="/#s2f">Live S2F Chart</a>
+        <p>View current S2F model value</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/bitcoin-rainbow-chart">Rainbow Chart</a>
+        <p>Log regression valuation bands</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/mvrv-z-score">MVRV Z-Score</a>
+        <p>On-chain cycle top indicator</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/bitcoin-halving-explained">Bitcoin Halving</a>
+        <p>Why halvings drive the S2F ratio</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/bitcoin-fear-greed-index">Fear &amp; Greed Index</a>
+        <p>Market sentiment explained</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/bitcoin-dominance">Bitcoin Dominance</a>
+        <p>BTC.D and the altcoin cycle</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+</body>
+</html>

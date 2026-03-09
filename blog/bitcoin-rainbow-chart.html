@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bitcoin Rainbow Chart Explained: What It Is and How to Read It | Bitcoin Intel XYZ</title>
+  <meta name="description" content="The Bitcoin Rainbow Chart uses color-coded bands on a logarithmic price curve to signal when BTC is cheap or expensive. Learn how to read it and use it as a long-term investment guide." />
+  <link rel="canonical" href="https://www.bitcoinintel.xyz/blog/bitcoin-rainbow-chart" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://www.bitcoinintel.xyz/blog/bitcoin-rainbow-chart" />
+  <meta property="og:title" content="Bitcoin Rainbow Chart Explained: What It Is and How to Read It | Bitcoin Intel XYZ" />
+  <meta property="og:description" content="The Bitcoin Rainbow Chart uses color-coded bands on a logarithmic price curve to signal when BTC is cheap or expensive. Learn how to read it and use it as a long-term investment guide." />
+  <meta property="og:image" content="https://www.bitcoinintel.xyz/logo-banner-1.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@BitcoinIntelXYZ" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #080808; color: #e0e0e0; font-family: 'Inter', sans-serif; line-height: 1.7; }
+    a { color: #F7931A; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .site-header { background: #0a0a0a; border-bottom: 1px solid #1a1a1a; padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .site-header-logo { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 800; color: #fff; text-decoration: none; }
+    .site-header-logo svg { width: 28px; height: 28px; }
+    .site-header-back { font-size: 13px; color: #555; font-weight: 500; }
+    .site-header-back:hover { color: #F7931A; text-decoration: none; }
+
+    .article-wrap { max-width: 760px; margin: 0 auto; padding: 60px 24px 100px; }
+    .article-label { font-size: 11px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: #F7931A; margin-bottom: 16px; }
+    h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 900; letter-spacing: -.03em; line-height: 1.15; color: #fff; margin-bottom: 16px; }
+    .article-meta { font-size: 13px; color: #444; margin-bottom: 40px; padding-bottom: 32px; border-bottom: 1px solid #181818; }
+    h2 { font-size: 22px; font-weight: 800; color: #fff; margin: 48px 0 16px; letter-spacing: -.02em; }
+    h3 { font-size: 17px; font-weight: 700; color: #ccc; margin: 32px 0 10px; }
+    p { font-size: 16px; color: #aaa; margin-bottom: 20px; }
+    ul, ol { padding-left: 24px; margin-bottom: 20px; }
+    li { font-size: 16px; color: #aaa; margin-bottom: 8px; }
+    strong { color: #e0e0e0; font-weight: 600; }
+    .highlight { background: #111; border-left: 3px solid #F7931A; padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 28px 0; }
+    .highlight p { margin: 0; color: #ccc; }
+
+    .cta-box { background: #0f0f0f; border: 1px solid #222; border-radius: 16px; padding: 36px; text-align: center; margin: 60px 0 0; }
+    .cta-box h3 { margin: 0 0 10px; font-size: 20px; color: #fff; }
+    .cta-box p { margin: 0 0 24px; color: #555; font-size: 15px; }
+    .cta-btn { display: inline-block; background: #F7931A; color: #000; font-weight: 800; font-size: 15px; padding: 14px 32px; border-radius: 999px; letter-spacing: -.01em; }
+    .cta-btn:hover { background: #e07d0e; text-decoration: none; }
+
+    .related { margin-top: 60px; }
+    .related h2 { font-size: 18px; margin-bottom: 20px; }
+    .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+    .related-card { background: #0f0f0f; border: 1px solid #1a1a1a; border-radius: 12px; padding: 16px; }
+    .related-card a { color: #fff; font-weight: 600; font-size: 14px; }
+    .related-card p { font-size: 12px; color: #444; margin: 4px 0 0; }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="site-header-logo" href="/">
+    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="16" r="16" fill="#F7931A"/>
+      <path d="M21.5 13.5c.3-2-1.2-3.1-3.3-3.8l.7-2.7-1.6-.4-.7 2.6-1.3-.3.7-2.7-1.6-.4-.7 2.7-2.6-.6-.4 1.7s1.2.3 1.1.3c.6.2.7.6.7.9l-1.7 6.8c-.1.2-.3.5-.8.4 0 0-1.1-.3-1.1-.3l-.8 1.8 2.5.6.9.2-.7 2.8 1.6.4.7-2.8 1.3.3-.7 2.8 1.6.4.7-2.8c2.8.5 4.9.3 5.8-2.2.7-2-.03-3.1-1.5-3.9 1.1-.2 1.9-1 2.1-2.5zm-3.8 5.3c-.5 2-3.9.9-5 .6l.9-3.5c1.1.3 4.6.8 4.1 2.9zm.5-5.3c-.5 1.8-3.3.9-4.3.7l.8-3.2c1 .2 4.1.7 3.5 2.5z" fill="white"/>
+    </svg>
+    Bitcoin Intel XYZ
+  </a>
+  <a class="site-header-back" href="/">← Back to Dashboard</a>
+</header>
+
+<article class="article-wrap">
+  <div class="article-label">Bitcoin Education</div>
+  <h1>Bitcoin Rainbow Chart Explained: What It Is and How to Read It</h1>
+  <div class="article-meta">By Bitcoin Intel XYZ &nbsp;·&nbsp; 5 min read &nbsp;·&nbsp; <a href="https://www.bitcoinintel.xyz">bitcoinintel.xyz</a></div>
+
+  <p>The <strong>Bitcoin Rainbow Chart</strong> is one of the most visually intuitive tools in crypto. At a glance, it tells you whether Bitcoin is in "buy" territory, neutral ground, or dangerously overheated — using nothing more than colored bands overlaid on Bitcoin's historical price chart. If you've ever wanted a simple, big-picture indicator for long-term Bitcoin valuation, the Rainbow Chart is a great place to start.</p>
+
+  <p>In this guide, we'll break down exactly what the Rainbow Chart is, how it's constructed, what each color band means, and — crucially — how to use it without over-relying on it.</p>
+
+  <h2>What Is the Bitcoin Rainbow Chart?</h2>
+
+  <p>The Bitcoin Rainbow Chart plots BTC price on a <strong>logarithmic scale</strong> over time, then overlays a series of color-coded bands — hence "rainbow" — that represent different valuation levels. The chart was originally popularized around 2014 and has been maintained and updated by the community ever since. You can view the live version on <a href="/#rainbow">bitcoinintel.xyz's Rainbow Chart dashboard</a>.</p>
+
+  <p>The logarithmic base is important: because Bitcoin's price has grown by orders of magnitude (from cents to tens of thousands of dollars), a log scale is the only way to make early price history visible. On a linear chart, everything before 2017 would be a flat line.</p>
+
+  <p>The bands are derived from a <strong>logarithmic regression</strong> — a curve fitted to Bitcoin's entire price history. The regression line represents a "fair value" trend, and the color bands are fixed offsets above and below it. These bands don't move based on sentiment or news; they're mathematically defined based on historical price behavior.</p>
+
+  <h3>The Color Bands and What They Mean</h3>
+
+  <p>From bottom (cheapest) to top (most overvalued), the typical color bands are:</p>
+
+  <ul>
+    <li><strong>Dark blue / "Basically a Fire Sale"</strong> — Historically extreme undervaluation. Rare opportunities that only appear during severe bear markets.</li>
+    <li><strong>Blue / "Buy"</strong> — Strong long-term buy signal. Price is well below the historical trend.</li>
+    <li><strong>Cyan / "Accumulate"</strong> — Below fair value; a good zone for dollar-cost averaging.</li>
+    <li><strong>Green / "Still Cheap"</strong> — Slightly below trend; still favorable for long-term holders.</li>
+    <li><strong>Yellow-Green / "Hold"</strong> — Near fair value. No panic, no euphoria.</li>
+    <li><strong>Yellow / "Is this a bubble?"</strong> — Starting to get stretched above the trend.</li>
+    <li><strong>Orange / "FOMO Intensifies"</strong> — Significantly overvalued by historical standards. Caution warranted.</li>
+    <li><strong>Red / "Sell. Seriously, SELL!"</strong> — Extreme overvaluation. Previous cycle tops have occurred in this zone.</li>
+  </ul>
+
+  <div class="highlight">
+    <p>💡 <strong>Key insight:</strong> The Rainbow Chart is a <em>long-term</em> valuation tool. It should never be used to time short-term trades. Its real power is context — showing you where the current price sits relative to Bitcoin's entire history of growth.</p>
+  </div>
+
+  <h2>How to Read the Rainbow Chart Correctly</h2>
+
+  <p>Reading the chart is simple: find where today's Bitcoin price sits within the color bands. If BTC is in the blue or green zones, historical data suggests it may be undervalued relative to its long-term growth trend. If it's in the red or orange zones, the market may be overheating.</p>
+
+  <p>Here's what makes the Rainbow Chart powerful:</p>
+
+  <ul>
+    <li><strong>It captures multiple market cycles.</strong> The chart spans from 2010 to the present, covering every Bitcoin bull run and bear market. This long-term perspective helps filter out short-term noise.</li>
+    <li><strong>It's immune to manipulation.</strong> Because the bands are based on a fixed mathematical formula, no single actor or news event can "move" them.</li>
+    <li><strong>It's easy to understand at a glance.</strong> Unlike complex on-chain metrics, the Rainbow Chart communicates valuation instantly through color.</li>
+  </ul>
+
+  <p>However, there are important caveats. The chart <strong>does not predict price direction</strong> — Bitcoin can stay in any color band for months. It also assumes Bitcoin's logarithmic growth trend continues, which is not guaranteed. As adoption matures, Bitcoin's growth rate may slow, potentially making the upper bands less relevant.</p>
+
+  <h2>The Rainbow Chart in Practice: What History Shows</h2>
+
+  <p>Looking back at past cycles, the Rainbow Chart has been remarkably consistent:</p>
+
+  <ul>
+    <li><strong>2015 bear market bottom:</strong> Price touched the dark blue "Fire Sale" zone — one of the most extreme buying opportunities in BTC history.</li>
+    <li><strong>Late 2017 / early 2018 peak:</strong> Bitcoin reached the red "Sell. Seriously, SELL!" band just before its crash from ~$20,000.</li>
+    <li><strong>2020 accumulation phase:</strong> During the pre-halving dip and COVID crash, price returned to the blue and cyan accumulation zones.</li>
+    <li><strong>2021 peak:</strong> BTC briefly entered the red zone above $60,000, followed by a significant correction.</li>
+    <li><strong>2022-2023 bear market:</strong> Price spent extended time in the blue and dark blue zones — historically the best long-term entry territory.</li>
+  </ul>
+
+  <p>This pattern doesn't guarantee the future, but it illustrates why many long-term Bitcoin investors use the Rainbow Chart as a rough guide for when to increase or decrease exposure.</p>
+
+  <p>On <a href="https://www.bitcoinintel.xyz">bitcoinintel.xyz</a>, you can view the live Rainbow Chart alongside other on-chain indicators like the <a href="/blog/mvrv-z-score">MVRV Z-Score</a> and <a href="/blog/bitcoin-stock-to-flow">Stock-to-Flow model</a> to get a more complete picture of where Bitcoin stands in its current cycle.</p>
+
+  <div class="cta-box">
+    <h3>See it live on the dashboard</h3>
+    <p>Track this and 20+ other Bitcoin charts in real-time — free, no signup.</p>
+    <a class="cta-btn" href="https://www.bitcoinintel.xyz">Open Dashboard →</a>
+  </div>
+
+  <div class="related">
+    <h2>More Bitcoin Charts</h2>
+    <div class="related-grid">
+      <div class="related-card">
+        <a href="/#rainbow">Live Rainbow Chart</a>
+        <p>View the chart on the dashboard</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/bitcoin-stock-to-flow">Stock-to-Flow Model</a>
+        <p>BTC scarcity-based valuation</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/mvrv-z-score">MVRV Z-Score</a>
+        <p>On-chain cycle top indicator</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/bitcoin-fear-greed-index">Fear &amp; Greed Index</a>
+        <p>Market sentiment explained</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/bitcoin-halving-explained">Bitcoin Halving</a>
+        <p>Why halvings matter for price</p>
+      </div>
+      <div class="related-card">
+        <a href="/blog/bitcoin-dominance">Bitcoin Dominance</a>
+        <p>BTC.D and the altcoin cycle</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+</body>
+</html>

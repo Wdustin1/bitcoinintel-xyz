@@ -55,6 +55,13 @@
   }
   </script>
 
+  <!-- ═══ Preconnect hints — reduce latency for external resources ═══ -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="dns-prefetch" href="https://api.coingecko.com" />
+  <link rel="dns-prefetch" href="https://api.coinmarketcap.com" />
+  <link rel="dns-prefetch" href="https://open-api.coinglass.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
@@ -810,7 +817,7 @@
     <div style="font-size:11px;font-weight:600;color:#333;" id="liqMapUpdated">—</div>
   </div>
   <div style="position:relative;width:100%;background:#000;border-radius:10px;overflow:hidden;min-height:200px;display:flex;align-items:center;justify-content:center;">
-    <img id="liqMapImg" src="" alt="Bitcoin Liquidation Map"
+    <img id="liqMapImg" src="" alt="Bitcoin Liquidation Map" loading="lazy"
          style="width:100%;height:auto;display:block;border-radius:10px;"
          onerror="this.style.display='none';document.getElementById('liqMapErr').style.display='flex'"/>
     <div id="liqMapErr" style="display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px;gap:10px;color:#333;">
@@ -833,7 +840,7 @@
       </div>
     </div>
     <div style="position:relative;width:100%;background:#000;border-radius:10px;overflow:hidden;min-height:200px;display:flex;align-items:center;justify-content:center;">
-      <img id="heatmapImg" src="" alt="Liquidation Heatmap"
+      <img id="heatmapImg" src="" alt="Liquidation Heatmap" loading="lazy"
            style="width:100%;height:auto;display:block;border-radius:10px;"
            onerror="this.style.display='none';document.getElementById('heatmapErr').style.display='flex'"/>
       <div id="heatmapErr" style="display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px;gap:10px;color:#333;">
@@ -2628,28 +2635,62 @@
   }
 
   // ── Boot ──
+  // Track which sections have already been loaded
+  const _loaded = new Set();
+
+  // Map section id → loader function
+  const _loaders = {
+    'btc-price':      () => loadPrice(7),
+    'fear-greed':     () => loadFearGreed(),
+    'dominance':      () => loadDominance(),
+    'market-overview':() => { /* loaded by dominance */ },
+    'open-interest':  () => loadOpenInterest(),
+    'funding-rate':   () => loadFundingRate(),
+    'liquidations':   () => loadLiquidations(),
+    'liq-map':        () => loadLiqMap(),
+    'liq-heatmap':    () => loadLiqHeatmap(),
+    'hash-rate':      () => loadHashRate('1year'),
+    'mining-cost':    () => loadMiningCost(),
+    'halving':        () => loadHalving(),
+    'mvrv':           () => loadMVRV(),
+    'btc-m2':         () => loadM2(),
+    'stock-to-flow':  () => loadS2F(),
+    'rainbow':        () => loadRainbow(),
+    'debt-clock':     () => loadDebtClock(),
+    'halving-spiral': () => loadHalfingSpiral(),
+    'crypto-heatmap': () => { /* TradingView widget self-loads */ },
+    'exchange-reserves': () => loadExchangeReserves(),
+  };
+
+  function lazyLoad(sectionId) {
+    if (_loaded.has(sectionId)) return;
+    _loaded.add(sectionId);
+    const fn = _loaders[sectionId];
+    if (fn) fn();
+  }
+
+  // Sections to load immediately (above the fold)
+  const _eager = ['btc-price', 'fear-greed', 'dominance', 'market-overview'];
+
   const adapterScript = document.createElement('script');
   adapterScript.src = 'https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js';
   adapterScript.onload = () => {
-    loadPrice(7);
-    loadFearGreed();
-    loadDominance();
-    loadOpenInterest();
-    loadFundingRate();
-    loadLiquidations();
-    loadHashRate('1year');
-    loadMiningCost();
-    loadHalving();
-    loadS2F();
-    loadHalfingSpiral();
-    loadRainbow();
-    loadLiqMap();
-    loadLiqHeatmap();
-    loadDebtClock();
-    loadMVRV();
-    loadExchangeReserves();
-    loadGoldRatio();
-    loadM2();
+    // Load above-the-fold charts immediately
+    _eager.forEach(lazyLoad);
+
+    // Observe all section anchors — load when 200px from viewport
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          lazyLoad(entry.target.id);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { rootMargin: '200px 0px' });
+
+    document.querySelectorAll('.section-anchor').forEach(el => {
+      if (!_eager.includes(el.id)) observer.observe(el);
+    });
   };
 
   // ════════════════════════════════════════
