@@ -801,24 +801,25 @@
 
   <!-- ── LIQUIDATION MAP ── -->
   <div class="card section-anchor" id="liq-map">
-    <h3 class="card-title">Bitcoin Liquidation Map</h3>
-      <div class="site-sub" style="margin-bottom:14px;">bitcoinintel.xyz</div>
-    <div class="legend" style="flex-wrap:wrap;gap:16px;margin-bottom:14px;">
-      <div class="leg-item"><div class="leg-dot" style="background:#F7931A"></div>Long Liq Zone (price below current)</div>
-      <div class="leg-item"><div class="leg-dot" style="background:#14b8a6"></div>Short Liq Zone (price above current)</div>
-      <div class="leg-item"><div style="width:22px;height:3px;background:#ef4444;border-radius:2px;margin-right:7px;"></div>Long Cascade Risk</div>
-      <div class="leg-item"><div style="width:22px;height:3px;background:#22c55e;border-radius:2px;margin-right:7px;"></div>Short Cascade Risk</div>
-      <div class="leg-item"><div style="width:2px;height:14px;background:#F7931A;border-radius:2px;margin-right:7px;"></div>Current Price</div>
+  <div class="card-header">
+    <div>
+      <h3 class="card-title">Bitcoin Liquidation Map</h3>
+      <div class="site-sub">bitcoinintel.xyz</div>
+      <div class="card-sub">Price levels where leveraged positions face forced liquidation</div>
     </div>
-    <div class="chart-wrap" style="height:360px;"><canvas id="mapChart"></canvas></div>
-    <div class="stats-row">
-      <div class="stat"><div class="stat-label">Peak Level</div><div class="stat-value" id="mapPeakLevel">—</div></div>
-      <div class="stat"><div class="stat-label">Peak Volume</div><div class="stat-value" id="mapPeakVol">—</div></div>
-      <div class="stat"><div class="stat-label">Price Levels</div><div class="stat-value" id="mapLevels">—</div></div>
-      <div class="stat"><div class="stat-label">Window</div><div class="stat-value">24H</div></div>
-    </div>
-    <div class="watermark">bitcoinintel.xyz</div>
+    <div style="font-size:11px;font-weight:600;color:#333;" id="liqMapUpdated">—</div>
   </div>
+  <div style="position:relative;width:100%;background:#000;border-radius:10px;overflow:hidden;min-height:200px;display:flex;align-items:center;justify-content:center;">
+    <img id="liqMapImg" src="" alt="Bitcoin Liquidation Map"
+         style="width:100%;height:auto;display:block;border-radius:10px;"
+         onerror="this.style.display='none';document.getElementById('liqMapErr').style.display='flex'"/>
+    <div id="liqMapErr" style="display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px;gap:10px;color:#333;">
+      <div style="font-size:28px;">🗺️</div>
+      <div style="font-size:13px;font-weight:600;">Map loading…</div>
+    </div>
+  </div>
+  <div class="watermark">bitcoinintel.xyz</div>
+</div>
 
 <div class="card section-anchor" id="liq-heatmap">
     <div class="card-header">
@@ -2642,6 +2643,7 @@
     loadS2F();
     loadHalfingSpiral();
     loadRainbow();
+    loadLiqMap();
     loadLiqHeatmap();
     loadDebtClock();
     loadMVRV();
@@ -2928,6 +2930,23 @@
       if (debtInterval) clearInterval(debtInterval);
       debtInterval = setInterval(tick, 100);
     } catch(e) { console.error('Debt clock error:', e); }
+  }
+
+  function loadLiqMap() {
+    const img = document.getElementById('liqMapImg');
+    const upd = document.getElementById('liqMapUpdated');
+    const err = document.getElementById('liqMapErr');
+    img.src = '/api/liq-map-img?t=' + Date.now();
+    img.onload = () => {
+      err.style.display = 'none';
+      img.style.display = 'block';
+      if (upd) upd.textContent = 'Updated ' + new Date().toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
+    };
+    img.onerror = () => {
+      img.style.display = 'none';
+      err.style.display = 'flex';
+    };
+    setTimeout(loadLiqMap, 5 * 60 * 1000);
   }
 
   function loadLiqHeatmap() {
