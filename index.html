@@ -2698,12 +2698,12 @@
         type: 'line',
         data: { datasets: [
           { label: 'BTC on Exchanges (M)', data: dates.map((d,i) => ({ x: d, y: btcVals[i] })),
-            borderColor: '#F7931A', borderWidth: 2, fill: true,
-            backgroundColor: 'rgba(247,147,26,0.08)', pointRadius: 0, tension: 0.2,
+            borderColor: '#22c55e', borderWidth: 2, fill: true,
+            backgroundColor: 'rgba(34,197,94,0.15)', pointRadius: 0, tension: 0.3,
             yAxisID: 'y' },
           { label: 'BTC Price', data: dates.map((d,i) => ({ x: d, y: prices[i] })),
-            borderColor: '#ffffff44', borderWidth: 1.5, fill: false,
-            pointRadius: 0, tension: 0.2, yAxisID: 'y2' },
+            borderColor: '#F7931A', borderWidth: 2, fill: false,
+            pointRadius: 0, tension: 0.3, yAxisID: 'y2' },
         ]},
         options: {
           responsive: true, maintainAspectRatio: false, animation: { duration: 400 },
@@ -2714,8 +2714,8 @@
           }}},
           scales: {
             x: { type: 'time', time: { displayFormats: { year: 'yyyy' }}, grid: { color: '#1e1e1e' }, ticks: { color: '#555', maxTicksLimit: 8 }},
-            y:  { position: 'left',  grid: { color: '#1e1e1e' }, ticks: { color: '#F7931A', callback: v => v.toFixed(1) + 'M' }},
-            y2: { position: 'right', grid: { display: false }, ticks: { color: '#555', callback: v => v >= 1e3 ? '$' + (v/1e3).toFixed(0) + 'K' : '$' + v }}
+            y:  { position: 'left',  grid: { color: '#1e1e1e' }, ticks: { color: '#22c55e', callback: v => v.toFixed(1) + 'M' }},
+            y2: { position: 'right', grid: { display: false }, ticks: { color: '#F7931A', callback: v => v >= 1e3 ? '$' + (v/1e3).toFixed(0) + 'K' : '$' + v }}
           }
         }
       });
