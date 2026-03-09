@@ -2781,16 +2781,20 @@
       cm2.textContent = (m2chg > 0 ? '+' : '') + m2chg + '%'; cm2.style.color = m2chg > 0 ? '#ef4444' : '#22c55e';
       document.getElementById('m2BTCPrice').textContent = fmt(last.price);
 
+      // Filter to last 10 years
+      const cutoff10y = Date.now() - 10 * 365.25 * 86400000;
+      const filtered  = points.filter(p => new Date(p.t).getTime() >= cutoff10y);
+
       const ctx = document.getElementById('m2Chart').getContext('2d');
       if (m2Chart) m2Chart.destroy();
       m2Chart = new Chart(ctx, {
         type: 'line',
         data: { datasets: [
-          { label: 'US M2 ($B)', data: points.map(p => ({ x: new Date(p.t), y: p.m2 })),
+          { label: 'M2 Money Supply', data: filtered.map(p => ({ x: new Date(p.t), y: p.m2 })),
             borderColor: '#60a5fa', borderWidth: 2, fill: true,
             backgroundColor: 'rgba(96,165,250,0.07)', pointRadius: 0, tension: 0.3,
             yAxisID: 'y' },
-          { label: 'BTC Price', data: points.map(p => ({ x: new Date(p.t), y: p.price })),
+          { label: 'BTC Price', data: filtered.map(p => ({ x: new Date(p.t), y: p.price })),
             borderColor: '#F7931A', borderWidth: 2, fill: false,
             pointRadius: 0, tension: 0.2, yAxisID: 'y2' },
         ]},
@@ -2802,10 +2806,21 @@
             label: i => i.datasetIndex === 0 ? 'M2: $' + (i.raw.y/1000).toFixed(1) + 'T' : 'BTC: ' + fmt(i.raw.y)
           }}},
           scales: {
-            x: { type: 'time', time: { displayFormats: { year: 'yyyy' }}, grid: { color: '#1e1e1e' }, ticks: { color: '#555', maxTicksLimit: 8 }},
-            y:  { position: 'left',  grid: { color: '#1e1e1e' }, ticks: { color: '#60a5fa', callback: v => '$' + (v/1000).toFixed(0) + 'T' }},
+            x: { type: 'time', time: { displayFormats: { year: 'yyyy' }},
+                 grid: { color: '#1e1e1e' }, ticks: { color: '#555', maxTicksLimit: 10 }},
+            y:  { position: 'left', grid: { color: '#1e1e1e' },
+                  ticks: { color: '#60a5fa', callback: v => '$' + (v/1000).toFixed(0) + 'T' }},
             y2: { position: 'right', type: 'logarithmic', grid: { display: false },
-              ticks: { color: '#F7931A', callback: v => v >= 1e6 ? '$'+(v/1e6).toFixed(0)+'M' : v >= 1e3 ? '$'+(v/1e3).toFixed(0)+'K' : '' }}
+                  ticks: { color: '#F7931A',
+                    callback: v => {
+                      const vals = [100,500,1000,5000,10000,25000,50000,75000,100000];
+                      return vals.includes(v) ? (v >= 1000 ? '$'+(v/1000).toFixed(0)+'K' : '$'+v) : '';
+                    }
+                  },
+                  afterBuildTicks: axis => {
+                    axis.ticks = [100,500,1000,5000,10000,25000,50000,75000,100000].map(v => ({ value: v }));
+                  }
+            }
           }
         }
       });
