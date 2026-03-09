@@ -1068,8 +1068,8 @@
   <div class="stats-row">
     <div class="stat"><div class="stat-label">Current Reserves</div><div class="stat-value" id="exResCurrent">—</div></div>
     <div class="stat"><div class="stat-label">1Y Change</div><div class="stat-value" id="exRes1Y">—</div></div>
-    <div class="stat"><div class="stat-label">All-Time Low</div><div class="stat-value" id="exResATL">—</div></div>
-    <div class="stat"><div class="stat-label">Source</div><div class="stat-value" style="color:#555;">CoinMetrics</div></div>
+    <div class="stat"><div class="stat-label">Trend Source</div><div class="stat-value" style="color:#555;">CoinMetrics</div></div>
+    <div class="stat"><div class="stat-label">Total Source</div><div class="stat-value" style="color:#555;" id="exResSource">CoinGlass</div></div>
   </div>
   <div class="watermark">bitcoinintel.xyz</div>
 </div>
@@ -2673,7 +2673,7 @@
   async function loadExchangeReserves() {
     try {
       const res    = await fetch('/api/exchange-reserves');
-      const { points } = await res.json();
+      const { points, cgCurrent } = await res.json();
       const cutoff3y = Date.now() - 3 * 365.25 * 86400 * 1000;
       const filtered = points.filter(p => new Date(p.t).getTime() >= cutoff3y);
       const sample = filtered.filter((_,i) => i % 3 === 0);
@@ -2686,13 +2686,18 @@
 
       const chg1y = ((last.btc - yearAgo.btc) / yearAgo.btc * 100).toFixed(1);
       const isDown = chg1y < 0;
-      document.getElementById('exResCurrent').textContent = (last.btc / 1e6).toFixed(3) + 'M BTC';
+      // Use CoinGlass total if available, else fall back to CoinMetrics
+      const displayBTC = cgCurrent?.totalBTC || last.btc;
+      const updatedDate = cgCurrent?.updatedAt ? new Date(cgCurrent.updatedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : null;
+      document.getElementById('exResCurrent').textContent = (displayBTC / 1e6).toFixed(3) + 'M BTC' + (updatedDate ? '' : '');
+      document.getElementById('exResCurrent').title = cgCurrent ? `Source: CoinGlass (updated ${updatedDate})` : 'Source: CoinMetrics';
       const c1y = document.getElementById('exRes1Y');
       c1y.textContent  = (chg1y > 0 ? '+' : '') + chg1y + '%';
       c1y.style.color  = isDown ? '#22c55e' : '#ef4444';
       document.getElementById('exResATL').textContent  = (atl / 1e6).toFixed(3) + 'M BTC';
-      document.getElementById('exResLabel').textContent = (last.btc / 1e6).toFixed(2) + 'M BTC';
+      document.getElementById('exResLabel').textContent = (displayBTC / 1e6).toFixed(2) + 'M BTC';
       document.getElementById('exResLabel').style.color = isDown ? '#22c55e' : '#ef4444';
+      if (updatedDate) document.getElementById('exResSource').textContent = 'CoinGlass · ' + updatedDate;
 
       const ctx = document.getElementById('exResChart').getContext('2d');
       if (exResChart) exResChart.destroy();
