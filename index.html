@@ -438,6 +438,7 @@
       <div class="nav-section-label">Liquidations</div>
       <a class="nav-link" href="#liquidations"><span class="nav-icon">💥</span>Liquidations Rekt<span class="live-badge"></span></a>
       <a class="nav-link" href="#liq-map"><span class="nav-icon">🗺️</span>Bitcoin Liq Map<span class="live-badge"></span></a>
+      <a class="nav-link" href="#liq-heatmap"><span class="nav-icon">🔥</span>Liq Heatmap<span class="live-badge"></span></a>
     </div>
 
     <div class="nav-section">
@@ -460,7 +461,6 @@
 
     <div class="nav-section">
       <div class="nav-section-label">Advanced</div>
-      <a class="nav-link" href="#liq-heatmap"><span class="nav-icon">🔥</span>Liq Heatmap<span class="live-badge"></span></a>
       <a class="nav-link" href="#crypto-heatmap"><span class="nav-icon">🌐</span>Crypto Heatmap<span class="live-badge"></span></a>
       <a class="nav-link" href="#halving-spiral"><span class="nav-icon">🌀</span>Halving Spiral<span class="live-badge"></span></a>
     </div>
@@ -753,6 +753,29 @@
     <div class="watermark">bitcoinintel.xyz</div>
   </div>
 
+<div class="card section-anchor" id="liq-heatmap">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Bitcoin Liquidation Heatmap</div>
+        <div class="site-sub">bitcoinintel.xyz</div>
+        <div class="card-sub">Price zones where over-leveraged traders are at risk of liquidation</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+        <div style="font-size:11px;font-weight:600;color:#333;" id="heatmapUpdated">—</div>
+      </div>
+    </div>
+    <div style="position:relative;width:100%;background:#000;border-radius:10px;overflow:hidden;min-height:200px;display:flex;align-items:center;justify-content:center;">
+      <img id="heatmapImg" src="" alt="Liquidation Heatmap"
+           style="width:100%;height:auto;display:block;border-radius:10px;"
+           onerror="this.style.display='none';document.getElementById('heatmapErr').style.display='flex'"/>
+      <div id="heatmapErr" style="display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px;gap:10px;color:#333;">
+        <div style="font-size:28px;">🔥</div>
+        <div style="font-size:13px;font-weight:600;">Heatmap loading…</div>
+      </div>
+    </div>
+    <div class="watermark">bitcoinintel.xyz</div>
+  </div>
+
   <!-- ── HASH RATE ── -->
   <div class="card section-anchor" id="hash-rate">
     <div class="card-header">
@@ -988,32 +1011,7 @@
     <div class="stat"><div class="stat-label">Source</div><div class="stat-value" style="color:#555;">FRED / Blockchain.com</div></div>
   </div>
   <div class="watermark">bitcoinintel.xyz</div>
-</div>
-
-<div class="card section-anchor" id="liq-heatmap">
-    <div class="card-header">
-      <div>
-        <div class="card-title">Bitcoin Liquidation Heatmap</div>
-        <div class="site-sub">bitcoinintel.xyz</div>
-        <div class="card-sub">Price zones where over-leveraged traders are at risk of liquidation</div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
-        <div style="font-size:11px;font-weight:600;color:#333;" id="heatmapUpdated">—</div>
-      </div>
-    </div>
-    <div style="position:relative;width:100%;background:#000;border-radius:10px;overflow:hidden;min-height:200px;display:flex;align-items:center;justify-content:center;">
-      <img id="heatmapImg" src="" alt="Liquidation Heatmap"
-           style="width:100%;height:auto;display:block;border-radius:10px;"
-           onerror="this.style.display='none';document.getElementById('heatmapErr').style.display='flex'"/>
-      <div id="heatmapErr" style="display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px;gap:10px;color:#333;">
-        <div style="font-size:28px;">🔥</div>
-        <div style="font-size:13px;font-weight:600;">Heatmap loading…</div>
-      </div>
-    </div>
-    <div class="watermark">bitcoinintel.xyz</div>
-  </div>
-
-<div class="card section-anchor" id="crypto-heatmap">
+</div><div class="card section-anchor" id="crypto-heatmap">
     <div class="card-header">
       <div>
         <div class="card-title">Crypto Market Heatmap</div>
