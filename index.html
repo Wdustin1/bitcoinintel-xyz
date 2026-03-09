@@ -1084,6 +1084,10 @@
         <div style="font-size:11px;font-weight:600;color:#555;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;">Per Year (est.)</div>
         <div id="debtPerYear" style="font-size:20px;font-weight:700;color:#f97316;">$—</div>
       </div>
+      <div style="text-align:center;">
+        <div style="font-size:11px;font-weight:600;color:#555;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;">Per American</div>
+        <div id="debtPerPerson" style="font-size:20px;font-weight:700;color:#f97316;">$—</div>
+      </div>
     </div>
   </div>
 
@@ -2833,13 +2837,14 @@
       const data = await res.json();
       if (data.error) return;
 
-      const { debt, recordDate, perSecond, dailyIncrease } = data;
+      const { debt, recordDate, perSecond, dailyIncrease, perPerson } = data;
       const fmt3 = n => '$' + Math.round(n).toLocaleString('en-US');
 
-      document.getElementById('debtDate').textContent    = 'As of ' + recordDate;
-      document.getElementById('debtPerSec').textContent  = '+' + fmt3(perSecond);
-      document.getElementById('debtPerDay').textContent  = '+' + fmt3(dailyIncrease);
-      document.getElementById('debtPerYear').textContent = '+' + fmt3(dailyIncrease * 365);
+      document.getElementById('debtDate').textContent       = 'Est. as of ' + recordDate;
+      document.getElementById('debtPerSec').textContent     = '+' + fmt3(perSecond);
+      document.getElementById('debtPerDay').textContent     = '+' + fmt3(dailyIncrease);
+      document.getElementById('debtPerYear').textContent    = '+' + fmt3(dailyIncrease * 365);
+      document.getElementById('debtPerPerson').textContent  = fmt3(perPerson);
 
       // Live counter: tick up from recorded debt based on seconds elapsed since record date
       const recordMs = new Date(recordDate + 'T00:00:00Z').getTime();
