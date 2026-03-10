@@ -2542,8 +2542,8 @@
     if (fn) fn();
   }
 
-  // Sections to load immediately (above the fold)
-  const _eager = ['btc-price', 'fear-greed', 'dominance', 'market-overview'];
+  // Sections to load immediately (above the fold + first scroll)
+  const _eager = ['btc-price', 'fear-greed', 'dominance', 'market-overview', 'open-interest', 'funding-rate', 'liquidations', 'liq-map', 'liq-heatmap'];
 
   const adapterScript = document.createElement('script');
   adapterScript.src = 'https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js';
@@ -2559,7 +2559,7 @@
           observer.unobserve(entry.target);
         }
       });
-    }, { rootMargin: '200px 0px' });
+    }, { rootMargin: '600px 0px' });
 
     document.querySelectorAll('.section-anchor').forEach(el => {
       if (!_eager.includes(el.id)) observer.observe(el);
