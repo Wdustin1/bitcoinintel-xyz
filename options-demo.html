@@ -509,14 +509,18 @@
 <main>
   <!-- Expiry tabs -->
   <div class="expiry-tabs">
-    <button class="expiry-tab active" data-expiry="1m">Mar 14</button>
-    <button class="expiry-tab" data-expiry="2w">Mar 21</button>
-    <button class="expiry-tab" data-expiry="3w">Mar 28</button>
-    <button class="expiry-tab" data-expiry="3m">Apr 4</button>
-    <button class="expiry-tab" data-expiry="4w">Apr 11</button>
-    <button class="expiry-tab" data-expiry="5w">Apr 18</button>
-    <button class="expiry-tab" data-expiry="6w">Apr 25</button>
-    <button class="expiry-tab" data-expiry="6m">May 2</button>
+    <button class="expiry-tab active" data-expiry="w1">Mar 14</button>
+    <button class="expiry-tab" data-expiry="w2">Mar 21</button>
+    <button class="expiry-tab" data-expiry="w3">Mar 28</button>
+    <button class="expiry-tab" data-expiry="w4">Apr 4</button>
+    <button class="expiry-tab" data-expiry="w5">Apr 11</button>
+    <button class="expiry-tab" data-expiry="w6">Apr 18</button>
+    <button class="expiry-tab" data-expiry="w7">Apr 25</button>
+    <button class="expiry-tab" data-expiry="w8">May 2</button>
+    <button class="expiry-tab" data-expiry="w9">May 9</button>
+    <button class="expiry-tab" data-expiry="w10">May 16</button>
+    <button class="expiry-tab" data-expiry="w11">May 23</button>
+    <button class="expiry-tab" data-expiry="w12">May 30</button>
   </div>
 
   <!-- Two-column layout -->
@@ -660,7 +664,7 @@ const ASSET_CONFIG = {
     strikes: [45000, 50000, 55000, 60000, 65000, 70000, 75000, 80000, 85000, 90000, 95000, 100000, 105000, 110000],
     fmtStrike: s => '$' + (s/1000).toFixed(0) + 'K',
     data: {
-      '1m': {
+      'w1': {
         45000:  [25200, 25400, 25300, -4,   0.98, 0.02, -3,   65,    62,    68],
         50000:  [20200, 20400, 20300, -7,   0.97, 0.03, -5,   120,   116,   125],
         55000:  [15300, 15500, 15400, -12,  0.95, 0.05, -8,   220,   215,   226],
@@ -676,7 +680,7 @@ const ASSET_CONFIG = {
         105000: [0,     0,     0,     -0,   0.00, 1.00, -0,   33000, 32925, 33078],
         110000: [0,     0,     0,     -0,   0.00, 1.00, -0,   38100, 38018, 38185],
       },
-      '3m': {
+      'w4': {
         45000:  [25800, 26100, 25950, -3,   0.96, 0.04, -2,   180,   174,   187],
         50000:  [21000, 21300, 21150, -5,   0.94, 0.06, -4,   320,   312,   329],
         55000:  [16300, 16600, 16450, -9,   0.90, 0.10, -7,   560,   549,   572],
@@ -692,7 +696,7 @@ const ASSET_CONFIG = {
         105000: [7,     12,    10,    -1,   0.01, 0.99, -1,   30600, 30520, 30682],
         110000: [2,     4,     3,     -0,   0.00, 1.00, -0,   35400, 35315, 35487],
       },
-      '6m': {
+      'w12': {
         45000:  [26500, 26900, 26700, -2,   0.94, 0.06, -1,   400,   390,   411],
         50000:  [21800, 22200, 22000, -3,   0.91, 0.09, -3,   680,   667,   694],
         55000:  [17200, 17600, 17400, -6,   0.86, 0.14, -5,   1100,  1083,  1118],
@@ -718,7 +722,7 @@ const ASSET_CONFIG = {
     strikes: [1400, 1500, 1600, 1700, 1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800],
     fmtStrike: s => '$' + s.toLocaleString(),
     data: {
-      '1m': {
+      'w1': {
         1400:  [642,  650,  646,  -1.2, 0.96, 0.04, -0.8, 4,    3,    5],
         1500:  [542,  550,  546,  -2.2, 0.93, 0.07, -1.5, 8,    7,    9],
         1600:  [442,  451,  446,  -3.8, 0.88, 0.12, -2.8, 18,   16,   19],
@@ -735,7 +739,7 @@ const ASSET_CONFIG = {
         2700:  [0.0,  0.1,  0.05, -0.0, 0.00, 1.00, -0.0, 1235, 1223, 1248],
         2800:  [0.0,  0.0,  0.02, -0.0, 0.00, 1.00, -0.0, 1405, 1392, 1419],
       },
-      '3m': {
+      'w4': {
         1400:  [650,  662,  656,  -0.8, 0.93, 0.07, -0.6, 12,   11,   14],
         1500:  [555,  567,  561,  -1.5, 0.89, 0.11, -1.1, 26,   24,   28],
         1600:  [462,  474,  468,  -2.8, 0.83, 0.17, -2.2, 52,   49,   55],
@@ -752,7 +756,7 @@ const ASSET_CONFIG = {
         2700:  [1,    2,    1.5,  -0.1, 0.02, 0.98, -0.2, 1465, 1451, 1480],
         2800:  [0.3,  0.8,  0.5,  -0.1, 0.01, 0.99, -0.1, 1660, 1645, 1676],
       },
-      '6m': {
+      'w12': {
         1400:  [660,  674,  667,  -0.5, 0.91, 0.09, -0.4, 28,   26,   30],
         1500:  [568,  582,  575,  -1.0, 0.86, 0.14, -0.8, 58,   55,   62],
         1600:  [480,  494,  487,  -1.8, 0.79, 0.21, -1.5, 106,  102,  111],
@@ -779,7 +783,7 @@ const ASSET_CONFIG = {
     strikes: [60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180],
     fmtStrike: s => '$' + s,
     data: {
-      '1m': {
+      'w1': {
         60:   [26.2, 26.8, 26.5, -0.04, 0.97, 0.03, -0.03, 0.4,  0.3,  0.5],
         70:   [16.3, 16.9, 16.6, -0.12, 0.91, 0.09, -0.08, 1.2,  1.0,  1.4],
         80:   [7.5,  8.0,  7.7,  -0.38, 0.74, 0.26, -0.28, 4.2,  4.0,  4.5],
@@ -794,7 +798,7 @@ const ASSET_CONFIG = {
         170:  [0.00, 0.00, 0.00, -0.00, 0.00, 1.00, -0.00, 87.1, 86.0, 88.3],
         180:  [0.00, 0.00, 0.00, -0.00, 0.00, 1.00, -0.00, 97.1, 96.0, 98.3],
       },
-      '3m': {
+      'w4': {
         60:   [27.0, 27.8, 27.4, -0.02, 0.95, 0.05, -0.02, 1.0,  0.9,  1.2],
         70:   [18.0, 18.8, 18.4, -0.08, 0.87, 0.13, -0.06, 3.2,  2.9,  3.5],
         80:   [10.5, 11.2, 10.8, -0.26, 0.72, 0.28, -0.21, 8.5,  8.1,  9.0],
@@ -809,7 +813,7 @@ const ASSET_CONFIG = {
         170:  [0.00, 0.00, 0.00, -0.00, 0.00, 1.00, -0.00, 140,  138,  142],
         180:  [0.00, 0.00, 0.00, -0.00, 0.00, 1.00, -0.00, 158,  156,  160],
       },
-      '6m': {
+      'w12': {
         60:   [27.8, 28.8, 28.3, -0.02, 0.93, 0.07, -0.01, 2.2,  2.0,  2.5],
         70:   [20.0, 21.0, 20.5, -0.05, 0.84, 0.16, -0.04, 6.5,  6.1,  7.0],
         80:   [13.2, 14.2, 13.7, -0.16, 0.69, 0.31, -0.13, 14.5, 13.9, 15.2],
@@ -834,16 +838,16 @@ let currentAsset = 'BTC';
 let STRIKES = ASSET_CONFIG.BTC.strikes;
 let ATM     = ASSET_CONFIG.BTC.atm;
 let CURRENT_PRICE = ASSET_CONFIG.BTC.price;
-let DATA    = ASSET_CONFIG.BTC.data;
 
 const EXPIRY_LABELS = {
-  '1m': '1 Month (Apr 10, 2026)',
-  '3m': '3 Months (Jun 10, 2026)',
-  '6m': '6 Months (Sep 10, 2026)',
+  'w1':  'Mar 14, 2026', 'w2':  'Mar 21, 2026', 'w3':  'Mar 28, 2026',
+  'w4':  'Apr 4, 2026',  'w5':  'Apr 11, 2026', 'w6':  'Apr 18, 2026',
+  'w7':  'Apr 25, 2026', 'w8':  'May 2, 2026',  'w9':  'May 9, 2026',
+  'w10': 'May 16, 2026', 'w11': 'May 23, 2026', 'w12': 'May 30, 2026',
 };
 
 /* ─── STATE ─────────────────────────────────────────────────────────────── */
-let currentExpiry = '1m';
+let currentExpiry = 'w1';
 let currentSide = 'buy';
 let currentType = 'call';
 let selectedStrike = null;
@@ -858,10 +862,43 @@ function fmtTheta(v) { return v.toFixed(0); }
 function fmtDelta(v) { return v.toFixed(2); }
 
 /* ─── RENDER CHAIN ──────────────────────────────────────────────────────── */
+function getDataForExpiry(key) {
+  const cfg = ASSET_CONFIG[currentAsset];
+  // Direct match
+  if (cfg.data[key]) return cfg.data[key];
+  // Parse week number
+  const w = parseInt(key.replace('w',''));
+  // Find surrounding anchors (w1=1, w4=4, w12=12)
+  const anchors = [1, 4, 12];
+  let lo = 1, hi = 12;
+  for (let i = 0; i < anchors.length - 1; i++) {
+    if (w >= anchors[i] && w <= anchors[i+1]) { lo = anchors[i]; hi = anchors[i+1]; break; }
+  }
+  const loData = cfg.data['w' + lo];
+  const hiData = cfg.data['w' + hi];
+  const t = (w - lo) / (hi - lo); // 0..1
+  // Interpolate using sqrt scaling (options price ~ sqrt(time))
+  const sqrtLo = Math.sqrt(lo), sqrtHi = Math.sqrt(hi), sqrtW = Math.sqrt(w);
+  const factor = sqrtLo + (sqrtHi - sqrtLo) * t; // sqrt interp
+  const baseF = sqrtW / sqrtLo;
+  const result = {};
+  Object.keys(loData).forEach(strike => {
+    const lo_row = loData[strike];
+    const hi_row = hiData ? hiData[strike] : lo_row;
+    result[strike] = lo_row.map((v, i) => {
+      if (i === 4 || i === 5) return v; // deltas unchanged
+      const lv = lo_row[i], hv = hi_row[i];
+      const interp = lv + (hv - lv) * t;
+      return typeof v === 'number' ? (Math.abs(interp) < 1 ? Math.round(interp * 100) / 100 : Math.round(interp)) : v;
+    });
+  });
+  return result;
+}
+
 function renderChain() {
   const tbody = document.getElementById('chainBody');
   tbody.innerHTML = '';
-  const rows = DATA[currentExpiry];
+  const rows = getDataForExpiry(currentExpiry);
 
   STRIKES.forEach(strike => {
     const d = rows[strike];
