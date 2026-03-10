@@ -482,6 +482,107 @@
       .chain-panel thead tr:last-child th { padding: 6px 6px; }
     }
 
+    /* ── LIVE BADGE ──────────────────────────────────────────────── */
+    .live-dot {
+      color: #22c55e;
+      font-size: 0.6rem;
+      vertical-align: middle;
+      margin-right: 4px;
+      animation: livePulse 2s ease-in-out infinite;
+    }
+    @keyframes livePulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.35; }
+    }
+
+    /* ── POSITIONS PANEL ─────────────────────────────────────────── */
+    .positions-panel {
+      background: #0f0f0f;
+      border: 1px solid #1a1a1a;
+      border-radius: 10px;
+      overflow: hidden;
+      max-height: 300px;
+      display: flex;
+      flex-direction: column;
+    }
+    .positions-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid #1a1a1a;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text);
+      flex-shrink: 0;
+    }
+    .pos-count {
+      background: var(--orange-dim);
+      border: 1px solid rgba(247,147,26,0.3);
+      color: var(--orange);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+    #positionsList {
+      overflow-y: auto;
+      flex: 1;
+    }
+    .pos-empty {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+      padding: 20px;
+    }
+    .pos-row {
+      padding: 10px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .pos-row:last-child { border-bottom: none; }
+    .pos-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+    }
+    .pos-bottom {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .pos-asset { font-weight: 700; color: var(--text); }
+    .pos-type {
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+    }
+    .pos-type.call { color: #22c55e; background: rgba(34,197,94,0.12); }
+    .pos-type.put  { color: #ef4444; background: rgba(239,68,68,0.12); }
+    .pos-strike { font-weight: 600; color: var(--text); }
+    .pos-expiry { color: var(--muted); }
+    .pos-close {
+      margin-left: auto;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.9rem;
+      line-height: 1;
+      transition: color 0.15s;
+    }
+    .pos-close:hover { color: var(--red); }
+    .pos-size { color: var(--muted); }
+    .pos-entry { color: var(--muted); }
+    .pos-pnl { font-weight: 600; margin-left: auto; }
+    .pos-pnl.positive { color: #22c55e; }
+    .pos-pnl.negative { color: #ef4444; }
+
     #connectBtn {
       background: var(--orange);
       color: #000;
@@ -521,6 +622,7 @@
   </div>
 
   <div class="price-display">
+    <span id="liveDot" class="live-dot" style="display:none">●</span>
     <span class="price" id="headerPrice">$69,996</span>
     <span class="change" id="headerChange">▲ +1.5%</span>
   </div>
@@ -668,6 +770,18 @@
       <button class="cta-btn" id="ctaBtn">Buy Call</button>
 
       <p class="disclaimer">Settlement in USDT · Powered by smart contracts</p>
+
+      <!-- Positions Panel -->
+      <div id="positionsPanel" class="positions-panel">
+        <div class="positions-header">
+          <span>Open Positions</span>
+          <span id="posCount" class="pos-count">0</span>
+        </div>
+        <div id="positionsList">
+          <div class="pos-empty">No open positions</div>
+        </div>
+      </div>
+
     </div>
 
   </div>
@@ -1149,15 +1263,31 @@ document.getElementById('ctaBtn').addEventListener('click', function() {
   const typeLabel = currentType === 'call' ? 'Call' : 'Put';
   const strikeLabel = '$' + selectedStrike.toLocaleString('en-US');
   const expiryLabel = EXPIRY_LABELS[currentExpiry];
+  const activeExpiryTab = document.querySelector('.expiry-tab.active');
+  const expiryShortLabel = activeExpiryTab ? activeExpiryTab.textContent : expiryLabel.split(',')[0];
 
   document.getElementById('modalDetail').innerHTML =
-    `<strong>${qty}x BTC ${typeLabel}</strong><br>` +
+    `<strong>${qty}x ${currentAsset} ${typeLabel}</strong><br>` +
     `Strike: ${strikeLabel}<br>` +
     `Expiry: ${expiryLabel}<br>` +
     `Premium: ${fmt(selectedPremium)}<br>` +
     `Total (incl. fee): ${document.getElementById('cbTotal').textContent}`;
 
   document.getElementById('modalOverlay').classList.add('show');
+
+  // Push position to positions array
+  positions.push({
+    id: Date.now(),
+    asset: currentAsset,
+    type: currentType,
+    strike: selectedStrike,
+    expiry: currentExpiry,
+    expiryLabel: expiryShortLabel,
+    size: qty,
+    entryPremium: selectedPremium,
+    entryPrice: CURRENT_PRICE
+  });
+  renderPositions();
 });
 
 document.getElementById('modalClose').addEventListener('click', function() {
@@ -1232,9 +1362,139 @@ async function connectMetaMask() {
   }
 }
 
+/* ─── POSITIONS ─────────────────────────────────────────────────────────── */
+var positions = [];
+
+function calcPnL(pos) {
+  var cfg = ASSET_CONFIG[pos.asset];
+  var spot = cfg.price;
+  var intrinsic = 0;
+  if (pos.type === 'call') intrinsic = Math.max(0, spot - pos.strike);
+  else intrinsic = Math.max(0, pos.strike - spot);
+  return (intrinsic - pos.entryPremium) * pos.size;
+}
+
+function closePosition(id) {
+  positions = positions.filter(function(p) { return p.id !== id; });
+  renderPositions();
+}
+
+function fmtPnL(n) {
+  var sign = n >= 0 ? '+' : '';
+  if (Math.abs(n) >= 1000) return sign + '$' + Math.round(n).toLocaleString('en-US');
+  return sign + '$' + n.toFixed(0);
+}
+
+function renderPositions() {
+  var list = document.getElementById('positionsList');
+  var countEl = document.getElementById('posCount');
+  countEl.textContent = positions.length;
+  if (!positions.length) {
+    list.innerHTML = '<div class="pos-empty">No open positions</div>';
+    return;
+  }
+  list.innerHTML = positions.map(function(pos) {
+    var cfg = ASSET_CONFIG[pos.asset];
+    var strikeLabel = cfg.fmtStrike(pos.strike);
+    var pnl = calcPnL(pos);
+    var pnlClass = pnl >= 0 ? 'positive' : 'negative';
+    var pnlStr = fmtPnL(pnl);
+    return '<div class="pos-row" data-id="' + pos.id + '">' +
+      '<div class="pos-top">' +
+        '<span class="pos-asset">' + pos.asset + '</span>' +
+        '<span class="pos-type ' + pos.type + '">' + pos.type.toUpperCase() + '</span>' +
+        '<span class="pos-strike">' + strikeLabel + '</span>' +
+        '<span class="pos-expiry">' + pos.expiryLabel + '</span>' +
+        '<span class="pos-close" onclick="closePosition(' + pos.id + ')">✕</span>' +
+      '</div>' +
+      '<div class="pos-bottom">' +
+        '<span class="pos-size">' + pos.size + ' contract' + (pos.size !== 1 ? 's' : '') + '</span>' +
+        '<span class="pos-entry">Entry: ' + fmt(pos.entryPremium) + '</span>' +
+        '<span class="pos-pnl ' + pnlClass + '">' + pnlStr + '</span>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+/* ─── LIVE PRICES ───────────────────────────────────────────────────────── */
+function fetchPrices() {
+  fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd&include_24hr_change=true')
+    .then(function(res) {
+      if (!res.ok) return;
+      return res.json();
+    })
+    .then(function(data) {
+      if (!data) return;
+      var map = { BTC: data.bitcoin, ETH: data.ethereum, SOL: data.solana };
+
+      Object.keys(map).forEach(function(asset) {
+        var d = map[asset];
+        if (!d) return;
+        var cfg = ASSET_CONFIG[asset];
+        var price = d.usd;
+        var change24h = d.usd_24h_change || 0;
+
+        cfg.price = price;
+        if (asset === 'BTC') {
+          cfg.priceLabel = '$' + Math.round(price).toLocaleString('en-US');
+        } else if (asset === 'ETH') {
+          cfg.priceLabel = '$' + price.toFixed(2);
+        } else {
+          cfg.priceLabel = '$' + price.toFixed(2);
+        }
+        var sign = change24h >= 0 ? '\u25b2 +' : '\u25bc ';
+        cfg.change = sign + Math.abs(change24h).toFixed(2) + '%';
+
+        // Recalculate ATM (nearest strike)
+        var strikes = cfg.strikes;
+        var closest = strikes[0];
+        var minDiff = Math.abs(strikes[0] - price);
+        strikes.forEach(function(s) {
+          var diff = Math.abs(s - price);
+          if (diff < minDiff) { minDiff = diff; closest = s; }
+        });
+        cfg.atm = closest;
+      });
+
+      // Update globals for current asset
+      var cfg = ASSET_CONFIG[currentAsset];
+      ATM = cfg.atm;
+      CURRENT_PRICE = cfg.price;
+
+      // Update header
+      document.getElementById('headerPrice').textContent = cfg.priceLabel;
+      var changeEl = document.getElementById('headerChange');
+      changeEl.textContent = cfg.change;
+      changeEl.style.color = cfg.change.indexOf('\u25bc') !== -1 ? 'var(--red)' : 'var(--green)';
+
+      // Show live dot
+      document.getElementById('liveDot').style.display = 'inline';
+
+      // Re-render chain (ATM may have shifted)
+      renderChain();
+
+      // Refresh premium if a strike is selected
+      if (selectedStrike) {
+        var rows = getDataForExpiry(currentExpiry);
+        if (rows[selectedStrike]) {
+          selectedPremium = currentType === 'call' ? rows[selectedStrike][2] : rows[selectedStrike][7];
+          recalcCosts();
+        }
+      }
+
+      // Update P&L on all positions
+      renderPositions();
+    })
+    .catch(function() {
+      // Silently retry next cycle
+    });
+}
+
 /* ─── INIT ──────────────────────────────────────────────────────────────── */
 renderChain();
 document.getElementById('expiryDisplay').value = EXPIRY_LABELS[currentExpiry];
+fetchPrices();
+setInterval(fetchPrices, 30000);
 </script>
 </body>
 </html>
