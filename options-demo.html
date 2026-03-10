@@ -1012,7 +1012,7 @@ document.querySelectorAll('.expiry-tab').forEach(tab => {
 
     // Reset selected premium if strike is selected (re-look up for new expiry)
     if (selectedStrike) {
-      const d = DATA[currentExpiry][selectedStrike];
+      const d = getDataForExpiry(currentExpiry)[selectedStrike];
       selectedPremium = currentType === 'call' ? d[2] : d[7];
       recalcCosts();
     }
@@ -1075,7 +1075,7 @@ document.querySelectorAll('#callPutGroup .toggle-btn').forEach(btn => {
 
     // Re-fetch premium for the current type if a strike is selected
     if (selectedStrike) {
-      const d = DATA[currentExpiry][selectedStrike];
+      const d = getDataForExpiry(currentExpiry)[selectedStrike];
       selectedPremium = currentType === 'call' ? d[2] : d[7];
       recalcCosts();
     }
@@ -1087,7 +1087,7 @@ document.getElementById('strikeSelect').addEventListener('change', function() {
   const val = parseInt(this.value);
   if (!val) { selectedStrike = null; selectedPremium = null; recalcCosts(); return; }
   selectedStrike = val;
-  const d = DATA[currentExpiry][val];
+  const d = getDataForExpiry(currentExpiry)[val];
   selectedPremium = currentType === 'call' ? d[2] : d[7];
   recalcCosts();
 });
