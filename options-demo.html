@@ -481,7 +481,85 @@
       .chain-panel tbody td { padding: 7px 6px; }
       .chain-panel thead tr:last-child th { padding: 6px 6px; }
     }
-  </style>
+  
+    /* ── Derive-style header bar ── */
+    .derive-bar {
+      display: flex;
+      align-items: center;
+      background: #0a0a0a;
+      border-bottom: 1px solid #1e1e1e;
+      padding: 0 20px;
+      gap: 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .derive-bar .drag-icon {
+      color: #555;
+      font-size: 16px;
+      margin-right: 16px;
+      cursor: grab;
+    }
+    .asset-dropdown-wrap {
+      position: relative;
+      margin-right: 28px;
+    }
+    .asset-dropdown-wrap select {
+      appearance: none;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 17px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      padding: 14px 22px 14px 0;
+      outline: none;
+      letter-spacing: 0.02em;
+    }
+    .asset-dropdown-wrap select option {
+      background: #111;
+      color: #fff;
+      font-size: 15px;
+    }
+    .asset-dropdown-wrap .chevron {
+      position: absolute;
+      right: 4px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #aaa;
+      font-size: 11px;
+      pointer-events: none;
+    }
+    .date-bar {
+      display: flex;
+      align-items: stretch;
+      overflow-x: auto;
+      scrollbar-width: none;
+      flex: 1;
+      gap: 0;
+    }
+    .date-bar::-webkit-scrollbar { display: none; }
+    .date-tab {
+      flex-shrink: 0;
+      padding: 14px 18px;
+      color: #888;
+      font-size: 14px;
+      font-weight: 400;
+      cursor: pointer;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+      user-select: none;
+    }
+    .date-tab:hover { color: #ccc; }
+    .date-tab.active {
+      color: #fff;
+      font-weight: 600;
+      border-bottom: 2px solid #fff;
+    }
+
+    </style>
 </head>
 <body>
 
@@ -505,13 +583,6 @@
 
 <!-- ══════════════════ MAIN ══════════════════ -->
 <main>
-  <!-- Expiry tabs -->
-  <div class="expiry-tabs">
-    <button class="expiry-tab active" data-expiry="1m">1 Month</button>
-    <button class="expiry-tab" data-expiry="3m">3 Months</button>
-    <button class="expiry-tab" data-expiry="6m">6 Months</button>
-  </div>
-
   <!-- Two-column layout -->
   <div class="layout">
 
@@ -653,7 +724,7 @@ const ASSET_CONFIG = {
     strikes: [45000, 50000, 55000, 60000, 65000, 70000, 75000, 80000, 85000, 90000, 95000, 100000, 105000, 110000],
     fmtStrike: s => '$' + (s/1000).toFixed(0) + 'K',
     data: {
-      '1m': {
+      'mar13': {
         45000:  [25200, 25400, 25300, -4,   0.98, 0.02, -3,   65,    62,    68],
         50000:  [20200, 20400, 20300, -7,   0.97, 0.03, -5,   120,   116,   125],
         55000:  [15300, 15500, 15400, -12,  0.95, 0.05, -8,   220,   215,   226],
@@ -669,7 +740,7 @@ const ASSET_CONFIG = {
         105000: [0,     0,     0,     -0,   0.00, 1.00, -0,   33000, 32925, 33078],
         110000: [0,     0,     0,     -0,   0.00, 1.00, -0,   38100, 38018, 38185],
       },
-      '3m': {
+      'mar27': {
         45000:  [25800, 26100, 25950, -3,   0.96, 0.04, -2,   180,   174,   187],
         50000:  [21000, 21300, 21150, -5,   0.94, 0.06, -4,   320,   312,   329],
         55000:  [16300, 16600, 16450, -9,   0.90, 0.10, -7,   560,   549,   572],
@@ -685,7 +756,7 @@ const ASSET_CONFIG = {
         105000: [7,     12,    10,    -1,   0.01, 0.99, -1,   30600, 30520, 30682],
         110000: [2,     4,     3,     -0,   0.00, 1.00, -0,   35400, 35315, 35487],
       },
-      '6m': {
+      'may1': {
         45000:  [26500, 26900, 26700, -2,   0.94, 0.06, -1,   400,   390,   411],
         50000:  [21800, 22200, 22000, -3,   0.91, 0.09, -3,   680,   667,   694],
         55000:  [17200, 17600, 17400, -6,   0.86, 0.14, -5,   1100,  1083,  1118],
@@ -711,7 +782,7 @@ const ASSET_CONFIG = {
     strikes: [1400, 1500, 1600, 1700, 1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800],
     fmtStrike: s => '$' + s.toLocaleString(),
     data: {
-      '1m': {
+      'mar13': {
         1400:  [642,  650,  646,  -1.2, 0.96, 0.04, -0.8, 4,    3,    5],
         1500:  [542,  550,  546,  -2.2, 0.93, 0.07, -1.5, 8,    7,    9],
         1600:  [442,  451,  446,  -3.8, 0.88, 0.12, -2.8, 18,   16,   19],
@@ -728,7 +799,7 @@ const ASSET_CONFIG = {
         2700:  [0.0,  0.1,  0.05, -0.0, 0.00, 1.00, -0.0, 1235, 1223, 1248],
         2800:  [0.0,  0.0,  0.02, -0.0, 0.00, 1.00, -0.0, 1405, 1392, 1419],
       },
-      '3m': {
+      'mar27': {
         1400:  [650,  662,  656,  -0.8, 0.93, 0.07, -0.6, 12,   11,   14],
         1500:  [555,  567,  561,  -1.5, 0.89, 0.11, -1.1, 26,   24,   28],
         1600:  [462,  474,  468,  -2.8, 0.83, 0.17, -2.2, 52,   49,   55],
@@ -745,7 +816,7 @@ const ASSET_CONFIG = {
         2700:  [1,    2,    1.5,  -0.1, 0.02, 0.98, -0.2, 1465, 1451, 1480],
         2800:  [0.3,  0.8,  0.5,  -0.1, 0.01, 0.99, -0.1, 1660, 1645, 1676],
       },
-      '6m': {
+      'may1': {
         1400:  [660,  674,  667,  -0.5, 0.91, 0.09, -0.4, 28,   26,   30],
         1500:  [568,  582,  575,  -1.0, 0.86, 0.14, -0.8, 58,   55,   62],
         1600:  [480,  494,  487,  -1.8, 0.79, 0.21, -1.5, 106,  102,  111],
@@ -772,7 +843,7 @@ const ASSET_CONFIG = {
     strikes: [60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180],
     fmtStrike: s => '$' + s,
     data: {
-      '1m': {
+      'mar13': {
         60:   [26.2, 26.8, 26.5, -0.04, 0.97, 0.03, -0.03, 0.4,  0.3,  0.5],
         70:   [16.3, 16.9, 16.6, -0.12, 0.91, 0.09, -0.08, 1.2,  1.0,  1.4],
         80:   [7.5,  8.0,  7.7,  -0.38, 0.74, 0.26, -0.28, 4.2,  4.0,  4.5],
@@ -787,7 +858,7 @@ const ASSET_CONFIG = {
         170:  [0.00, 0.00, 0.00, -0.00, 0.00, 1.00, -0.00, 87.1, 86.0, 88.3],
         180:  [0.00, 0.00, 0.00, -0.00, 0.00, 1.00, -0.00, 97.1, 96.0, 98.3],
       },
-      '3m': {
+      'mar27': {
         60:   [27.0, 27.8, 27.4, -0.02, 0.95, 0.05, -0.02, 1.0,  0.9,  1.2],
         70:   [18.0, 18.8, 18.4, -0.08, 0.87, 0.13, -0.06, 3.2,  2.9,  3.5],
         80:   [10.5, 11.2, 10.8, -0.26, 0.72, 0.28, -0.21, 8.5,  8.1,  9.0],
@@ -802,7 +873,7 @@ const ASSET_CONFIG = {
         170:  [0.00, 0.00, 0.00, -0.00, 0.00, 1.00, -0.00, 140,  138,  142],
         180:  [0.00, 0.00, 0.00, -0.00, 0.00, 1.00, -0.00, 158,  156,  160],
       },
-      '6m': {
+      'may1': {
         60:   [27.8, 28.8, 28.3, -0.02, 0.93, 0.07, -0.01, 2.2,  2.0,  2.5],
         70:   [20.0, 21.0, 20.5, -0.05, 0.84, 0.16, -0.04, 6.5,  6.1,  7.0],
         80:   [13.2, 14.2, 13.7, -0.16, 0.69, 0.31, -0.13, 14.5, 13.9, 15.2],
@@ -829,14 +900,29 @@ let ATM     = ASSET_CONFIG.BTC.atm;
 let CURRENT_PRICE = ASSET_CONFIG.BTC.price;
 let DATA    = ASSET_CONFIG.BTC.data;
 
+const WEEKLY_DATES = [
+  { key: 'mar13', label: 'Mar 13' },
+  { key: 'mar20', label: 'Mar 20' },
+  { key: 'mar27', label: 'Mar 27' },
+  { key: 'apr3',  label: 'Apr 3'  },
+  { key: 'apr10', label: 'Apr 10' },
+  { key: 'apr17', label: 'Apr 17' },
+  { key: 'apr24', label: 'Apr 24' },
+  { key: 'may1',  label: 'May 1'  },
+];
 const EXPIRY_LABELS = {
-  '1m': '1 Month (Apr 10, 2026)',
-  '3m': '3 Months (Jun 10, 2026)',
-  '6m': '6 Months (Sep 10, 2026)',
+  'mar13': 'Mar 13, 2026',
+  'mar20': 'Mar 20, 2026',
+  'mar27': 'Mar 27, 2026',
+  'apr3':  'Apr 3, 2026',
+  'apr10': 'Apr 10, 2026',
+  'apr17': 'Apr 17, 2026',
+  'apr24': 'Apr 24, 2026',
+  'may1':  'May 1, 2026',
 };
 
 /* ─── STATE ─────────────────────────────────────────────────────────────── */
-let currentExpiry = '1m';
+let currentExpiry = 'mar13';
 let currentSide = 'buy';
 let currentType = 'call';
 let selectedStrike = null;
@@ -851,10 +937,24 @@ function fmtTheta(v) { return v.toFixed(0); }
 function fmtDelta(v) { return v.toFixed(2); }
 
 /* ─── RENDER CHAIN ──────────────────────────────────────────────────────── */
+function getDataForExpiry(expiry) {
+  // Direct match
+  if (DATA[expiry]) return DATA[expiry];
+  // Fallback: find nearest available key
+  const available = Object.keys(DATA);
+  const order = ['mar13','mar20','mar27','apr3','apr10','apr17','apr24','may1'];
+  const idx = order.indexOf(expiry);
+  // Walk backwards to find the nearest available
+  for (let i = idx; i >= 0; i--) {
+    if (DATA[order[i]]) return DATA[order[i]];
+  }
+  return DATA[available[0]];
+}
+
 function renderChain() {
   const tbody = document.getElementById('chainBody');
   tbody.innerHTML = '';
-  const rows = DATA[currentExpiry];
+  const rows = getDataForExpiry(currentExpiry);
 
   STRIKES.forEach(strike => {
     const d = rows[strike];
@@ -979,11 +1079,32 @@ document.querySelectorAll('.expiry-tab').forEach(tab => {
 
 /* ─── ASSET TABS ────────────────────────────────────────────────────────── */
 /* assetData replaced by ASSET_CONFIG */
-document.querySelectorAll('.asset-tab').forEach(tab => {
-  tab.addEventListener('click', function() {
-    document.querySelectorAll('.asset-tab').forEach(t => t.classList.remove('active'));
-    this.classList.add('active');
-    currentAsset = this.dataset.asset;
+/* ─── DATE BAR ──────────────────────────────────────────────────────────── */
+function buildDateBar() {
+  const bar = document.getElementById('dateBar');
+  bar.innerHTML = '';
+  WEEKLY_DATES.forEach(({key, label}) => {
+    const btn = document.createElement('div');
+    btn.className = 'date-tab' + (key === currentExpiry ? ' active' : '');
+    btn.textContent = label;
+    btn.dataset.expiry = key;
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.date-tab').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+      currentExpiry = this.dataset.expiry;
+      selectedStrike = null;
+      selectedPremium = null;
+      recalcCosts();
+      renderChain();
+    });
+    bar.appendChild(btn);
+  });
+}
+buildDateBar();
+
+/* ─── ASSET SELECT ───────────────────────────────────────────────────────── */
+document.getElementById('assetSelect').addEventListener('change', function() {
+    currentAsset = this.value;
     const cfg = ASSET_CONFIG[currentAsset];
     STRIKES = cfg.strikes;
     ATM = cfg.atm;
@@ -1010,10 +1131,7 @@ document.querySelectorAll('.asset-tab').forEach(tab => {
     selectedStrike = null;
     selectedPremium = null;
     recalcCosts();
-
-    // Re-render chain
     renderChain();
-  });
 });
 
 /* ─── BUY/SELL TOGGLE ───────────────────────────────────────────────────── */
