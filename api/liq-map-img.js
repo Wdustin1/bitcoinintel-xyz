@@ -1,7 +1,7 @@
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   try {
-    const r = await fetch('http://46.202.177.190:3001/api/charts/liquidation-map');
+    const r = await fetch('http://46.202.177.190:3001/api/charts/btc-liquidation-map');
     if (!r.ok) throw new Error(`Upstream ${r.status}`);
     const buf = await r.arrayBuffer();
     res.setHeader('Content-Type', 'image/png');
