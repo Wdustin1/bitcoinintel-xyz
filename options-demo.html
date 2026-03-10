@@ -1126,6 +1126,70 @@ document.getElementById('modalOverlay').addEventListener('click', function(e) {
   if (e.target === this) this.classList.remove('show');
 });
 
+/* ─── WALLET CONNECTION ─────────────────────────────────────────────────── */
+function openWalletModal() {
+  document.getElementById('walletModal').classList.add('show');
+  document.getElementById('walletError').style.display = 'none';
+}
+function closeWalletModal() {
+  document.getElementById('walletModal').classList.remove('show');
+}
+document.getElementById('walletModal').addEventListener('click', function(e) {
+  if (e.target === this) closeWalletModal();
+});
+
+function setConnected(address) {
+  const short = address.slice(0, 4) + '...' + address.slice(-4);
+  const btn = document.getElementById('connectBtn');
+  btn.textContent = short;
+  btn.classList.add('connected');
+  btn.onclick = disconnectWallet;
+  closeWalletModal();
+}
+
+function disconnectWallet() {
+  const btn = document.getElementById('connectBtn');
+  btn.textContent = 'Connect Wallet';
+  btn.classList.remove('connected');
+  btn.onclick = openWalletModal;
+  // Attempt to disconnect Phantom if connected
+  if (window.solana && window.solana.isConnected) {
+    try { window.solana.disconnect(); } catch(e) {}
+  }
+}
+
+async function connectPhantom() {
+  const errEl = document.getElementById('walletError');
+  if (!window.solana || !window.solana.isPhantom) {
+    errEl.style.display = 'block';
+    errEl.textContent = 'Phantom not detected. Install it at phantom.app';
+    return;
+  }
+  try {
+    const resp = await window.solana.connect();
+    setConnected(resp.publicKey.toString());
+  } catch(e) {
+    errEl.style.display = 'block';
+    errEl.textContent = 'Connection rejected.';
+  }
+}
+
+async function connectMetaMask() {
+  const errEl = document.getElementById('walletError');
+  if (!window.ethereum) {
+    errEl.style.display = 'block';
+    errEl.textContent = 'MetaMask not detected. Install it at metamask.io';
+    return;
+  }
+  try {
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    setConnected(accounts[0]);
+  } catch(e) {
+    errEl.style.display = 'block';
+    errEl.textContent = e.code === 4001 ? 'Connection rejected.' : 'Connection failed.';
+  }
+}
+
 /* ─── INIT ──────────────────────────────────────────────────────────────── */
 renderChain();
 document.getElementById('expiryDisplay').value = EXPIRY_LABELS[currentExpiry];
