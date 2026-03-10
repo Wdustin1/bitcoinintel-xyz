@@ -757,8 +757,7 @@
           <span class="cost-value" id="cbSubtotal">—</span>
         </div>
         <div class="cost-row">
-          <span class="cost-label">Platform fee (5%)</span>
-          <span class="cost-value" id="cbFee">—</span>
+
         </div>
         <div class="cost-row total-row">
           <span class="cost-label">Total</span>
@@ -1123,18 +1122,13 @@ function recalcCosts() {
   if (!selectedPremium) {
     document.getElementById('cbPremium').textContent = '—';
     document.getElementById('cbSubtotal').textContent = '—';
-    document.getElementById('cbFee').textContent = '—';
     document.getElementById('cbTotal').textContent = '—';
     return;
   }
   const subtotal = selectedPremium * qty;
-  const fee = subtotal * 0.05;
-  const total = subtotal + fee;
-
   document.getElementById('cbPremium').textContent = fmt(selectedPremium);
   document.getElementById('cbSubtotal').textContent = fmt(subtotal);
-  document.getElementById('cbFee').textContent = fmt(Math.round(fee));
-  document.getElementById('cbTotal').textContent = fmt(Math.round(total));
+  document.getElementById('cbTotal').textContent = fmt(subtotal);
 
   updateCTALabel();
 }
@@ -1271,7 +1265,7 @@ document.getElementById('ctaBtn').addEventListener('click', function() {
     `Strike: ${strikeLabel}<br>` +
     `Expiry: ${expiryLabel}<br>` +
     `Premium: ${fmt(selectedPremium)}<br>` +
-    `Total (incl. fee): ${document.getElementById('cbTotal').textContent}`;
+    `Total: ${document.getElementById('cbTotal').textContent}`;
 
   document.getElementById('modalOverlay').classList.add('show');
 

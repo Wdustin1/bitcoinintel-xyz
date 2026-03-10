@@ -73,7 +73,7 @@
     /* ── STATS ── */
     .stats {
       background: var(--card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
-      display: grid; grid-template-columns: repeat(4, 1fr);
+      display: grid; grid-template-columns: repeat(3, 1fr);
     }
     .stat-item { padding: 32px 24px; text-align: center; border-right: 1px solid var(--border); }
     .stat-item:last-child { border-right: none; }
@@ -155,7 +155,7 @@
       .steps { grid-template-columns: 1fr; gap: 20px; }
       .step-arrow { transform: rotate(90deg); }
       .stats { grid-template-columns: 1fr 1fr; }
-      .stat-item:nth-child(2) { border-right: none; }
+      
       .stat-item:nth-child(3) { border-top: 1px solid var(--border); }
       nav { padding: 0 20px; }
       section { padding: 64px 20px; }
@@ -208,10 +208,7 @@
     <div class="stat-num">1,847</div>
     <div class="stat-label">Active Traders</div>
   </div>
-  <div class="stat-item">
-    <div class="stat-num">5%</div>
-    <div class="stat-label">Platform Fee</div>
-  </div>
+
 </div>
 
 <!-- FEATURES -->
