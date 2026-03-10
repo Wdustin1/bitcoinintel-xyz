@@ -481,6 +481,29 @@
       .chain-panel tbody td { padding: 7px 6px; }
       .chain-panel thead tr:last-child th { padding: 6px 6px; }
     }
+
+    #connectBtn {
+      background: var(--orange);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+    #connectBtn:hover { opacity: .85; }
+    #connectBtn.connected { background: transparent; border: 1px solid #22c55e; color: #22c55e; }
+    .wallet-opt {
+      width: 100%; display: flex; align-items: center; gap: 12px;
+      background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 10px;
+      padding: 13px 16px; color: #e0e0e0; font-size: 15px; font-family: inherit;
+      cursor: pointer; margin-bottom: 10px; transition: border-color .15s, background .15s;
+    }
+    .wallet-opt:hover { background: #222; border-color: var(--orange); }
+    #walletModal.show { display: flex !important; }
   </style>
 </head>
 <body>
@@ -502,8 +525,27 @@
     <span class="change" id="headerChange">▲ +1.5%</span>
   </div>
 
-  <div class="demo-badge">Demo Mode</div>
+  <button id="connectBtn" onclick="openWalletModal()">Connect Wallet</button>
 </header>
+
+<!-- Wallet picker modal -->
+<div id="walletModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#111;border:1px solid #2a2a2a;border-radius:14px;padding:28px 32px;width:320px;max-width:90vw;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <span style="font-size:16px;font-weight:600;color:#fff;">Connect Wallet</span>
+      <span onclick="closeWalletModal()" style="cursor:pointer;color:#666;font-size:22px;line-height:1;">&times;</span>
+    </div>
+    <button class="wallet-opt" onclick="connectPhantom()">
+      <img src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png" width="26" height="26" style="border-radius:50%;">
+      <span>Phantom</span><span style="font-size:11px;color:#777;margin-left:auto;">Solana</span>
+    </button>
+    <button class="wallet-opt" onclick="connectMetaMask()">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" width="26" height="26">
+      <span>MetaMask</span><span style="font-size:11px;color:#777;margin-left:auto;">Ethereum</span>
+    </button>
+    <div id="walletError" style="display:none;margin-top:12px;padding:10px 14px;background:#1a0a0a;border:1px solid #3d1515;border-radius:8px;color:#f87171;font-size:13px;"></div>
+  </div>
+</div>
 
 <!-- ══════════════════ MAIN ══════════════════ -->
 <main>
