@@ -523,22 +523,13 @@
       .card { padding: 16px 14px !important; box-sizing: border-box; }
       .card-title, h3.card-title { font-size: 18px !important; }
 
-      /* Grid layouts → FORCE single column */
-      .grid-2, .grid-3 {
-        display: grid !important;
-        grid-template-columns: 1fr !important;
+      /* ALL grids → single vertical column */
+      .grid-2, .grid-3, .fg-inner, .oi-grid, .team-grid, .stats-row {
+        display: flex !important;
+        flex-direction: column !important;
         gap: 14px !important;
         width: 100% !important;
       }
-
-      /* Fear & Greed inner grid → stack gauge + history */
-      .fg-inner {
-        grid-template-columns: 1fr !important;
-        gap: 20px !important;
-      }
-
-      /* OI grid 4-col → 2-col */
-      .oi-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
 
       /* Stats row → wrap */
       .stats-row { flex-wrap: wrap; }
@@ -547,9 +538,6 @@
       /* Chart heights */
       #priceChart, #hrChart, #rbChart, #s2fChart, #mvrvChart, #m2Chart { height: 220px !important; }
       #spiralCanvas { width: 100% !important; height: auto !important; max-width: 100% !important; }
-
-      /* Team grid */
-      .team-grid { grid-template-columns: 1fr !important; }
 
       /* Tabs — scrollable row */
       .tabs { overflow-x: auto !important; -webkit-overflow-scrolling: touch; flex-wrap: nowrap !important; }
@@ -2997,32 +2985,46 @@
 /* ── MOBILE LAYOUT ENFORCER ── */
 (function enforceMobileLayout() {
   function apply() {
-    if (window.innerWidth > 900) return;
-    // Force all grid-2 and grid-3 to single column
-    document.querySelectorAll('.grid-2, .grid-3').forEach(function(el) {
-      el.style.setProperty('grid-template-columns', '1fr', 'important');
-      el.style.setProperty('gap', '14px', 'important');
+    var isMobile = window.innerWidth <= 1100;
+    // Selectors that must NEVER be horizontal on mobile
+    var singleColSelectors = [
+      '.grid-2', '.grid-3', '.fg-inner', '.oi-grid',
+      '.team-grid', '.stats-row'
+    ];
+    singleColSelectors.forEach(function(sel) {
+      document.querySelectorAll(sel).forEach(function(el) {
+        if (isMobile) {
+          el.style.setProperty('display', 'flex', 'important');
+          el.style.setProperty('flex-direction', 'column', 'important');
+          el.style.setProperty('gap', '14px', 'important');
+          el.style.setProperty('width', '100%', 'important');
+        } else {
+          el.style.removeProperty('display');
+          el.style.removeProperty('flex-direction');
+          el.style.removeProperty('gap');
+          el.style.removeProperty('width');
+        }
+      });
     });
-    // Fix fear & greed inner grid
-    document.querySelectorAll('.fg-inner').forEach(function(el) {
-      el.style.setProperty('grid-template-columns', '1fr', 'important');
-    });
-    // Fix OI grid to 2-col
-    document.querySelectorAll('.oi-grid').forEach(function(el) {
-      el.style.setProperty('grid-template-columns', 'repeat(2,1fr)', 'important');
-    });
-    // Main content full width
+    // Main content
     var main = document.querySelector('.main');
-    if (main) { main.style.marginLeft = '0'; main.style.width = '100%'; }
+    if (main) {
+      main.style.marginLeft = isMobile ? '0' : '';
+      main.style.width = isMobile ? '100%' : '';
+    }
     // Content padding
     var content = document.querySelector('.content');
-    if (content) { content.style.padding = '76px 12px 40px'; }
-    // Team grid
-    document.querySelectorAll('.team-grid').forEach(function(el) {
-      el.style.setProperty('grid-template-columns', '1fr', 'important');
-    });
+    if (content) {
+      content.style.padding = isMobile ? '76px 12px 40px' : '';
+    }
+    // Each card should be full width
+    if (isMobile) {
+      document.querySelectorAll('.card').forEach(function(el) {
+        el.style.setProperty('width', '100%', 'important');
+        el.style.setProperty('box-sizing', 'border-box', 'important');
+      });
+    }
   }
-  // Run on load and resize
   document.addEventListener('DOMContentLoaded', apply);
   window.addEventListener('resize', apply);
   apply();
