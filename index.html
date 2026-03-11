@@ -523,12 +523,32 @@
       .card { padding: 16px 14px !important; box-sizing: border-box; }
       .card-title, h3.card-title { font-size: 18px !important; }
 
-      /* ALL grids → single vertical column */
-      .grid-2, .grid-3, .fg-inner, .oi-grid, .team-grid, .stats-row {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 14px !important;
+      /* ALL grids → single vertical column (display:block is most reliable) */
+      .grid-2, .grid-3 {
+        display: block !important;
         width: 100% !important;
+      }
+      .grid-2 > *, .grid-3 > * {
+        display: block !important;
+        width: 100% !important;
+        margin-bottom: 14px !important;
+        box-sizing: border-box !important;
+      }
+      .fg-inner {
+        display: block !important;
+      }
+      .fg-inner > * {
+        display: block !important;
+        width: 100% !important;
+        margin-bottom: 16px !important;
+      }
+      .oi-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+      }
+      .stats-row {
+        display: flex !important;
+        flex-wrap: wrap !important;
       }
 
       /* Stats row → wrap */
