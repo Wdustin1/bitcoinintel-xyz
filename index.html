@@ -3001,6 +3001,13 @@
   document.head.appendChild(adapterScript);
 </script>
 
+<div id="dbg" style="position:fixed;bottom:8px;right:8px;background:#F7931A;color:#000;font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;z-index:99999;pointer-events:none;">w=?</div>
+
+<script>
+document.getElementById('dbg').textContent = 'w=' + window.innerWidth;
+window.addEventListener('resize', function(){ document.getElementById('dbg').textContent = 'w=' + window.innerWidth; });
+</script>
+
 <script>
 /* ── MOBILE LAYOUT ENFORCER ── */
 (function enforceMobileLayout() {
