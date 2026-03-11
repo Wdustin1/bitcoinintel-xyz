@@ -523,11 +523,7 @@
       .card { padding: 16px 14px !important; box-sizing: border-box; }
       .card-title, h3.card-title { font-size: 18px !important; }
 
-      /* ALL grids → single vertical column (display:block is most reliable) */
-      .grid-2, .grid-3 {
-        display: block !important;
-        width: 100% !important;
-      }
+      /* ALL grids → stack vertically on mobile */
       .grid-2 > *, .grid-3 > * {
         display: block !important;
         width: 100% !important;
@@ -536,6 +532,7 @@
       }
       .fg-inner {
         display: block !important;
+        width: 100% !important;
       }
       .fg-inner > * {
         display: block !important;
@@ -547,7 +544,6 @@
         grid-template-columns: 1fr 1fr !important;
       }
       .stats-row {
-        display: flex !important;
         flex-wrap: wrap !important;
       }
 
@@ -578,6 +574,13 @@
       .top-header { height: 52px; }
       .header-btc { display: none; }
       .card-title, h3.card-title { font-size: 16px !important; }
+    }
+
+    /* ── DESKTOP: restore 2-col / 3-col grids ── */
+    @media (min-width: 1101px) {
+      .grid-2 { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 20px !important; }
+      .grid-3 { display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 20px !important; }
+      .fg-inner { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 32px !important; }
     }
   </style>
 </head>
@@ -758,7 +761,7 @@
   </div>
 
   <!-- ── DOMINANCE + MARKET (2-col) ── -->
-  <div class="grid-2">
+  <div class="grid-2" style="display:block;width:100%;">
 
     <div class="card section-anchor" id="dominance">
       <h3 class="card-title">Dominance</h3>
@@ -811,7 +814,7 @@
   </div><!-- /grid-2 -->
 
   <!-- ── OPEN INTEREST + FUNDING RATE ── -->
-  <div class="grid-2">
+  <div class="grid-2" style="display:block;width:100%;">
 
     <div class="card section-anchor" id="open-interest">
       <h3 class="card-title">BTC Open Interest</h3>
