@@ -995,10 +995,18 @@ let ATM     = ASSET_CONFIG.BTC.atm;
 let CURRENT_PRICE = ASSET_CONFIG.BTC.price;
 
 const EXPIRY_LABELS = {
-  'w1':  'Mar 14, 2026', 'w2':  'Mar 21, 2026', 'w3':  'Mar 28, 2026',
-  'w4':  'Apr 4, 2026',  'w5':  'Apr 11, 2026', 'w6':  'Apr 18, 2026',
-  'w7':  'Apr 25, 2026', 'w8':  'May 2, 2026',  'w9':  'May 9, 2026',
-  'w10': 'May 16, 2026', 'w11': 'May 23, 2026', 'w12': 'May 30, 2026',
+  'w1':  'Mar 14', 'w2':  'Mar 21', 'w3':  'Mar 28',
+  'w4':  'Apr 4',  'w5':  'Apr 11', 'w6':  'Apr 18',
+  'w7':  'Apr 25', 'w8':  'May 2',  'w9':  'May 9',
+  'w10': 'May 16', 'w11': 'May 23', 'w12': 'May 30',
+};
+
+// Maps our tab keys to Derive's YYYYMMDD expiry format
+const DERIVE_EXPIRIES = {
+  'w1':  '20260314', 'w2':  '20260320', 'w3':  '20260327',
+  'w4':  '20260403', 'w5':  '20260410', 'w6':  '20260417',
+  'w7':  '20260424', 'w8':  '20260501', 'w9':  '20260508',
+  'w10': '20260515', 'w11': '20260522', 'w12': '20260529',
 };
 
 /* ─── STATE ─────────────────────────────────────────────────────────────── */
@@ -1007,6 +1015,8 @@ let currentSide = 'buy';
 let currentType = 'call';
 let selectedStrike = null;
 let selectedPremium = null;
+let deriveCache = {};   // keyed by "ASSET_YYYYMMDD"
+let deriveLoading = false;
 
 /* ─── HELPERS ───────────────────────────────────────────────────────────── */
 function fmt(n) {
@@ -1016,14 +1026,63 @@ function fmt(n) {
 function fmtTheta(v) { return v.toFixed(0); }
 function fmtDelta(v) { return v.toFixed(2); }
 
+/* ─── DERIVE API ─────────────────────────────────────────────────────────── */
+async function fetchDeriveChain(expKey) {
+  const deriveExpiry = DERIVE_EXPIRIES[expKey];
+  if (!deriveExpiry) return;
+  const cacheKey = currentAsset + '_' + deriveExpiry;
+  if (deriveCache[cacheKey]) return; // already cached
+  deriveLoading = true;
+  showChainLoading(true);
+  try {
+    const r = await fetch('/api/derive-chain?currency=' + currentAsset + '&expiry=' + deriveExpiry);
+    const data = await r.json();
+    if (data.strikes) {
+      deriveCache[cacheKey] = data;
+    }
+  } catch(e) { console.warn('Derive fetch failed:', e); }
+  deriveLoading = false;
+  showChainLoading(false);
+}
+
+function showChainLoading(on) {
+  const tbody = document.getElementById('chainBody');
+  if (on) {
+    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:32px;color:#666;">Loading live data from Derive...</td></tr>';
+  }
+}
+
+function getDeriveData(expKey) {
+  const deriveExpiry = DERIVE_EXPIRIES[expKey];
+  if (!deriveExpiry) return null;
+  return deriveCache[currentAsset + '_' + deriveExpiry] || null;
+}
+
 /* ─── RENDER CHAIN ──────────────────────────────────────────────────────── */
 function getDataForExpiry(key) {
+  // Try live Derive data first
+  const live = getDeriveData(key);
+  if (live && live.strikes) {
+    const result = {};
+    for (const [strike, sides] of Object.entries(live.strikes)) {
+      const s = parseInt(strike);
+      const C = sides.C || {};
+      const P = sides.P || {};
+      const fmtB = v => v || 0;
+      // [cBid, cAsk, cPrem, cTheta, cDelta, pDelta, pTheta, pPrem, pBid, pAsk]
+      result[s] = [
+        Math.round(fmtB(C.bid)), Math.round(fmtB(C.ask)), Math.round(fmtB(C.mark)),
+        Math.round(C.theta || 0), parseFloat((C.delta || 0).toFixed(2)),
+        parseFloat((P.delta || 0).toFixed(2)), Math.round(P.theta || 0),
+        Math.round(fmtB(P.mark)), Math.round(fmtB(P.bid)), Math.round(fmtB(P.ask))
+      ];
+    }
+    return result;
+  }
+  // Fallback: interpolated static data
   const cfg = ASSET_CONFIG[currentAsset];
-  // Direct match
   if (cfg.data[key]) return cfg.data[key];
-  // Parse week number
   const w = parseInt(key.replace('w',''));
-  // Find surrounding anchors (w1=1, w4=4, w12=12)
   const anchors = [1, 4, 12];
   let lo = 1, hi = 12;
   for (let i = 0; i < anchors.length - 1; i++) {
@@ -1031,17 +1090,13 @@ function getDataForExpiry(key) {
   }
   const loData = cfg.data['w' + lo];
   const hiData = cfg.data['w' + hi];
-  const t = (w - lo) / (hi - lo); // 0..1
-  // Interpolate using sqrt scaling (options price ~ sqrt(time))
-  const sqrtLo = Math.sqrt(lo), sqrtHi = Math.sqrt(hi), sqrtW = Math.sqrt(w);
-  const factor = sqrtLo + (sqrtHi - sqrtLo) * t; // sqrt interp
-  const baseF = sqrtW / sqrtLo;
+  const t = (w - lo) / (hi - lo);
   const result = {};
   Object.keys(loData).forEach(strike => {
     const lo_row = loData[strike];
     const hi_row = hiData ? hiData[strike] : lo_row;
     result[strike] = lo_row.map((v, i) => {
-      if (i === 4 || i === 5) return v; // deltas unchanged
+      if (i === 4 || i === 5) return v;
       const lv = lo_row[i], hv = hi_row[i];
       const interp = lv + (hv - lv) * t;
       return typeof v === 'number' ? (Math.abs(interp) < 1 ? Math.round(interp * 100) / 100 : Math.round(interp)) : v;
@@ -1051,11 +1106,18 @@ function getDataForExpiry(key) {
 }
 
 function renderChain() {
+  if (deriveLoading) return;
   const tbody = document.getElementById('chainBody');
   tbody.innerHTML = '';
   const rows = getDataForExpiry(currentExpiry);
 
-  STRIKES.forEach(strike => {
+  // Use Derive strikes if live data available, otherwise use local STRIKES
+  const live = getDeriveData(currentExpiry);
+  const strikeList = live && live.strikes
+    ? Object.keys(live.strikes).map(Number).sort((a,b) => a-b)
+    : STRIKES;
+
+  strikeList.forEach(strike => {
     const d = rows[strike];
     const [cBid, cAsk, cPrem, cTheta, cDelta, pDelta, pTheta, pPrem, pBid, pAsk] = d;
 
@@ -1498,10 +1560,11 @@ function fetchPrices() {
   });
 })();
 
-renderChain();
 document.getElementById('expiryDisplay').value = EXPIRY_LABELS[currentExpiry];
 fetchPrices();
 setInterval(fetchPrices, 30000);
+// Fetch live Derive data for initial expiry, then render
+fetchDeriveChain(currentExpiry).then(() => renderChain());
 </script>
 </body>
 </html>
