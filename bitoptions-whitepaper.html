@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BitOptions Protocol — Whitepaper</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ──────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0a0a0a;
+      --bg-card:   #111111;
+      --bg-code:   #161616;
+      --border:    #222222;
+      --text:      #f5f0e8;
+      --text-muted:#9e9a94;
+      --orange:    #F7931A;
+      --orange-dim:#c97515;
+      --orange-glow: rgba(247,147,26,0.12);
+      --serif:     Georgia, 'Times New Roman', serif;
+      --sans:      'Inter', system-ui, sans-serif;
+      --mono:      'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      --max-w:     800px;
+      --sidebar-w: 240px;
+      --transition: 0.2s ease;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--serif);
+      font-size: 17px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Topnav ────────────────────────────────────── */
+    .topnav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,10,10,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .topnav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+      font-family: var(--sans);
+      font-weight: 700;
+      font-size: 15px;
+    }
+    .topnav-logo {
+      width: 28px;
+      height: 28px;
+      background: var(--orange);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 900;
+      color: #000;
+      flex-shrink: 0;
+    }
+    .topnav-tag {
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--orange);
+      background: var(--orange-glow);
+      border: 1px solid rgba(247,147,26,0.3);
+      border-radius: 4px;
+      padding: 2px 8px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .topnav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn-nav {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: var(--transition);
+      border: none;
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+    .btn-outline:hover { color: var(--text); border-color: #444; }
+    .btn-primary {
+      background: var(--orange);
+      color: #000;
+      font-weight: 600;
+    }
+    .btn-primary:hover { background: #ffaa3a; }
+
+    /* ── Layout ────────────────────────────────────── */
+    .layout {
+      display: flex;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Sidebar TOC ───────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      position: sticky;
+      top: 52px;
+      height: calc(100vh - 52px);
+      overflow-y: auto;
+      padding: 32px 0 32px 0;
+      border-right: 1px solid var(--border);
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .toc-title {
+      font-family: var(--sans);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 0 16px 12px;
+    }
+    .toc-list { list-style: none; }
+    .toc-list a {
+      display: block;
+      font-family: var(--sans);
+      font-size: 12.5px;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 4px 16px;
+      border-left: 2px solid transparent;
+      transition: var(--transition);
+      line-height: 1.4;
+    }
+    .toc-list a:hover { color: var(--text); border-left-color: var(--border); }
+    .toc-list a.active { color: var(--orange); border-left-color: var(--orange); }
+    .toc-list .toc-sub a { padding-left: 28px; font-size: 12px; }
+
+    /* Mobile TOC toggle */
+    .toc-mobile-toggle {
+      display: none;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 14px;
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+      margin-bottom: 16px;
+    }
+
+    /* ── Main Content ──────────────────────────────── */
+    .main {
+      flex: 1;
+      min-width: 0;
+      padding: 48px 0 80px 48px;
+    }
+
+    /* ── Paper Header ──────────────────────────────── */
+    .paper-header {
+      margin-bottom: 48px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid var(--border);
+    }
+    .paper-title {
+      font-family: var(--sans);
+      font-size: 42px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+    .paper-title span { color: var(--orange); }
+    .paper-subtitle {
+      font-family: var(--sans);
+      font-size: 18px;
+      font-weight: 400;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+    .paper-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+    .meta-pill {
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 12px;
+    }
+    .meta-pill.version { color: var(--orange); border-color: rgba(247,147,26,0.3); background: var(--orange-glow); }
+
+    .abstract-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--orange);
+      border-radius: 8px;
+      padding: 20px 24px;
+    }
+    .abstract-label {
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 10px;
+    }
+    .abstract-box p {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    /* ── Sections ──────────────────────────────────── */
+    .section {
+      margin-bottom: 56px;
+    }
+    .section + .section {
+      padding-top: 48px;
+      border-top: 1px solid var(--border);
+    }
+
+    .section-number {
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--orange);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    h2 {
+      font-family: var(--sans);
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      margin-bottom: 20px;
+      line-height: 1.2;
+    }
+
+    h3 {
+      font-family: var(--sans);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      margin-top: 36px;
+      margin-bottom: 14px;
+    }
+
+    p {
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+
+    ul, ol {
+      margin: 0 0 16px 0;
+      padding-left: 24px;
+    }
+    li {
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+    li::marker { color: var(--orange); }
+
+    /* ── Formula blocks ────────────────────────────── */
+    .formula-block {
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin: 20px 0;
+      overflow-x: auto;
+    }
+    .formula {
+      font-family: var(--mono);
+      font-size: 15px;
+      color: #e8d5b0;
+      white-space: nowrap;
+    }
+    .formula-label {
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    /* ── Tables ────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; margin: 20px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--sans);
+      font-size: 14px;
+    }
+    th {
+      background: var(--bg-code);
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: left;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--bg-card); }
+
+    /* ── Callout boxes ─────────────────────────────── */
+    .callout {
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 20px 0;
+      font-size: 14.5px;
+    }
+    .callout-info {
+      background: rgba(247,147,26,0.06);
+      border: 1px solid rgba(247,147,26,0.2);
+    }
+    .callout-warn {
+      background: rgba(239,68,68,0.06);
+      border: 1px solid rgba(239,68,68,0.2);
+    }
+    .callout-icon {
+      font-size: 16px;
+      margin-right: 8px;
+    }
+
+    /* ── Multiplier table ──────────────────────────── */
+    .multiplier-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin: 16px 0;
+    }
+    .mult-cell {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+    .mult-range {
+      font-family: var(--sans);
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .mult-value {
+      font-family: var(--mono);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--orange);
+    }
+
+    /* ── Timeline ──────────────────────────────────── */
+    .timeline { position: relative; padding-left: 28px; }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--border);
+    }
+    .timeline-item {
+      position: relative;
+      margin-bottom: 36px;
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -24px;
+      top: 6px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 2px solid var(--orange);
+      z-index: 1;
+    }
+    .timeline-item.completed::before { background: var(--orange); }
+    .timeline-phase {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--orange);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .timeline-title {
+      font-family: var(--sans);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+    .timeline-items {
+      list-style: none;
+      padding: 0;
+    }
+    .timeline-items li {
+      font-size: 14.5px;
+      color: var(--text-muted);
+      padding: 3px 0;
+      padding-left: 16px;
+      position: relative;
+    }
+    .timeline-items li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--border);
+    }
+
+    /* ── Token allocation ──────────────────────────── */
+    .token-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin: 16px 0;
+    }
+    .token-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .token-pct {
+      font-family: var(--sans);
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--orange);
+      flex-shrink: 0;
+      width: 64px;
+    }
+    .token-label {
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+    .token-note {
+      font-family: var(--sans);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* ── Disclaimer ────────────────────────────────── */
+    .disclaimer-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+    .disclaimer-box strong { color: var(--text); }
+
+    /* ── Footer ────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 0;
+      margin-top: 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: gap;
+    }
+    .footer-brand {
+      font-family: var(--sans);
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+    .footer-brand span { color: var(--orange); }
+
+    /* ── Print styles ──────────────────────────────── */
+    @media print {
+      .topnav, .sidebar, .toc-mobile-toggle, .btn-primary { display: none !important; }
+      body { background: white; color: #111; }
+      .main { padding: 0; }
+      .layout { display: block; }
+      :root {
+        --bg: white;
+        --bg-card: #f8f8f8;
+        --bg-code: #f0f0f0;
+        --border: #ddd;
+        --text: #111;
+        --text-muted: #555;
+        --orange: #c97515;
+      }
+    }
+
+    /* ── Responsive ────────────────────────────────── */
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .sidebar.open {
+        display: block;
+        position: fixed;
+        top: 52px;
+        left: 0;
+        width: 280px;
+        height: calc(100vh - 52px);
+        background: var(--bg);
+        border-right: 1px solid var(--border);
+        z-index: 50;
+        padding: 24px 0;
+        animation: slideIn 0.2s ease;
+      }
+      @keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+      .toc-mobile-toggle { display: block; }
+      .main { padding: 24px 0 60px; }
+      .layout { padding: 0 16px; }
+      .paper-title { font-size: 30px; }
+      .multiplier-grid { grid-template-columns: repeat(3, 1fr); }
+      .token-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 480px) {
+      .multiplier-grid { grid-template-columns: repeat(2, 1fr); }
+      h2 { font-size: 22px; }
+      .paper-title { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Topnav ──────────────────────────────────────── -->
+<nav class="topnav">
+  <a href="index.html" class="topnav-brand">
+    <div class="topnav-logo">₿</div>
+    BitOptions
+    <span class="topnav-tag">Whitepaper</span>
+  </a>
+  <div class="topnav-actions">
+    <a href="index.html" class="btn-nav btn-outline">← Back to App</a>
+    <button class="btn-nav btn-primary" onclick="window.print()">⬇ Download PDF</button>
+  </div>
+</nav>
+
+<!-- ── Layout ──────────────────────────────────────── -->
+<div class="layout">
+
+  <!-- Sidebar TOC -->
+  <aside class="sidebar" id="sidebar">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#abstract">Abstract</a></li>
+      <li><a href="#s1">1. Introduction</a></li>
+      <li><a href="#s2">2. Options Fundamentals</a></li>
+      <li class="toc-sub"><ul class="toc-list">
+        <li><a href="#s2-1">2.1 What Are Options?</a></li>
+        <li><a href="#s2-2">2.2 Option Pricing</a></li>
+        <li><a href="#s2-3">2.3 Weekly Options</a></li>
+      </ul></li>
+      <li><a href="#s3">3. The Protocol</a></li>
+      <li class="toc-sub"><ul class="toc-list">
+        <li><a href="#s3-1">3.1 Protocol Overview</a></li>
+        <li><a href="#s3-2">3.2 Supported Assets</a></li>
+        <li><a href="#s3-3">3.3 Settlement</a></li>
+      </ul></li>
+      <li><a href="#s4">4. Liquidity Pool</a></li>
+      <li class="toc-sub"><ul class="toc-list">
+        <li><a href="#s4-1">4.1 Shared Pool</a></li>
+        <li><a href="#s4-2">4.2 LP Token Mechanics</a></li>
+        <li><a href="#s4-3">4.3 Collateral & Utilization</a></li>
+        <li><a href="#s4-4">4.4 Premium Distribution</a></li>
+      </ul></li>
+      <li><a href="#s5">5. Dynamic Pricing</a></li>
+      <li class="toc-sub"><ul class="toc-list">
+        <li><a href="#s5-1">5.1 Base Premium</a></li>
+        <li><a href="#s5-2">5.2 Imbalance Adjustment</a></li>
+        <li><a href="#s5-3">5.3 Size Impact</a></li>
+      </ul></li>
+      <li><a href="#s6">6. Risk Management</a></li>
+      <li class="toc-sub"><ul class="toc-list">
+        <li><a href="#s6-1">6.1 Notional Caps</a></li>
+        <li><a href="#s6-2">6.2 Oracle Security</a></li>
+        <li><a href="#s6-3">6.3 Smart Contract Risk</a></li>
+        <li><a href="#s6-4">6.4 LP Risk Disclosure</a></li>
+      </ul></li>
+      <li><a href="#s7">7. Governance</a></li>
+      <li><a href="#s8">8. Roadmap</a></li>
+      <li><a href="#s9">9. Team</a></li>
+      <li><a href="#s10">10. Disclaimer</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main">
+
+    <!-- Mobile TOC -->
+    <button class="toc-mobile-toggle" onclick="toggleToc()">☰ Table of Contents</button>
+
+    <!-- Paper Header -->
+    <header class="paper-header" id="abstract">
+      <div class="paper-title"><span>BitOptions</span> Protocol</div>
+      <div class="paper-subtitle">Decentralized Options Trading on Solana</div>
+      <div class="paper-meta">
+        <span class="meta-pill version">Version 1.0 — March 2026</span>
+        <span class="meta-pill">bitoptions.io</span>
+        <span class="meta-pill">Solana</span>
+        <span class="meta-pill">DeFi · Derivatives</span>
+      </div>
+      <div class="abstract-box">
+        <div class="abstract-label">Abstract</div>
+        <p>
+          BitOptions is a permissionless, non-custodial options protocol built on Solana that enables traders to buy weekly call and put options on Bitcoin, Ethereum, and Solana — fully settled in USDT. By replacing centralized intermediaries with smart contracts, shared liquidity pools, and Pyth Network oracle feeds, BitOptions delivers transparent on-chain options trading with no custodial risk, no geographic restrictions, and minimal complexity. This paper describes the protocol architecture, pricing model, liquidity mechanics, and risk framework underlying the BitOptions platform.
+        </p>
+      </div>
+    </header>
+
+    <!-- ────────────────────────────────────────────── -->
+    <!-- Section 1: Introduction -->
+    <!-- ────────────────────────────────────────────── -->
+    <section class="section" id="s1">
+      <div class="section-number">Section 01</div>
+      <h2>Introduction</h2>
+
+      <p>
+        The global options market represents one of the largest and most actively traded financial instruments in traditional finance. Yet in the cryptocurrency space, access to options trading has remained largely gated behind centralized exchanges (CEXs) — platforms that impose custodial risk, demand identity verification, enforce geographic restrictions, and maintain opaque pricing models.
+      </p>
+
+      <h3>The Problem</h3>
+      <p>
+        Existing crypto options markets suffer from several structural weaknesses:
+      </p>
+      <ul>
+        <li><strong>Custodial risk:</strong> Users must deposit funds with a centralized entity, creating single points of failure and counterparty exposure.</li>
+        <li><strong>Geographic barriers:</strong> Major platforms are unavailable to users in large parts of the world due to regulatory constraints.</li>
+        <li><strong>Complexity:</strong> Most platforms are designed for professional traders, with interfaces and product offerings that are inaccessible to the broader retail market.</li>
+        <li><strong>Opacity:</strong> Pricing, settlement, and collateral mechanics are typically black boxes controlled by the exchange operator.</li>
+      </ul>
+
+      <h3>The Solution</h3>
+      <p>
+        BitOptions addresses these problems by delivering a fully on-chain, non-custodial options protocol. Users retain custody of their funds at all times. Smart contracts govern every aspect of option creation, premium collection, and settlement — eliminating the need to trust a centralized operator.
+      </p>
+      <p>
+        The protocol launches with weekly options on Bitcoin (BTC), Ethereum (ETH), and Solana (SOL), cash-settled in USDT. All contracts expire every Friday at 08:00 UTC.
+      </p>
+
+      <h3>Key Principles</h3>
+      <ul>
+        <li><strong>Simplicity:</strong> Options in three clicks — pick asset, pick strike, pick call or put.</li>
+        <li><strong>Accessibility:</strong> Permissionless participation; no KYC, no geographic blocks.</li>
+        <li><strong>Transparency:</strong> Pricing formulas, pool balances, and settlement mechanics are fully on-chain and publicly auditable.</li>
+      </ul>
+    </section>
+
+    <!-- ────────────────────────────────────────────── -->
+    <!-- Section 2: Options Fundamentals -->
+    <!-- ────────────────────────────────────────────── -->
+    <section class="section" id="s2">
+      <div class="section-number">Section 02</div>
+      <h2>Background: Options Fundamentals</h2>
+
+      <h3 id="s2-1">2.1 What Are Options?</h3>
+      <p>
+        An <em>option</em> is a financial derivative that grants the buyer the <strong>right, but not the obligation</strong>, to buy or sell an underlying asset at a predetermined price — the <em>strike price</em> — on or before a specified expiry date.
+      </p>
+      <ul>
+        <li><strong>Call option:</strong> The right to buy the underlying asset at the strike price. Profits when the asset rises above the strike.</li>
+        <li><strong>Put option:</strong> The right to sell the underlying asset at the strike price. Profits when the asset falls below the strike.</li>
+      </ul>
+      <p>
+        The buyer pays a one-time upfront cost called the <em>premium</em> to acquire this right. The seller (writer) receives the premium and takes on the obligation to fulfill the contract if the buyer exercises.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Term</th><th>Definition</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Strike Price (K)</strong></td><td>The price at which the option can be exercised</td></tr>
+            <tr><td><strong>Expiry (T)</strong></td><td>The date/time after which the option ceases to exist</td></tr>
+            <tr><td><strong>Premium</strong></td><td>The price paid to acquire the option</td></tr>
+            <tr><td><strong>In-the-money (ITM)</strong></td><td>When exercising would be profitable (call: S &gt; K; put: S &lt; K)</td></tr>
+            <tr><td><strong>Out-of-the-money (OTM)</strong></td><td>When exercising would not be profitable</td></tr>
+            <tr><td><strong>At-the-money (ATM)</strong></td><td>When spot price equals or is near the strike price</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 id="s2-2">2.2 Option Pricing</h3>
+      <p>
+        Option premiums are determined by a combination of intrinsic value and time value. The most widely used analytical model is the <strong>Black-Scholes model</strong> (1973), which provides a closed-form solution for European option pricing.
+      </p>
+
+      <div class="formula-block">
+        <div class="formula-label">Black-Scholes Call Price</div>
+        <div class="formula">C = S · N(d₁) − K · e<sup>−rT</sup> · N(d₂)</div>
+      </div>
+
+      <div class="formula-block">
+        <div class="formula-label">d₁ and d₂</div>
+        <div class="formula">d₁ = [ ln(S/K) + (r + σ²/2) · T ] / (σ · √T)</div>
+        <div class="formula" style="margin-top:8px">d₂ = d₁ − σ · √T</div>
+      </div>
+
+      <p>Where the inputs are defined as:</p>
+      <ul>
+        <li><strong>S</strong> — Current spot price of the underlying asset</li>
+        <li><strong>K</strong> — Strike price of the option</li>
+        <li><strong>T</strong> — Time to expiry (in years)</li>
+        <li><strong>r</strong> — Risk-free interest rate</li>
+        <li><strong>σ</strong> — Implied volatility of the underlying asset</li>
+        <li><strong>N(·)</strong> — Cumulative standard normal distribution function</li>
+      </ul>
+
+      <p>
+        The key sensitivity measures — collectively known as <strong>the Greeks</strong> — describe how the option price changes relative to each input:
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Greek</th><th>Symbol</th><th>Sensitivity To</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Delta</td><td><strong>Δ</strong></td><td>Spot price (S)</td><td>Change in option price per $1 move in the underlying</td></tr>
+            <tr><td>Gamma</td><td><strong>Γ</strong></td><td>Delta (rate of change)</td><td>Rate of change of Delta; highest near-the-money</td></tr>
+            <tr><td>Theta</td><td><strong>Θ</strong></td><td>Time to expiry (T)</td><td>Time decay — option loses value as expiry approaches</td></tr>
+            <tr><td>Vega</td><td><strong>ν</strong></td><td>Implied volatility (σ)</td><td>Change in option price per 1% change in volatility</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 id="s2-3">2.3 Weekly Options</h3>
+      <p>
+        BitOptions exclusively offers <strong>weekly-expiring options</strong>. Weekly expirations offer several practical advantages over monthly or quarterly contracts:
+      </p>
+      <ul>
+        <li><strong>Flexibility:</strong> Traders can express short-term views without committing to longer-dated positions.</li>
+        <li><strong>Event plays:</strong> Weekly contracts are well-suited to trade around scheduled events (CPI releases, Fed meetings, protocol upgrades).</li>
+        <li><strong>Reduced theta exposure:</strong> Shorter duration means faster time decay, which benefits option sellers and creates cleaner risk profiles for buyers.</li>
+      </ul>
+      <p>
+        BitOptions uses <strong>European-style cash settlement</strong> in USDT rather than physical delivery. At expiry, the smart contract calculates each option's intrinsic value using the oracle settlement price and automatically credits the payout to the buyer's wallet. The seller (liquidity pool) pays the payout from locked collateral.
+      </p>
+    </section>
+
+    <!-- ────────────────────────────────────────────── -->
+    <!-- Section 3: The Protocol -->
+    <!-- ────────────────────────────────────────────── -->
+    <section class="section" id="s3">
+      <div class="section-number">Section 03</div>
+      <h2>The BitOptions Protocol</h2>
+
+      <h3 id="s3-1">3.1 Protocol Overview</h3>
+      <p>
+        BitOptions is a smart-contract-based options protocol deployed on the <strong>Solana blockchain</strong>. Solana was selected for its high throughput, sub-second finality, and low transaction fees — all essential properties for a real-time derivatives platform.
+      </p>
+      <ul>
+        <li><strong>Oracle:</strong> <a href="https://pyth.network" style="color:var(--orange)">Pyth Network</a> provides manipulation-resistant, high-frequency price feeds for all supported assets.</li>
+        <li><strong>Settlement currency:</strong> All premiums, collateral, and payouts are denominated in USDT (SPL token on Solana).</li>
+        <li><strong>Market structure:</strong> No order book. The protocol uses a liquidity pool model — the pool acts as the permanent counterparty to all option buyers.</li>
+      </ul>
+
+      <h3 id="s3-2">3.2 Supported Assets</h3>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Asset</th><th>Ticker</th><th>Strike Increment</th><th>Expiry Schedule</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Bitcoin</td><td><strong>BTC</strong></td><td>$5,000</td><td>Every Friday, 08:00 UTC</td></tr>
+            <tr><td>Ethereum</td><td><strong>ETH</strong></td><td>$100</td><td>Every Friday, 08:00 UTC</td></tr>
+            <tr><td>Solana</td><td><strong>SOL</strong></td><td>$10</td><td>Every Friday, 08:00 UTC</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Expansion to additional assets — including LINK, AVAX, and others — is planned in Phase 3 of the roadmap. New asset listings will be subject to governance approval.
+      </p>
+
+      <h3 id="s3-3">3.3 Settlement</h3>
+      <p>
+        At expiry, the settlement price is determined by the Pyth Network oracle using a <strong>30-minute TWAP (Time-Weighted Average Price)</strong> window ending at the scheduled expiry time. The TWAP window prevents last-minute price manipulation that could otherwise artificially push options in or out of the money.
+      </p>
+
+      <div class="formula-block">
+        <div class="formula-label">Call Option Payout</div>
+        <div class="formula">Payout<sub>call</sub> = max(0, S<sub>T</sub> − K) × contract_size</div>
+      </div>
+
+      <div class="formula-block">
+        <div class="formula-label">Put Option Payout</div>
+        <div class="formula">Payout<sub>put</sub>  = max(0, K − S<sub>T</sub>) × contract_size</div>
+      </div>
+
+      <p>
+        Where <strong>S<sub>T</sub></strong> is the TWAP settlement price and <strong>K</strong> is the option's strike price. Smart contracts automatically calculate and distribute payouts to buyers' wallets at expiry — no manual claim or exercise is required.
+      </p>
+    </section>
+
+    <!-- ────────────────────────────────────────────── -->
+    <!-- Section 4: Liquidity Pool -->
+    <!-- ────────────────────────────────────────────── -->
+    <section class="section" id="s4">
+      <div class="section-number">Section 04</div>
+      <h2>Liquidity Pool Architecture</h2>
+
+      <h3 id="s4-1">4.1 The Shared Liquidity Pool</h3>
+      <p>
+        Each supported asset has a dedicated <strong>shared USDT liquidity pool</strong> that acts as the sole counterparty to all option buyers. When a trader buys an option, they pay a premium into the pool; when the option expires in-the-money, the pool pays out the settlement amount.
+      </p>
+      <ul>
+        <li>Liquidity providers (LPs) deposit USDT into the pool and receive <strong>LP tokens</strong> representing their proportional share.</li>
+        <li>LP tokens are fungible and transferable. Their value increases as premium income accumulates.</li>
+        <li>The pool is collectively <em>short options</em> — it collects premium income and bears the risk of adverse price moves.</li>
+      </ul>
+
+      <h3 id="s4-2">4.2 LP Token Mechanics</h3>
+
+      <div class="formula-block">
+        <div class="formula-label">LP Token Price</div>
+        <div class="formula">LP Token Price = Total Pool Value / Total LP Token Supply</div>
+      </div>
+
+      <div class="formula-block">
+        <div class="formula-label">Deposit — Tokens Minted</div>
+        <div class="formula">LP Tokens Minted = Deposit Amount / Current LP Token Price</div>
+      </div>
+
+      <div class="formula-block">
+        <div class="formula-label">Withdrawal — USDT Returned</div>
+        <div class="formula">USDT Returned = LP Tokens × Current LP Token Price</div>
+      </div>
+
+      <p>
+        Withdrawals are temporarily restricted when the pool's <strong>available capital</strong> falls below a minimum safety threshold, preventing a bank-run scenario during high-utilization periods.
+      </p>
+
+      <h3 id="s4-3">4.3 Collateral &amp; Capital Utilization</h3>
+      <p>
+        For every option sold, the protocol locks collateral equal to the <strong>maximum possible payout</strong> of that option. This ensures the pool can always honor its obligations at expiry, regardless of how far the asset moves.
+      </p>
+
+      <div class="formula-block">
+        <div class="formula-label">Available Capital</div>
+        <div class="formula">Available Capital = Total Deposits − Locked Collateral</div>
+      </div>
+
+      <div class="formula-block">
+        <div class="formula-label">Utilization Rate</div>
+        <div class="formula">Utilization Rate = Locked Collateral / Total Deposits</div>
+      </div>
+
+      <div class="callout callout-info">
+        <span class="callout-icon">💡</span>
+        <strong>Target Utilization:</strong> The protocol is designed to operate between 40–60% utilization for optimal yield/risk balance. Dynamic pricing (Section 5) automatically deters over-concentration.
+      </div>
+
+      <h3 id="s4-4">4.4 Premium Distribution</h3>
+      <p>
+        Option premiums paid by buyers flow directly into the pool at the moment of purchase. This immediately increases the LP token price, accruing value to all liquidity providers proportionally.
+      </p>
+      <ul>
+        <li>A platform fee is deducted from each premium and directed to the protocol treasury.</li>
+        <li>The fee rate is set by governance and is publicly viewable on-chain.</li>
+      </ul>
+
+      <div class="formula-block">
+        <div class="formula-label">Net LP Yield (Period)</div>
+        <div class="formula">Net Yield = Σ(Premiums Collected) − Σ(Payouts Made) / Time Period</div>
+      </div>
+    </section>
+
+    <!-- ────────────────────────────────────────────── -->
+    <!-- Section 5: Dynamic Pricing -->
+    <!-- ────────────────────────────────────────────── -->
+    <section class="section" id="s5">
+      <div class="section-number">Section 05</div>
+      <h2>Dynamic Pricing Model</h2>
+
+      <h3 id="s5-1">5.1 Base Premium</h3>
+      <p>
+        The base premium for each option is derived from the <strong>Black-Scholes model</strong> using a volatility surface calibrated to realized market data. Implied volatility (σ) is updated periodically by the protocol, ensuring premiums reflect current market conditions.
+      </p>
+
+      <div class="formula-block">
+        <div class="formula-label">Base Premium</div>
+        <div class="formula">Base Premium = BS(S, K, T, r, σ<sub>base</sub>)</div>
+      </div>
+
+      <p>
+        Where <strong>σ<sub>base</sub></strong> is the protocol's current implied volatility estimate for the asset, updated at regular intervals using on-chain and off-chain volatility data.
+      </p>
+
+      <h3 id="s5-2">5.2 Imbalance Adjustment</h3>
+      <p>
+        As the pool approaches maximum utilization — indicating that demand for options is high relative to available capital — the protocol applies an <strong>Imbalance Multiplier (μ)</strong> to premiums. This serves a dual purpose: protecting LP capital at high utilization and providing a natural demand-limiting mechanism.
+      </p>
+
+      <div class="multiplier-grid">
+        <div class="mult-cell">
+          <div class="mult-range">0–20%</div>
+          <div class="mult-value">1.0×</div>
+        </div>
+        <div class="mult-cell">
+          <div class="mult-range">20–40%</div>
+          <div class="mult-value">1.25×</div>
+        </div>
+        <div class="mult-cell">
+          <div class="mult-range">40–60%</div>
+          <div class="mult-value">1.75×</div>
+        </div>
+        <div class="mult-cell">
+          <div class="mult-range">60–80%</div>
+          <div class="mult-value">2.5×</div>
+        </div>
+        <div class="mult-cell">
+          <div class="mult-range">&gt;80%</div>
+          <div class="mult-value">4.0×</div>
+        </div>
+      </div>
+
+      <div class="formula-block">
+        <div class="formula-label">Final Premium</div>
+        <div class="formula">Final Premium = Base Premium × μ × Size Impact Factor</div>
+      </div>
+
+      <h3 id="s5-3">5.3 Size Impact</h3>
+      <p>
+        To prevent large orders from concentrating risk in the pool, a <strong>Size Impact Factor</strong> applies a pricing penalty proportional to the order's share of available pool capital.
+      </p>
+
+      <div class="formula-block">
+        <div class="formula-label">Size Impact Factor</div>
+        <div class="formula">Size Impact = 1 + (Order Notional / Pool Available Capital) × 0.1</div>
+      </div>
+
+      <p>
+        Small orders (notional well below available capital) experience negligible size impact. Large orders approaching pool capacity receive progressively worse pricing, naturally discouraging pool concentration.
+      </p>
+    </section>
+
+    <!-- ────────────────────────────────────────────── -->
+    <!-- Section 6: Risk Management -->
+    <!-- ────────────────────────────────────────────── -->
+    <section class="section" id="s6">
+      <div class="section-number">Section 06</div>
+      <h2>Risk Management</h2>
+
+      <h3 id="s6-1">6.1 Notional Caps</h3>
+      <p>
+        Hard exposure limits are enforced at the smart contract level to prevent any single directional bet from overwhelming the pool:
+      </p>
+      <ul>
+        <li><strong>Maximum one-directional exposure per asset:</strong> 40% of pool capital (calls or puts separately)</li>
+        <li><strong>Maximum total per-asset exposure:</strong> 60% of pool capital (calls + puts combined)</li>
+        <li>Orders that would breach these caps are rejected at the contract level — not merely priced higher.</li>
+      </ul>
+
+      <h3 id="s6-2">6.2 Oracle Security</h3>
+      <p>
+        Price oracle integrity is a core security property. BitOptions relies on <strong>Pyth Network</strong> as the primary price feed provider, chosen for its institutional-grade data aggregation and low-latency on-chain delivery on Solana.
+      </p>
+      <ul>
+        <li>The <strong>30-minute TWAP</strong> at expiry provides strong resistance to short-term price manipulation attempts.</li>
+        <li>A <strong>secondary oracle fallback</strong> is activated automatically in the event of a primary feed outage, ensuring settlement can always proceed.</li>
+        <li>Oracle deviation monitors flag anomalous price movements for governance review.</li>
+      </ul>
+
+      <h3 id="s6-3">6.3 Smart Contract Risk</h3>
+      <ul>
+        <li>All protocol contracts will undergo a full security audit by <strong>OtterSec</strong> prior to mainnet deployment.</li>
+        <li>A <strong>bug bounty program</strong> will be active post-launch to incentivize responsible vulnerability disclosure.</li>
+        <li>Contracts use an <strong>upgradeable proxy pattern with timelock governance</strong>, ensuring any upgrades require a 48-hour delay and on-chain governance approval before taking effect.</li>
+      </ul>
+
+      <h3 id="s6-4">6.4 LP Risk Disclosure</h3>
+      <div class="callout callout-warn">
+        <span class="callout-icon">⚠️</span>
+        <strong>Risk Warning:</strong> Liquidity providers act as options sellers and bear the risk of large directional price moves. In a worst-case scenario — a sustained, large one-directional move in an underlying asset — the pool may experience significant losses.
+      </div>
+      <p>
+        The protocol mitigates tail risk through dynamic pricing escalation and hard notional caps, but these mechanisms do not eliminate risk entirely. Key LP considerations:
+      </p>
+      <ul>
+        <li>Dynamic pricing and notional caps limit maximum one-sided exposure.</li>
+        <li>Historical data across crypto derivatives markets shows option sellers are profitable in approximately <strong>70–75% of weekly cycles</strong>, though past performance is not indicative of future results.</li>
+        <li>LPs should size positions appropriately and monitor pool utilization.</li>
+      </ul>
+    </section>
+
+    <!-- ────────────────────────────────────────────── -->
+    <!-- Section 7: Governance -->
+    <!-- ────────────────────────────────────────────── -->
+    <section class="section" id="s7">
+      <div class="section-number">Section 07</div>
+      <h2>Governance &amp; Tokenomics</h2>
+
+      <p>
+        BitOptions will transition to a fully decentralized governance model via a <strong>DAO structure</strong>. Governance token holders will control key protocol parameters through on-chain voting with a mandatory 48-hour timelock on all approved changes.
+      </p>
+
+      <h3>Governance Scope</h3>
+      <ul>
+        <li>Fee parameters (platform fee rate, treasury allocation)</li>
+        <li>Implied volatility surface updates and oracle configuration</li>
+        <li>New asset listings and strike increment changes</li>
+        <li>Smart contract upgrades and security parameter adjustments</li>
+      </ul>
+
+      <h3>Token Allocation</h3>
+      <div class="token-grid">
+        <div class="token-card">
+          <div class="token-pct">40%</div>
+          <div>
+            <div class="token-label">Community</div>
+            <div class="token-note">Ecosystem rewards, liquidity incentives, grants</div>
+          </div>
+        </div>
+        <div class="token-card">
+          <div class="token-pct">20%</div>
+          <div>
+            <div class="token-label">Team</div>
+            <div class="token-note">2-year linear vest with 6-month cliff</div>
+          </div>
+        </div>
+        <div class="token-card">
+          <div class="token-pct">20%</div>
+          <div>
+            <div class="token-label">Treasury</div>
+            <div class="token-note">Protocol-controlled reserves and operations</div>
+          </div>
+        </div>
+        <div class="token-card">
+          <div class="token-pct">20%</div>
+          <div>
+            <div class="token-label">Early Contributors</div>
+            <div class="token-note">Advisors, early backers, and early testers</div>
+          </div>
+        </div>
+      </div>
+
+      <p>
+        Full tokenomics details — including total supply, vesting schedules, and distribution mechanics — will be announced prior to the governance token launch in Phase 3.
+      </p>
+    </section>
+
+    <!-- ────────────────────────────────────────────── -->
+    <!-- Section 8: Roadmap -->
+    <!-- ────────────────────────────────────────────── -->
+    <section class="section" id="s8">
+      <div class="section-number">Section 08</div>
+      <h2>Roadmap</h2>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-phase">Phase 1 · Q2 2026</div>
+          <div class="timeline-title">Testnet Launch</div>
+          <ul class="timeline-items">
+            <li>Smart contract deployment on Solana devnet</li>
+            <li>Full security audit by OtterSec</li>
+            <li>UI beta testing with 500 early users</li>
+            <li>Bug bash and community feedback integration</li>
+          </ul>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-phase">Phase 2 · Q3 2026</div>
+          <div class="timeline-title">Mainnet Alpha</div>
+          <ul class="timeline-items">
+            <li>Mainnet launch with BTC, ETH, SOL options</li>
+            <li>LP deposits open to public</li>
+            <li>Weekly settlement cycles begin</li>
+            <li>Bug bounty program activated</li>
+          </ul>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-phase">Phase 3 · Q4 2026</div>
+          <div class="timeline-title">Expansion</div>
+          <ul class="timeline-items">
+            <li>Additional assets: LINK, AVAX, and others (via governance)</li>
+            <li>Governance token launch and DAO activation</li>
+            <li>Mobile app (iOS + Android)</li>
+            <li>Cross-chain exploration (Arbitrum, Base)</li>
+          </ul>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-phase">Phase 4 · 2027</div>
+          <div class="timeline-title">Protocol Maturity</div>
+          <ul class="timeline-items">
+            <li>Institutional LP onboarding with dedicated tooling</li>
+            <li>Advanced order types: spreads, straddles, iron condors</li>
+            <li>SDK and API for third-party integrations</li>
+            <li>Protocol-level insurance fund</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ────────────────────────────────────────────── -->
+    <!-- Section 9: Team -->
+    <!-- ────────────────────────────────────────────── -->
+    <section class="section" id="s9">
+      <div class="section-number">Section 09</div>
+      <h2>Team</h2>
+
+      <p>
+        The BitOptions founding team brings experience from <strong>traditional finance, DeFi protocol development, and institutional options trading</strong>. Core contributors are pseudonymous for privacy; team members are available for verification through private channels.
+      </p>
+      <p>
+        The team has backgrounds spanning quantitative trading, smart contract engineering, product design, and decentralized protocol governance. Advisors from the DeFi and derivatives space are onboard and will be publicly announced prior to mainnet launch.
+      </p>
+
+      <div class="callout callout-info">
+        <span class="callout-icon">🔒</span>
+        For team verification inquiries — including for institutional LPs or media — please contact the team via the official BitOptions channels listed on the website.
+      </div>
+    </section>
+
+    <!-- ────────────────────────────────────────────── -->
+    <!-- Section 10: Disclaimer -->
+    <!-- ────────────────────────────────────────────── -->
+    <section class="section" id="s10">
+      <div class="section-number">Section 10</div>
+      <h2>Disclaimer</h2>
+
+      <div class="disclaimer-box">
+        <p><strong>Not Financial Advice.</strong> This whitepaper is provided for informational purposes only and does not constitute financial, investment, legal, or tax advice. Nothing in this document should be interpreted as a solicitation or recommendation to buy, sell, or hold any financial instrument.</p>
+
+        <p style="margin-top:14px"><strong>Geographic Restrictions.</strong> BitOptions is not available to U.S. persons or residents of any restricted jurisdiction. Users are solely responsible for ensuring their use of the platform complies with the laws and regulations applicable in their jurisdiction.</p>
+
+        <p style="margin-top:14px"><strong>Smart Contract Risk.</strong> Interacting with smart contracts involves inherent risks, including but not limited to bugs, exploits, oracle failures, and unforeseen market conditions. Users should only participate with funds they can afford to lose. The protocol has been designed with security as a priority, but no guarantee of funds safety can be made.</p>
+
+        <p style="margin-top:14px"><strong>LP Risk.</strong> Providing liquidity to the BitOptions protocol exposes LPs to options seller risk. In adverse market conditions, LPs may experience losses up to the total value of their deposited capital. Past performance of options selling strategies is not indicative of future results.</p>
+
+        <p style="margin-top:14px"><strong>Regulatory Uncertainty.</strong> The regulatory landscape for DeFi and digital asset derivatives is evolving rapidly. Changes in applicable law or regulations could adversely affect the protocol's availability or operation.</p>
+
+        <p style="margin-top:14px"><strong>Forward-Looking Statements.</strong> This document may contain forward-looking statements regarding the development and deployment of the BitOptions protocol. These statements are subject to risks and uncertainties and should not be relied upon as commitments or guarantees of future performance.</p>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="footer-brand">
+        <span>BitOptions Protocol</span> · Version 1.0 · March 2026<br>
+        <span style="color:var(--text-muted);font-size:12px">© 2026 BitOptions. All rights reserved.</span>
+      </div>
+      <div style="display:flex;gap:12px">
+        <a href="index.html" class="btn-nav btn-outline" style="font-family:var(--sans);font-size:13px">← Back to App</a>
+        <button class="btn-nav btn-primary" onclick="window.print()" style="font-family:var(--sans);font-size:13px">⬇ Download PDF</button>
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+  // ── Mobile TOC toggle ──────────────────────────────
+  function toggleToc() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('open');
+  }
+  // Close sidebar when clicking a link on mobile
+  document.querySelectorAll('.toc-list a').forEach(link => {
+    link.addEventListener('click', () => {
+      document.getElementById('sidebar').classList.remove('open');
+    });
+  });
+
+  // ── Active TOC highlight on scroll ────────────────
+  const sections = document.querySelectorAll('[id]');
+  const tocLinks = document.querySelectorAll('.toc-list a');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        tocLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === '#' + entry.target.id) {
+            link.classList.add('active');
+          }
+        });
+      }
+    });
+  }, { rootMargin: '-52px 0px -60% 0px', threshold: 0 });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
