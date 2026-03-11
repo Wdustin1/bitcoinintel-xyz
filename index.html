@@ -3004,23 +3004,15 @@
   document.head.appendChild(adapterScript);
 </script>
 
-<div id="dbg" style="position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#F7931A;color:#000;font-size:16px;font-weight:900;padding:8px 20px;border-radius:8px;z-index:99999;pointer-events:none;white-space:nowrap;">w=loading...</div>
-
 <script>
 /* ── MOBILE LAYOUT ENFORCER ── */
 (function() {
   var W = window.innerWidth || document.documentElement.clientWidth || 999;
-  // Update debug badge
-  var dbg = document.getElementById('dbg');
-  if (dbg) dbg.textContent = 'w=' + W;
-
   if (W <= 1100) {
-    // Inject a <style> tag — beats everything except inline !important
     var s = document.createElement('style');
-    s.id = 'mob-fix';
     s.textContent = [
       '.grid-2,.grid-3{display:block!important;width:100%!important;}',
-      '.grid-2>*,.grid-3>*{display:block!important;width:100%!important;margin-bottom:14px!important;box-sizing:border-box!important;float:none!important;}',
+      '.grid-2>*,.grid-3>*{display:block!important;width:100%!important;margin-bottom:14px!important;box-sizing:border-box!important;}',
       '.fg-inner{display:block!important;}',
       '.fg-inner>*{display:block!important;width:100%!important;margin-bottom:16px!important;}',
       '.oi-grid{display:grid!important;grid-template-columns:1fr 1fr!important;}',
