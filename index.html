@@ -2668,22 +2668,8 @@
   const adapterScript = document.createElement('script');
   adapterScript.src = 'https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js';
   adapterScript.onload = () => {
-    // Load above-the-fold charts immediately
-    _eager.forEach(lazyLoad);
-
-    // Observe all section anchors — load when 200px from viewport
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          lazyLoad(entry.target.id);
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { rootMargin: '600px 0px' });
-
-    document.querySelectorAll('.section-anchor').forEach(el => {
-      if (!_eager.includes(el.id)) observer.observe(el);
-    });
+    // Load ALL sections immediately — no lazy loading
+    document.querySelectorAll('.section-anchor').forEach(el => lazyLoad(el.id));
   };
 
   // ════════════════════════════════════════
