@@ -1485,6 +1485,19 @@ function fetchPrices() {
 }
 
 /* ─── INIT ──────────────────────────────────────────────────────────────── */
+// Populate strike dropdown for default asset (BTC) on first load
+(function initStrikeDropdown() {
+  const cfg = ASSET_CONFIG[currentAsset];
+  const sel = document.getElementById('strikeSelect');
+  sel.innerHTML = '<option value="">Select a strike</option>';
+  cfg.strikes.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s;
+    opt.textContent = cfg.fmtStrike(s);
+    sel.appendChild(opt);
+  });
+})();
+
 renderChain();
 document.getElementById('expiryDisplay').value = EXPIRY_LABELS[currentExpiry];
 fetchPrices();
