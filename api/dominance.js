@@ -1,23 +1,16 @@
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=60');
+
   try {
-    const [cmcRes, usdtRes] = await Promise.all([
-      fetch('https://pro-api.coinmarketcap.com/v1/global-metrics/quotes/latest', {
-        headers: { 'X-CMC_PRO_API_KEY': 'abd407dfba0a4897a40589cd8fd93c4b' }
-      }),
-      fetch('https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=usd&include_market_cap=true')
-    ]);
-
-    const cmcData  = await cmcRes.json();
-    const usdtData = await usdtRes.json();
-
-    const totalMarketCap = cmcData.data.quote.USD.total_market_cap;
-    const usdtMarketCap  = usdtData?.tether?.usd_market_cap || 0;
-    const usdtDominance  = totalMarketCap > 0 ? (usdtMarketCap / totalMarketCap) * 100 : 0;
+    const r = await fetch('https://api.coingecko.com/api/v3/global');
+    const d = await r.json();
+    const pct = d.data.market_cap_percentage;
+    const totalMarketCap = d.data.total_market_cap.usd;
 
     res.json({
-      dominance:      cmcData.data.btc_dominance,
-      usdtDominance,
+      dominance:     pct.btc || 0,
+      usdtDominance: pct.usdt || 0,
       totalMarketCap,
     });
   } catch (e) {
