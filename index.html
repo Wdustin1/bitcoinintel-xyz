@@ -484,7 +484,7 @@
     }
 
     /* ── RESPONSIVE BREAKPOINTS ── */
-    @media (max-width: 900px) {
+    @media (max-width: 1100px) {
       /* Prevent horizontal overflow */
       body, .main { overflow-x: hidden; }
 
@@ -2994,6 +2994,40 @@
 </script>
 
 <script>
+/* ── MOBILE LAYOUT ENFORCER ── */
+(function enforceMobileLayout() {
+  function apply() {
+    if (window.innerWidth > 900) return;
+    // Force all grid-2 and grid-3 to single column
+    document.querySelectorAll('.grid-2, .grid-3').forEach(function(el) {
+      el.style.setProperty('grid-template-columns', '1fr', 'important');
+      el.style.setProperty('gap', '14px', 'important');
+    });
+    // Fix fear & greed inner grid
+    document.querySelectorAll('.fg-inner').forEach(function(el) {
+      el.style.setProperty('grid-template-columns', '1fr', 'important');
+    });
+    // Fix OI grid to 2-col
+    document.querySelectorAll('.oi-grid').forEach(function(el) {
+      el.style.setProperty('grid-template-columns', 'repeat(2,1fr)', 'important');
+    });
+    // Main content full width
+    var main = document.querySelector('.main');
+    if (main) { main.style.marginLeft = '0'; main.style.width = '100%'; }
+    // Content padding
+    var content = document.querySelector('.content');
+    if (content) { content.style.padding = '76px 12px 40px'; }
+    // Team grid
+    document.querySelectorAll('.team-grid').forEach(function(el) {
+      el.style.setProperty('grid-template-columns', '1fr', 'important');
+    });
+  }
+  // Run on load and resize
+  document.addEventListener('DOMContentLoaded', apply);
+  window.addEventListener('resize', apply);
+  apply();
+})();
+
 /* ── MOBILE SIDEBAR TOGGLE ── */
 (function() {
   const btn = document.getElementById('mobMenuBtn');
