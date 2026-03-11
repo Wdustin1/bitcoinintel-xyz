@@ -485,6 +485,9 @@
 
     /* ── RESPONSIVE BREAKPOINTS ── */
     @media (max-width: 900px) {
+      /* Prevent horizontal overflow */
+      body, .main { overflow-x: hidden; }
+
       /* Sidebar off-screen by default */
       .sidebar {
         transform: translateX(-100%);
@@ -501,59 +504,72 @@
       .mob-overlay.open { display: block; }
 
       /* Main fills full width */
-      .main { margin-left: 0; }
+      .main { margin-left: 0; width: 100%; }
 
-      /* Top header padding for hamburger */
-      .top-header { padding-left: 60px; }
+      /* Top header */
+      .top-header { padding-left: 60px; padding-right: 16px; }
+      .header-nav { display: none; }
 
-      /* Grid layouts → single column */
-      .grid-2, .grid-3 { grid-template-columns: 1fr; gap: 16px; }
+      /* Content area */
+      .content {
+        padding: 80px 12px 40px !important;
+        gap: 14px !important;
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+
+      /* Cards */
+      .card { padding: 16px 14px !important; box-sizing: border-box; }
+      .card-title, h3.card-title { font-size: 18px !important; }
+
+      /* Grid layouts → FORCE single column */
+      .grid-2, .grid-3 {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+        width: 100% !important;
+      }
+
+      /* Fear & Greed inner grid → stack gauge + history */
+      .fg-inner {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+      }
 
       /* OI grid 4-col → 2-col */
-      .oi-grid { grid-template-columns: repeat(2, 1fr); }
+      .oi-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
 
       /* Stats row → wrap */
       .stats-row { flex-wrap: wrap; }
       .stat-box { flex: 1 1 45%; min-width: 0; }
 
-      /* Content padding */
-      .content { padding: 16px; gap: 16px; }
-
-      /* Cards */
-      .card { padding: 18px 16px; }
-      .card-title, h3.card-title { font-size: 18px; }
-
-      /* Chart heights on mobile */
-      #priceChart, #hrChart, #rbChart, #s2fChart, #mvrvChart, #m2Chart { height: 240px !important; }
-      #spiralCanvas { width: 100% !important; height: auto !important; }
-
-      /* Header nav — hide text links, keep logo + BTC price */
-      .header-nav { display: none; }
-      .header-btc { font-size: 13px; }
+      /* Chart heights */
+      #priceChart, #hrChart, #rbChart, #s2fChart, #mvrvChart, #m2Chart { height: 220px !important; }
+      #spiralCanvas { width: 100% !important; height: auto !important; max-width: 100% !important; }
 
       /* Team grid */
       .team-grid { grid-template-columns: 1fr !important; }
 
-      /* Tabs — scrollable */
-      .tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      /* Tabs — scrollable row */
+      .tabs { overflow-x: auto !important; -webkit-overflow-scrolling: touch; flex-wrap: nowrap !important; }
       .tabs::-webkit-scrollbar { display: none; }
 
-      /* Funding table — horizontal scroll */
+      /* Funding table scroll */
       .fr-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
-      /* OI signal wrap */
-      .oi-signal-wrap { flex-direction: column; align-items: flex-start; }
+      /* Images full width */
+      #heatmapImg, #liqMapImg { width: 100% !important; height: auto !important; max-width: 100% !important; }
 
-      /* Heatmap img */
-      #heatmapImg, #liqMapImg { width: 100%; height: auto !important; }
+      /* Halving spiral wrap */
+      #halving-spiral .card { overflow: hidden; }
     }
 
     @media (max-width: 480px) {
-      .oi-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
-      .content { padding: 12px; gap: 12px; }
-      .card { padding: 14px 12px; }
+      .oi-grid { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
       .top-header { height: 52px; }
       .header-btc { display: none; }
+      .card-title, h3.card-title { font-size: 16px !important; }
     }
   </style>
 </head>
