@@ -468,6 +468,93 @@
     .footer-bottom { display: flex; align-items: center; justify-content: space-between; padding: 14px 56px; }
     .footer-copy { font-size: 11px; color: #3a3a3a; font-weight: 600; }
     .footer-disclaimer { font-size: 10px; color: #2e2e2e; font-weight: 500; max-width: 480px; text-align: right; line-height: 1.5; }
+
+    /* ── MOBILE HAMBURGER BUTTON ── */
+    .mob-menu-btn {
+      display: none; position: fixed; top: 12px; left: 12px; z-index: 1100;
+      width: 40px; height: 40px; border-radius: 10px;
+      background: #111; border: 1px solid #222;
+      cursor: pointer; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+    }
+    .mob-menu-btn span { display: block; width: 18px; height: 2px; background: #aaa; border-radius: 2px; transition: all .2s; }
+
+    /* ── MOBILE OVERLAY ── */
+    .mob-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 900;
+    }
+
+    /* ── RESPONSIVE BREAKPOINTS ── */
+    @media (max-width: 900px) {
+      /* Sidebar off-screen by default */
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform .25s ease;
+        z-index: 1000;
+        box-shadow: 4px 0 24px rgba(0,0,0,.6);
+      }
+      .sidebar.open { transform: translateX(0); }
+
+      /* Show hamburger */
+      .mob-menu-btn { display: flex; }
+
+      /* Overlay visible when sidebar open */
+      .mob-overlay.open { display: block; }
+
+      /* Main fills full width */
+      .main { margin-left: 0; }
+
+      /* Top header padding for hamburger */
+      .top-header { padding-left: 60px; }
+
+      /* Grid layouts → single column */
+      .grid-2, .grid-3 { grid-template-columns: 1fr; gap: 16px; }
+
+      /* OI grid 4-col → 2-col */
+      .oi-grid { grid-template-columns: repeat(2, 1fr); }
+
+      /* Stats row → wrap */
+      .stats-row { flex-wrap: wrap; }
+      .stat-box { flex: 1 1 45%; min-width: 0; }
+
+      /* Content padding */
+      .content { padding: 16px; gap: 16px; }
+
+      /* Cards */
+      .card { padding: 18px 16px; }
+      .card-title, h3.card-title { font-size: 18px; }
+
+      /* Chart heights on mobile */
+      #priceChart, #hrChart, #rbChart, #s2fChart, #mvrvChart, #m2Chart { height: 240px !important; }
+      #spiralCanvas { width: 100% !important; height: auto !important; }
+
+      /* Header nav — hide text links, keep logo + BTC price */
+      .header-nav { display: none; }
+      .header-btc { font-size: 13px; }
+
+      /* Team grid */
+      .team-grid { grid-template-columns: 1fr !important; }
+
+      /* Tabs — scrollable */
+      .tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .tabs::-webkit-scrollbar { display: none; }
+
+      /* Funding table — horizontal scroll */
+      .fr-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+      /* OI signal wrap */
+      .oi-signal-wrap { flex-direction: column; align-items: flex-start; }
+
+      /* Heatmap img */
+      #heatmapImg, #liqMapImg { width: 100%; height: auto !important; }
+    }
+
+    @media (max-width: 480px) {
+      .oi-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .content { padding: 12px; gap: 12px; }
+      .card { padding: 14px 12px; }
+      .top-header { height: 52px; }
+      .header-btc { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -475,7 +562,13 @@
 <!-- ═══════════════════════════════════════
      SIDEBAR
 ═══════════════════════════════════════ -->
-<aside class="sidebar">
+<!-- Mobile hamburger -->
+<button class="mob-menu-btn" id="mobMenuBtn" aria-label="Open menu">
+  <span></span><span></span><span></span>
+</button>
+<div class="mob-overlay" id="mobOverlay"></div>
+
+<aside class="sidebar" id="sidebar">
   <nav class="sidebar-nav">
 
     <div class="nav-section">
@@ -769,7 +862,7 @@
           <span class="fr-sum-val" id="frSentiment">—</span>
         </div>
       </div>
-      <table class="fr-table">
+      <div class="fr-table-wrap"><table class="fr-table">
         <thead><tr>
           <th>Exchange</th>
           <th>Interval</th>
@@ -777,7 +870,7 @@
           <th>Rate</th>
         </tr></thead>
         <tbody id="frTableBody"></tbody>
-      </table>
+      </table></div>
       <div class="watermark">bitcoinintel.xyz</div>
     </div>
 
@@ -2882,6 +2975,37 @@
     setTimeout(loadLiqHeatmap, 5 * 60 * 1000);
   }
   document.head.appendChild(adapterScript);
+</script>
+
+<script>
+/* ── MOBILE SIDEBAR TOGGLE ── */
+(function() {
+  const btn = document.getElementById('mobMenuBtn');
+  const overlay = document.getElementById('mobOverlay');
+  const sidebar = document.getElementById('sidebar');
+  if (!btn || !sidebar) return;
+
+  function openSidebar() {
+    sidebar.classList.add('open');
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeSidebar() {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  btn.addEventListener('click', openSidebar);
+  overlay.addEventListener('click', closeSidebar);
+
+  // Close sidebar when a nav link is clicked on mobile
+  sidebar.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', function() {
+      if (window.innerWidth <= 900) closeSidebar();
+    });
+  });
+})();
 </script>
 </body>
 </html>
