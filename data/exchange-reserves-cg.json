@@ -1,15 +1,15 @@
 {
   "source": "coinglass",
   "sourceUrl": "https://www.coinglass.com/Balance",
-  "totalBTC": 2563235,
+  "totalBTC": 2564512,
   "exchangeCount": 6,
   "topBalances": [
-    862455.2,
-    613903.13,
-    430298.29,
-    404476.68,
-    145497.28,
-    106604.69
+    855791.22,
+    611924.38,
+    449610.47,
+    405710.94,
+    139747.56,
+    101727.48
   ],
-  "updatedAt": "2026-04-20T11:10:19.115Z"
+  "updatedAt": "2026-04-27T11:04:50.143Z"
 }
