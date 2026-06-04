@@ -608,12 +608,6 @@
     </div>
 
     <div class="nav-section">
-      <div class="nav-section-label">Derivatives</div>
-      <a class="nav-link" href="#open-interest"><span class="nav-icon">📊</span>Open Interest<span class="live-badge"></span></a>
-      <a class="nav-link" href="#funding-rate"><span class="nav-icon">💸</span>Funding Rate<span class="live-badge"></span></a>
-    </div>
-
-    <div class="nav-section">
       <div class="nav-section-label">Liquidations</div>
       <a class="nav-link" href="#liquidations"><span class="nav-icon">💥</span>Liquidations Rekt<span class="live-badge"></span></a>
       <a class="nav-link" href="#liq-map"><span class="nav-icon">🗺️</span>Bitcoin Liq Map<span class="live-badge"></span></a>
@@ -661,7 +655,6 @@
   </a>
   <nav class="header-nav">
     <a href="#btc-price" class="active">Price &amp; Market</a>
-    <a href="#open-interest">Derivatives</a>
     <a href="#hash-rate">On-Chain</a>
     <a href="#halving-spiral">Advanced</a>
     <a href="#team">Team</a>
@@ -694,8 +687,7 @@
     <h2>Bitcoin Halving Countdown</h2>
     <h2>Bitcoin Mining Cost</h2>
     <h2>Bitcoin Liquidations</h2>
-    <h2>Bitcoin Open Interest</h2>
-    <h2>Bitcoin Funding Rate</h2>
+
     <h2>BTC vs M2 Money Supply</h2>
     <h2>US National Debt Clock</h2>
     <p>Bitcoin Intel XYZ is a free, real-time Bitcoin data dashboard. Track the live Bitcoin price today, Bitcoin dominance, Stock-to-Flow model, Rainbow Chart price zones, MVRV Z-Score, Fear and Greed Index, hash rate, halving countdown, liquidations, and more. No account required.</p>
@@ -866,95 +858,6 @@
 
   </div><!-- /grid-2 -->
 
-  <!-- ── OPEN INTEREST + FUNDING RATE ── -->
-  <div class="grid-2" style="display:block;width:100%;">
-
-    <div class="card section-anchor" id="open-interest">
-      <h3 class="card-title">BTC Open Interest</h3>
-      <div class="site-sub" style="margin-bottom:18px;">bitcoinintel.xyz</div>
-      <div class="oi-grid">
-        <div class="oi-stat">
-          <div class="oi-stat-label">Total OI</div>
-          <div class="oi-stat-val" id="oiTotal">—</div>
-          <div class="oi-stat-sub" id="oiChange24">—</div>
-        </div>
-        <div class="oi-stat">
-          <div class="oi-stat-label">1H Change</div>
-          <div class="oi-stat-val" id="oiChange1h">—</div>
-          <div class="oi-stat-sub" style="color:#555;font-size:11px;">open interest</div>
-        </div>
-        <div class="oi-stat">
-          <div class="oi-stat-label">4H Change</div>
-          <div class="oi-stat-val" id="oiChange4h">—</div>
-          <div class="oi-stat-sub" style="color:#555;font-size:11px;">open interest</div>
-        </div>
-        <div class="oi-stat">
-          <div class="oi-stat-label">OI/Vol Ratio</div>
-          <div class="oi-stat-val" id="oiRatio">—</div>
-          <div class="oi-stat-sub" style="color:#555;font-size:11px;">leverage indicator</div>
-        </div>
-      </div>
-      <div class="oi-grid" style="grid-template-columns:1fr 1fr;margin-bottom:16px;">
-        <div class="oi-stat">
-          <div class="oi-stat-label">24H Volume</div>
-          <div class="oi-stat-val" id="oiVol">—</div>
-          <div class="oi-stat-sub" id="oiVolChange">—</div>
-        </div>
-        <div class="oi-stat">
-          <div class="oi-stat-label">Avg Funding Rate</div>
-          <div class="oi-stat-val" id="oiAvgFunding">—</div>
-          <div class="oi-stat-sub" style="color:#555;font-size:11px;">across exchanges</div>
-        </div>
-      </div>
-
-      <!-- OI % Market Cap -->
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#0a0a0a;border-radius:8px;margin-bottom:10px;">
-        <div>
-          <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#555;margin-bottom:3px;">OI as % of Market Cap</div>
-          <div style="font-size:11px;color:#444;font-weight:600;">Higher = more leveraged market</div>
-        </div>
-        <div style="text-align:right;">
-          <div style="font-size:26px;font-weight:900;color:#F7931A;letter-spacing:-.02em;" id="oiMcapPct">—</div>
-          <div style="font-size:10px;font-weight:600;color:#444;" id="oiMcapNote">of BTC market cap in futures</div>
-        </div>
-      </div>
-
-      <!-- Market Signal -->
-      <div style="padding:12px 14px;background:#0a0a0a;border-radius:8px;border-left:3px solid #222;" id="oiSignalWrap">
-        <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#555;margin-bottom:6px;">Market Signal</div>
-        <div style="font-size:15px;font-weight:800;letter-spacing:-.01em;" id="oiSignalLabel">—</div>
-        <div style="font-size:11px;color:#555;font-weight:600;margin-top:4px;line-height:1.5;" id="oiSignalDesc">—</div>
-      </div>
-
-      <div class="watermark">bitcoinintel.xyz</div>
-    </div>
-
-    <div class="card section-anchor" id="funding-rate">
-      <h3 class="card-title">BTC Funding Rate</h3>
-      <div class="site-sub" style="margin-bottom:6px;">bitcoinintel.xyz</div>
-      <div class="fr-summary" style="margin-bottom:16px;">
-        <div class="fr-sum-item">
-          <span class="fr-sum-label">Avg Rate</span>
-          <span class="fr-sum-val" id="frAvg">—</span>
-        </div>
-        <div class="fr-sum-item">
-          <span class="fr-sum-label">Sentiment</span>
-          <span class="fr-sum-val" id="frSentiment">—</span>
-        </div>
-      </div>
-      <div class="fr-table-wrap"><table class="fr-table">
-        <thead><tr>
-          <th>Exchange</th>
-          <th>Interval</th>
-          <th>Next</th>
-          <th>Rate</th>
-        </tr></thead>
-        <tbody id="frTableBody"></tbody>
-      </table></div>
-      <div class="watermark">bitcoinintel.xyz</div>
-    </div>
-
-  </div><!-- /grid-2 derivatives -->
 
   <!-- ── LIQUIDATIONS ── -->
   <div class="card section-anchor" id="liquidations">
@@ -2740,8 +2643,7 @@
     'fear-greed':     () => loadFearGreed(),
     'dominance':      () => loadDominance(),
     'market-overview':() => { /* loaded by dominance */ },
-    'open-interest':  () => loadOpenInterest(),
-    'funding-rate':   () => loadFundingRate(),
+
     'liquidations':   () => loadLiquidations(),
     'liq-map':        () => loadLiqMap(),
     'liq-heatmap':    () => loadLiqHeatmap(),
@@ -2766,7 +2668,7 @@
   }
 
   // Sections to load immediately (above the fold + first scroll)
-  const _eager = ['btc-price', 'expected-move', 'fear-greed', 'dominance', 'market-overview', 'open-interest', 'funding-rate', 'liquidations', 'liq-map', 'liq-heatmap'];
+  const _eager = ['btc-price', 'expected-move', 'fear-greed', 'dominance', 'market-overview', 'liquidations', 'liq-map', 'liq-heatmap'];
 
   const adapterScript = document.createElement('script');
   adapterScript.src = 'https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js';
