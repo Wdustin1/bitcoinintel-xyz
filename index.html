@@ -601,6 +601,7 @@
     <div class="nav-section">
       <div class="nav-section-label">Price &amp; Market</div>
       <a class="nav-link active" href="#btc-price"><span class="nav-icon">📈</span>BTC Price<span class="live-badge"></span></a>
+      <a class="nav-link" href="#expected-move"><span class="nav-icon">📏</span>Expected Move<span class="live-badge"></span></a>
       <a class="nav-link" href="#fear-greed"><span class="nav-icon">😰</span>Fear &amp; Greed<span class="live-badge"></span></a>
       <a class="nav-link" href="#dominance"><span class="nav-icon">👑</span>BTC Dominance<span class="live-badge"></span></a>
       <a class="nav-link" href="#market-overview"><span class="nav-icon">📊</span>Market Overview<span class="live-badge"></span></a>
@@ -722,6 +723,58 @@
       <div class="stat"><div class="stat-label">Open</div><div class="stat-value" id="pOpen">—</div></div>
       <div class="stat"><div class="stat-label">Market Cap</div><div class="stat-value" id="pMcap">—</div></div>
       <div class="stat"><div class="stat-label">24h Volume</div><div class="stat-value" id="pVol">—</div></div>
+    </div>
+    <div class="watermark">bitcoinintel.xyz</div>
+  </div>
+
+  <!-- ── WEEKLY EXPECTED MOVE ── -->
+  <div class="card section-anchor" id="expected-move">
+    <div class="card-header">
+      <div>
+        <div class="card-label">Options Market</div>
+        <h3 class="card-title">Weekly Expected Move</h3>
+        <div class="card-sub">Options-implied BTC price range for the next 7 days</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="card-label">DVOL (30D IV)</div>
+        <div class="card-title" id="em-dvol" style="color:var(--accent);">—</div>
+      </div>
+    </div>
+
+    <!-- Range bar -->
+    <div style="margin:8px 0 24px; position:relative;">
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+        <div>
+          <div class="card-label">Lower Band</div>
+          <div style="font-size:18px; font-weight:800; color:#ef4444;" id="em-lower">—</div>
+        </div>
+        <div style="text-align:center;">
+          <div class="card-label">Current Price</div>
+          <div style="font-size:18px; font-weight:800;" id="em-price">—</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="card-label">Upper Band</div>
+          <div style="font-size:18px; font-weight:800; color:#22c55e;" id="em-upper">—</div>
+        </div>
+      </div>
+      <!-- Visual range track -->
+      <div style="position:relative; height:10px; border-radius:99px; background:#1e1e1e; overflow:hidden;">
+        <div id="em-track-fill" style="position:absolute; height:100%; border-radius:99px; background:linear-gradient(90deg,#ef4444 0%,#f97316 30%,#22c55e 70%,#16a34a 100%); left:10%; width:80%;"></div>
+        <div id="em-cursor" style="position:absolute; top:-3px; width:4px; height:16px; background:#fff; border-radius:2px; transform:translateX(-50%); left:50%;"></div>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-top:6px;">
+        <span style="font-size:11px; color:var(--sub);" id="em-lower-pct">—</span>
+        <span style="font-size:11px; color:var(--sub);" id="em-range-label">±— expected range</span>
+        <span style="font-size:11px; color:var(--sub);" id="em-upper-pct">—</span>
+      </div>
+    </div>
+
+    <!-- Stats row -->
+    <div class="stats-row">
+      <div class="stat"><div class="stat-label">Implied Vol (DVOL)</div><div class="stat-value" id="em-dvol-stat">—</div></div>
+      <div class="stat"><div class="stat-label">Weekly Move ±$</div><div class="stat-value" id="em-move-usd">—</div></div>
+      <div class="stat"><div class="stat-label">Weekly Move ±%</div><div class="stat-value" id="em-move-pct">—</div></div>
+      <div class="stat"><div class="stat-label">Source</div><div class="stat-value">Deribit DVOL</div></div>
     </div>
     <div class="watermark">bitcoinintel.xyz</div>
   </div>
@@ -2627,6 +2680,55 @@
     } catch(e) { console.error('Rainbow error:', e); }
   }
 
+  // ════════════════════════════════════════
+  // WEEKLY EXPECTED MOVE
+  // ════════════════════════════════════════
+  async function loadExpectedMove() {
+    try {
+      // Fetch DVOL (Deribit 30-day Bitcoin Implied Volatility Index)
+      const now   = Date.now();
+      const start = now - 2 * 3600 * 1000; // 2 hours ago
+      const [dvolRes, priceRes] = await Promise.all([
+        fetch(`https://www.deribit.com/api/v2/public/get_volatility_index_data?currency=BTC&start_timestamp=${start}&end_timestamp=${now}&resolution=3600`),
+        fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd'),
+      ]);
+      const dvolData  = await dvolRes.json();
+      const priceData = await priceRes.json();
+
+      // result.data is array of [timestamp, open, high, low, close] — take latest close
+      const candles = dvolData.result.data;
+      const dvol    = candles[candles.length - 1][4]; // latest close = current DVOL %
+      const price = priceData.bitcoin.usd;
+
+      // Weekly Expected Move = Price × (IV/100) × √(7/365)
+      const weeklyMove = price * (dvol / 100) * Math.sqrt(7 / 365);
+      const upper      = price + weeklyMove;
+      const lower      = price - weeklyMove;
+      const movePct    = (weeklyMove / price) * 100;
+
+      const fmt  = v => '$' + Math.round(v).toLocaleString();
+      const fmtK = v => v >= 1000 ? '$' + (v / 1000).toFixed(1) + 'K' : '$' + Math.round(v).toLocaleString();
+
+      document.getElementById('em-dvol').textContent      = dvol.toFixed(1) + '%';
+      document.getElementById('em-price').textContent     = fmt(price);
+      document.getElementById('em-upper').textContent     = fmt(upper);
+      document.getElementById('em-lower').textContent     = fmt(lower);
+      document.getElementById('em-dvol-stat').textContent = dvol.toFixed(1) + '%';
+      document.getElementById('em-move-usd').textContent  = '±' + fmtK(weeklyMove);
+      document.getElementById('em-move-pct').textContent  = '±' + movePct.toFixed(1) + '%';
+      document.getElementById('em-range-label').textContent = '±' + movePct.toFixed(1) + '% expected range';
+      document.getElementById('em-lower-pct').textContent = '-' + movePct.toFixed(1) + '%';
+      document.getElementById('em-upper-pct').textContent = '+' + movePct.toFixed(1) + '%';
+
+      // Position the cursor on the range track (price is always center = 50%)
+      document.getElementById('em-cursor').style.left = '50%';
+
+    } catch (e) {
+      console.error('[expectedMove]', e);
+      document.getElementById('em-dvol').textContent = 'N/A';
+    }
+  }
+
   // ── Boot ──
   // Track which sections have already been loaded
   const _loaded = new Set();
@@ -2634,6 +2736,7 @@
   // Map section id → loader function
   const _loaders = {
     'btc-price':      () => loadPrice(7),
+    'expected-move':  () => loadExpectedMove(),
     'fear-greed':     () => loadFearGreed(),
     'dominance':      () => loadDominance(),
     'market-overview':() => { /* loaded by dominance */ },
@@ -2663,7 +2766,7 @@
   }
 
   // Sections to load immediately (above the fold + first scroll)
-  const _eager = ['btc-price', 'fear-greed', 'dominance', 'market-overview', 'open-interest', 'funding-rate', 'liquidations', 'liq-map', 'liq-heatmap'];
+  const _eager = ['btc-price', 'expected-move', 'fear-greed', 'dominance', 'market-overview', 'open-interest', 'funding-rate', 'liquidations', 'liq-map', 'liq-heatmap'];
 
   const adapterScript = document.createElement('script');
   adapterScript.src = 'https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js';
