@@ -1512,16 +1512,19 @@
   // ════════════════════════════════════════
   async function loadDominance() {
     try {
-      const res  = await fetch('/api/dominance');
-      const data = await res.json();
-      const dom     = data.dominance;
-      const usdtDom = data.usdtDominance || 0;
+      // Pull directly from CoinGecko — bypasses server-side /api/dominance
+      const res  = await fetch('https://api.coingecko.com/api/v3/global');
+      const json = await res.json();
+      const d    = json.data;
+      const dom     = d.market_cap_percentage.btc || 0;
+      const usdtDom = d.market_cap_percentage.usdt || 0;
+      const totalMcap = d.total_market_cap.usd || 0;
       document.getElementById('domValue').textContent     = dom.toFixed(1)+'%';
       document.getElementById('domBar').style.width       = dom+'%';
       document.getElementById('usdtDomValue').textContent = usdtDom.toFixed(1)+'%';
       document.getElementById('usdtDomBar').style.width   = usdtDom+'%';
-      document.getElementById('mTotal').textContent       = fmtB(data.totalMarketCap);
-    } catch(e) { console.error(e); }
+      document.getElementById('mTotal').textContent       = fmtB(totalMcap);
+    } catch(e) { console.error('[dominance]', e); }
   }
 
   // ════════════════════════════════════════
