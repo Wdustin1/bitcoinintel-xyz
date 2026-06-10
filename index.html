@@ -603,6 +603,8 @@
       <a class="nav-link active" href="#btc-price"><span class="nav-icon">📈</span>BTC Price<span class="live-badge"></span></a>
       <a class="nav-link" href="#expected-move"><span class="nav-icon">📏</span>Expected Move<span class="live-badge"></span></a>
       <a class="nav-link" href="#fear-greed"><span class="nav-icon">😰</span>Fear &amp; Greed<span class="live-badge"></span></a>
+      <a class="nav-link" href="#realized-price"><span class="nav-icon">💎</span>Realized Price<span class="live-badge"></span></a>
+      <a class="nav-link" href="#balance-price"><span class="nav-icon">📉</span>200-Week MA<span class="live-badge"></span></a>
       <a class="nav-link" href="#dominance"><span class="nav-icon">👑</span>BTC Dominance<span class="live-badge"></span></a>
       <a class="nav-link" href="#market-overview"><span class="nav-icon">📊</span>Market Overview<span class="live-badge"></span></a>
     </div>
@@ -804,6 +806,57 @@
     </div>
     <div class="watermark">bitcoinintel.xyz</div>
   </div>
+
+  <!-- ── REALIZED PRICE + BALANCE PRICE (2-col) ── -->
+  <div class="grid-2" style="display:block;width:100%;">
+
+    <div class="card section-anchor" id="realized-price">
+      <div class="card-header" style="margin-bottom:10px;">
+        <div>
+          <div class="card-label">On-Chain Cost Basis</div>
+          <h3 class="card-title">Realized Price</h3>
+          <div class="card-sub">Average price all BTC last moved on-chain</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="card-label">vs Market</div>
+          <div class="card-title" id="rp-mvrv" style="color:var(--accent);">—</div>
+        </div>
+      </div>
+      <div style="font-size:42px;font-weight:900;letter-spacing:-.03em;margin:16px 0 4px;" id="rp-value">—</div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:20px;" id="rp-signal">—</div>
+      <div class="stats-row">
+        <div class="stat"><div class="stat-label">Current Price</div><div class="stat-value" id="rp-market">—</div></div>
+        <div class="stat"><div class="stat-label">MVRV Ratio</div><div class="stat-value" id="rp-mvrv-stat">—</div></div>
+        <div class="stat"><div class="stat-label">Premium</div><div class="stat-value" id="rp-premium">—</div></div>
+        <div class="stat"><div class="stat-label">Source</div><div class="stat-value">CoinMetrics</div></div>
+      </div>
+      <div class="watermark">bitcoinintel.xyz</div>
+    </div>
+
+    <div class="card section-anchor" id="balance-price">
+      <div class="card-header" style="margin-bottom:10px;">
+        <div>
+          <div class="card-label">Long-Term Support</div>
+          <h3 class="card-title">200-Week MA</h3>
+          <div class="card-sub">Historical long-term price floor — never broken on a weekly close</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="card-label">vs Market</div>
+          <div class="card-title" id="bp-pct" style="color:var(--accent);">—</div>
+        </div>
+      </div>
+      <div style="font-size:42px;font-weight:900;letter-spacing:-.03em;margin:16px 0 4px;" id="bp-value">—</div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:20px;" id="bp-signal">—</div>
+      <div class="stats-row">
+        <div class="stat"><div class="stat-label">Current Price</div><div class="stat-value" id="bp-market">—</div></div>
+        <div class="stat"><div class="stat-label">200W MA</div><div class="stat-value" id="bp-ma">—</div></div>
+        <div class="stat"><div class="stat-label">Premium</div><div class="stat-value" id="bp-premium">—</div></div>
+        <div class="stat"><div class="stat-label">Source</div><div class="stat-value">Blockchain.info</div></div>
+      </div>
+      <div class="watermark">bitcoinintel.xyz</div>
+    </div>
+
+  </div><!-- /grid-2 realized+balance -->
 
   <!-- ── DOMINANCE + MARKET (2-col) ── -->
   <div class="grid-2" style="display:block;width:100%;">
@@ -2587,6 +2640,85 @@
   }
 
   // ════════════════════════════════════════
+  // REALIZED PRICE + 200-WEEK MA
+  // ════════════════════════════════════════
+  function fmtPrice(n) {
+    return '$' + Math.round(n).toLocaleString();
+  }
+
+  async function loadRealizedAndBalance() {
+    try {
+      const [cmRes, bhRes] = await Promise.all([
+        fetch('https://community-api.coinmetrics.io/v4/timeseries/asset-metrics?assets=btc&metrics=CapMVRVCur,PriceUSD&frequency=1d&limit_per_asset=1&pretty=false'),
+        fetch('https://api.blockchain.info/charts/market-price?timespan=1400days&format=json&cors=true'),
+      ]);
+
+      // ── Realized Price ──
+      const cmData      = await cmRes.json();
+      const latest      = cmData.data[0];
+      const mvrv        = parseFloat(latest.CapMVRVCur);
+      const marketPrice = parseFloat(latest.PriceUSD);
+      const realizedPrice = marketPrice / mvrv;
+      const premium       = ((marketPrice - realizedPrice) / realizedPrice) * 100;
+
+      document.getElementById('rp-value').textContent    = fmtPrice(realizedPrice);
+      document.getElementById('rp-market').textContent   = fmtPrice(marketPrice);
+      document.getElementById('rp-mvrv').textContent     = mvrv.toFixed(2) + 'x';
+      document.getElementById('rp-mvrv-stat').textContent = mvrv.toFixed(2) + 'x';
+      document.getElementById('rp-premium').textContent  = (premium >= 0 ? '+' : '') + premium.toFixed(1) + '%';
+
+      const rpSignalEl = document.getElementById('rp-signal');
+      if (mvrv < 1) {
+        rpSignalEl.textContent = '🟢 Below realized — historically deep value territory';
+        rpSignalEl.style.color = '#22c55e';
+      } else if (mvrv < 1.5) {
+        rpSignalEl.textContent = '🟡 Slightly above realized — healthy accumulation zone';
+        rpSignalEl.style.color = '#eab308';
+      } else if (mvrv < 3) {
+        rpSignalEl.textContent = '🟠 Elevated premium — bull market territory';
+        rpSignalEl.style.color = '#f97316';
+      } else {
+        rpSignalEl.textContent = '🔴 High premium — historically near cycle tops';
+        rpSignalEl.style.color = '#ef4444';
+      }
+
+      // ── 200-Week MA ──
+      const bhData   = await bhRes.json();
+      const allPrices = bhData.values.map(v => v.y);
+      // Group into weekly buckets
+      const weekly = [];
+      for (let i = 0; i < allPrices.length; i += 7) {
+        const chunk = allPrices.slice(i, i + 7);
+        weekly.push(chunk.reduce((a, b) => a + b, 0) / chunk.length);
+      }
+      const ma200 = weekly.slice(-200).reduce((a, b) => a + b, 0) / Math.min(200, weekly.length);
+      const bpPremium = ((marketPrice - ma200) / ma200) * 100;
+
+      document.getElementById('bp-value').textContent    = fmtPrice(ma200);
+      document.getElementById('bp-market').textContent   = fmtPrice(marketPrice);
+      document.getElementById('bp-ma').textContent       = fmtPrice(ma200);
+      document.getElementById('bp-pct').textContent      = (bpPremium >= 0 ? '+' : '') + bpPremium.toFixed(1) + '%';
+      document.getElementById('bp-premium').textContent  = (bpPremium >= 0 ? '+' : '') + bpPremium.toFixed(1) + '%';
+
+      const bpSignalEl = document.getElementById('bp-signal');
+      if (bpPremium < 0) {
+        bpSignalEl.textContent = '🟢 Below 200W MA — has never happened on weekly close';
+        bpSignalEl.style.color = '#22c55e';
+      } else if (bpPremium < 50) {
+        bpSignalEl.textContent = '🟡 Near 200W MA — historically strong support zone';
+        bpSignalEl.style.color = '#eab308';
+      } else if (bpPremium < 150) {
+        bpSignalEl.textContent = '🟠 Extended above 200W MA — mid bull market range';
+        bpSignalEl.style.color = '#f97316';
+      } else {
+        bpSignalEl.textContent = '🔴 Far above 200W MA — late cycle territory historically';
+        bpSignalEl.style.color = '#ef4444';
+      }
+
+    } catch(e) { console.error('[realized/balance]', e); }
+  }
+
+  // ════════════════════════════════════════
   // WEEKLY EXPECTED MOVE
   // ════════════════════════════════════════
   async function loadExpectedMove() {
@@ -2644,6 +2776,8 @@
     'btc-price':      () => loadPrice(7),
     'expected-move':  () => loadExpectedMove(),
     'fear-greed':     () => loadFearGreed(),
+    'realized-price': () => loadRealizedAndBalance(),
+    'balance-price':  () => loadRealizedAndBalance(),
     'dominance':      () => loadDominance(),
     'market-overview':() => { /* loaded by dominance */ },
 
@@ -2671,7 +2805,7 @@
   }
 
   // Sections to load immediately (above the fold + first scroll)
-  const _eager = ['btc-price', 'expected-move', 'fear-greed', 'dominance', 'market-overview', 'liquidations', 'liq-map', 'liq-heatmap'];
+  const _eager = ['btc-price', 'expected-move', 'fear-greed', 'realized-price', 'dominance', 'market-overview', 'liquidations', 'liq-map', 'liq-heatmap'];
 
   const adapterScript = document.createElement('script');
   adapterScript.src = 'https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js';
